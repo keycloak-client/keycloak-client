@@ -6,7 +6,7 @@ setup(
     version='1.0.0',
     description='Keycloak client',
     long_description='Client application to interact with Keycloak server',
-    url='https://github.pie.apple.com/shibashis-dutta/gbiml.git',
+    url='https://github.com/akhilputhiry/keycloak-client',
     author='Akhil Lawrence',
     author_email='akhilputhiry@gmail.com',
     classifiers=[
