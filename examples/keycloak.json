@@ -1,0 +1,8 @@
+{
+  "client_id": "",
+  "client_secret": "",
+  "redirect_uri": "http://localhost:5000/callback",
+  "authorization_endpoint": "https://keycloak-server.com/auth/realms/my-realm/protocol/openid-connect/auth",
+  "token_endpoint": "https://keycloak-server.com/auth/realms/my-realm/protocol/openid-connect/token",
+  "introspection_endpoint": "https://keycloak-server.com/auth/realms/my-realm/protocol/openid-connect/token/introspect"
+}
