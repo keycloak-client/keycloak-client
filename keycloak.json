@@ -1,0 +1,8 @@
+{
+  "client_id": "flask-app",
+  "client_secret": "1f49f057-bbf9-4389-a90f-3c5972f5564a",
+  "redirect_uri": "http://localhost:5000/callback",
+  "authorization_endpoint": "https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/auth",
+  "token_endpoint": "https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/token",
+  "introspection_endpoint": "https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/token/introspect"
+}
