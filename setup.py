@@ -15,6 +15,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
+        'cryptography==2.6.1',
         'pyjwt==1.7.1',
         'requests==2.21.0',
     ],
