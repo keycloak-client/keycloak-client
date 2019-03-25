@@ -1,11 +1,11 @@
 #! -*- coding: utf-8 -*-
-import os
 import json
+import os
 
-from .jwt import JwtMixin
-from .openid import OpenIdMixin
 from .authorization import AuthorizationMixin
+from .openid import OpenIdMixin
 from .resource import ResourceMixin
+from .token import JwtMixin
 
 
 class KeycloakClient(JwtMixin, OpenIdMixin, AuthorizationMixin, ResourceMixin):
