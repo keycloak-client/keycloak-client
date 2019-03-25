@@ -1,0 +1,10 @@
+language: python
+
+install:
+  - make install
+
+jobs:
+  include:
+    - stage: "test"
+      name: "Unit Tests"
+      script: make test
