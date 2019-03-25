@@ -1,4 +1,4 @@
-.PHONY: clean install _build build upload
+.PHONY: clean install docs _build build upload
 
 clean:
 	find . -type f -name '*.pyc' -delete
@@ -6,6 +6,9 @@ clean:
 
 install:
 	pip install -e .
+
+docs:
+	pip install sphinx sphinx_rtd_theme
 
 _build:
 	python setup.py sdist bdist_wheel
