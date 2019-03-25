@@ -3,9 +3,15 @@ language: python
 python:
   - "3.6"
 
+before_install:
+  - pip install pip --upgrade
+
 install:
   - make install
 
 jobs:
   include:
-    - script: make test && codecov
+    - stage: Run test cases
+      script: make test
+    - stage: Upload coverage report
+      script: codecov
