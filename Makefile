@@ -6,7 +6,7 @@ clean:
 
 install:
 	pip install -e .
-	pip install sphinx sphinx_rtd_theme pytest pytest-cov codecov
+	pip install sphinx sphinx_rtd_theme pytest==4.3.1 pytest-cov==2.6.1 codecov==2.0.15
 
 test:
 	pytest --cov=keycloak tests/
