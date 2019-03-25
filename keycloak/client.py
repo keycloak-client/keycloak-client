@@ -210,3 +210,43 @@ class KeycloakClient(object):
         access_info = self.get_access_info(access_token)
         user_info.update(access_info)
         return user_info
+
+    def get_authorization_header(self):
+        """
+        Method to prepare the authorization header
+
+        Returns:
+            str
+        """
+
+        # construct authorization string
+        authorization = '{}:{}'.format(self.config['client_id'], self.config['client_secret'])
+
+        # convert to bytes
+        authorization = bytes(authorization, 'utf-8')
+
+        # perform base64 encoding
+        authorization = base64.b64encode(authorization)
+
+        # convert to str
+        authorization = authorization.decode('utf-8')
+
+        return 'Basic {}'.format(authorization)
+
+    def validate_access_token(self, access_token):
+        """
+        Method to introspect and validate access token
+
+        Args:
+             access_token (str): access token received
+        """
+        payload = {
+            'token_type_hint': 'access_token',
+            'token': access_token
+        }
+        headers = {
+            'Authorization': self.get_authorization_header()
+        }
+        response = requests.post(self.config['introspection_endpoint'], data=payload, headers=headers)
+        response.raise_for_status()
+        return response.json()
