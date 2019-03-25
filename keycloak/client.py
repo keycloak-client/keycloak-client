@@ -118,12 +118,12 @@ class KeycloakClient(object):
 
         return response.json()
 
-    def retrieve_rpt(self, access_token):
+    def retrieve_rpt(self, rpt):
         """
         Method to fetch the RPT
 
         Args:
-            access_token (str): access token received
+            rpt (str): RPT received
         """
 
         # prepare payload
@@ -134,7 +134,7 @@ class KeycloakClient(object):
 
         # prepare headers
         headers = {
-            'Authorization': 'Bearer {}'.format(access_token)
+            'Authorization': 'Bearer {}'.format(rpt)
         }
 
         # fetch RPT token
@@ -143,18 +143,18 @@ class KeycloakClient(object):
 
         return response.json()
 
-    def validate_rpt(self, access_token):
+    def validate_rpt(self, rpt):
         """
         Method to introspect and validate access token
 
         Args:
-             access_token (str): access token received
+             rpt (str): RPT received
         """
 
         # prepare payload
         payload = {
             'token_type_hint': 'requesting_party_token',
-            'token': access_token
+            'token': rpt
         }
 
         # prepare headers

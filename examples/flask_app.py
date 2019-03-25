@@ -13,43 +13,31 @@ app = Flask(__name__)
 
 @app.route('/login', methods=['GET'])
 def login():
-    """ Endpoint to initiate login """
+    """ Endpoint to initiate authentication """
     return redirect(keycloak_client.authentication_url)
 
 
 @app.route('/login-callback', methods=['GET'])
-def callback():
-    """ Endpoint to retrieve user tokens """
+def login_callback():
+    """ Endpoint to retrieve authentication tokens """
     code = request.args.get('code')
     tokens = keycloak_client.authentication_callback(code)
     return jsonify(tokens)
 
 
 @app.route('/retrieve-rpt', methods=['POST'])
-def rpt():
-    """ Endpoint to fetch RPT """
-
-    # validate input
-    access_token = request.json.get('access_token')
-    if access_token is None:
-        return Response('access_token missing', status=400)
-
-    # fetch RPT
-    result = keycloak_client.retrieve_rpt(access_token)
+def retrieve_rpt():
+    """ Endpoint to retrieve authorization tokens """
+    rpt = request.json.get('rpt')
+    result = keycloak_client.retrieve_rpt(rpt)
     return jsonify(result)
 
 
 @app.route('/introspect-rpt', methods=['POST'])
 def introspect_rpt():
-    """ Endpoint to introspect RPT """
-
-    # validate input
-    access_token = request.json.get('access_token')
-    if access_token is None:
-        return Response('access_token missing', status=400)
-
-    # validate RPT
-    result = keycloak_client.validate_rpt(access_token)
+    """ Endpoint to introspect/validate authorization tokens """
+    rpt = request.json.get('rpt')
+    result = keycloak_client.validate_rpt(rpt)
     return jsonify(result)
 
 
