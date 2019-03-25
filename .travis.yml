@@ -1,14 +1,11 @@
 language: python
 
 python:
-  - "3.5"
   - "3.6"
-  - "3.7"
 
 install:
   - make install
 
 jobs:
   include:
-    - script: make test
-      script: codecov
+    - script: make test && codecov
