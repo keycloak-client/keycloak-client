@@ -1,4 +1,4 @@
-.PHONY: clean install test  _build build upload
+.PHONY: clean install test _build build upload
 
 clean:
 	find . -type f -name '*.pyc' -delete

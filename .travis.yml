@@ -12,6 +12,4 @@ install:
 jobs:
   include:
     - stage: Run test cases
-      script: make test
-    - stage: Upload coverage report
-      script: codecov
+      script: make test && codecov
