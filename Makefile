@@ -1,4 +1,4 @@
-.PHONY: clean install docs _build build upload
+.PHONY: clean install test  _build build upload
 
 clean:
 	find . -type f -name '*.pyc' -delete
@@ -6,9 +6,10 @@ clean:
 
 install:
 	pip install -e .
+	pip install sphinx sphinx_rtd_theme pytest pytest-cov
 
-docs:
-	pip install sphinx sphinx_rtd_theme
+test:
+	pytest --cov=keycloak tests/
 
 _build:
 	python setup.py sdist bdist_wheel
