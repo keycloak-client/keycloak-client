@@ -1,7 +1,6 @@
 #! -*- coding: utf-8 -*-
-import requests
-from flask import Flask, request, redirect, jsonify, Response
 from keycloak import KeycloakClient
+from flask import Flask, request, redirect, jsonify
 
 
 # create keycloak client
@@ -50,7 +49,12 @@ def retrieve_pat():
 
 @app.route('/create-resource', methods=['GET'])
 def create_resource():
-    result = keycloak_client.create_resource('Notebook', ['create', 'read', 'update', 'delete'])
+    """ Endpoint to create resource """
+    result = keycloak_client.create_resource(
+        'Containers',
+        ['/containers/*', '/con/*'],
+        ['create', 'read', 'update', 'delete']
+    )
     return jsonify(result)
 
 

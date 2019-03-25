@@ -53,18 +53,20 @@ class ResourceMixin(object):
 
         return response.json()
 
-    def create_resource(self, name, scopes=[]):
+    def create_resource(self, name, uris=[], scopes=[]):
         """
         Method to create resource
 
         Args:
             name (str): name of the resource
+            uris (list): set of uris protected by the resource
             scopes (list): list of scopes
         """
 
         # prepare payload
         payload = {
             'name': name,
+            'uris': uris,
             'scopes': scopes,
         }
 

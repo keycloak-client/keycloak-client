@@ -7,7 +7,7 @@ from .authorization import AuthorizationMixin
 from .resource import ResourceMixin
 
 
-class KeycloakClient(AuthenticationMixin, AuthorizationMixin, ResourceMixin):
+class KeycloakClient(OpenIdMixin, AuthorizationMixin, ResourceMixin):
 
     def __init__(self, config_file=None):
         """
