@@ -4,7 +4,10 @@ import urllib
 import requests
 
 
-class AuthenticationMixin(object):
+class OpenIdMixin(object):
+    """
+    This class includes the methods to interact with the openid/authentication flow
+    """
 
     @property
     def authentication_url(self):

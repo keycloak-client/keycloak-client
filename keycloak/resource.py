@@ -3,7 +3,10 @@ import requests
 
 
 class ResourceMixin(object):
-    """ This class includes methods to interact with the protection api token (PAT) """
+    """
+    This class includes methods to interact with the protection api
+    For details see https://www.keycloak.org/docs/5.0/authorization_services/#_service_protection_api
+    """
 
     @property
     def pat(self):
@@ -29,7 +32,7 @@ class ResourceMixin(object):
 
         return response.json()
 
-    def create_resource(self, name=None, scopes=[]):
+    def create_resource(self, name, scopes=[]):
         """
         Method to create resource in the keycloak server
 

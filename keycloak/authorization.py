@@ -4,6 +4,10 @@ import requests
 
 
 class AuthorizationMixin(object):
+    """
+    This class include methods that interact with the authorization api
+    For details see https://www.keycloak.org/docs/5.0/authorization_services/index.html
+    """
 
     @property
     def basic_authorization_header(self):
@@ -28,12 +32,12 @@ class AuthorizationMixin(object):
 
         return 'Basic {}'.format(authorization)
 
-    def retrieve_rpt(self, rpt):
+    def retrieve_rpt(self, aat):
         """
-        Method to fetch the RPT
+        Method to fetch the request party token (RPT)
 
         Args:
-            rpt (str): RPT received
+            aat (str): authorization api token
         """
 
         # prepare payload
@@ -44,7 +48,7 @@ class AuthorizationMixin(object):
 
         # prepare headers
         headers = {
-            'Authorization': 'Bearer {}'.format(rpt)
+            'Authorization': 'Bearer {}'.format(aat)
         }
 
         # fetch RPT token
@@ -55,7 +59,7 @@ class AuthorizationMixin(object):
 
     def validate_rpt(self, rpt):
         """
-        Method to introspect and validate access token
+        Method to introspect and validate the request party token (RPT)
 
         Args:
              rpt (str): RPT received

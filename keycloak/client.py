@@ -2,7 +2,7 @@
 import os
 import json
 
-from .authentication import AuthenticationMixin
+from .openid import OpenIdMixin
 from .authorization import AuthorizationMixin
 from .resource import ResourceMixin
 
