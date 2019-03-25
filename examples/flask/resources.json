@@ -1,0 +1,12 @@
+[
+  {
+    "name": "student",
+    "uris": ["/student/*"],
+    "scopes": ["create", "read", "update", "delete"]
+  },
+  {
+    "name": "class",
+    "uris": ["/class/*"],
+    "scopes": ["create", "read", "update", "delete"]
+  }
+]

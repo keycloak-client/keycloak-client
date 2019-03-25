@@ -5,5 +5,6 @@
   "authentication_endpoint": "https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/auth",
   "token_endpoint": "https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/token",
   "introspection_endpoint": "https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/token/introspect",
-  "resource_endpoint": "https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/authz/protection/resource_set"
+  "resource_endpoint": "https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/authz/protection/resource_set",
+  "certs_endpoint": "https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/certs"
 }

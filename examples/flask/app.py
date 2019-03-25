@@ -1,14 +1,11 @@
 #! -*- coding: utf-8 -*-
+import json
 from keycloak import KeycloakClient
 from flask import Flask, request, redirect, jsonify
 
 
-# create keycloak client
-keycloak_client = KeycloakClient()
-
-
-# create flask app
 app = Flask(__name__)
+keycloak_client = KeycloakClient()
 
 
 @app.route('/login', methods=['GET'])
@@ -28,8 +25,8 @@ def login_callback():
 @app.route('/retrieve-rpt', methods=['POST'])
 def retrieve_rpt():
     """ Endpoint to retrieve authorization tokens """
-    rpt = request.json.get('rpt')
-    result = keycloak_client.retrieve_rpt(rpt)
+    aat = request.json.get('aat')
+    result = keycloak_client.retrieve_rpt(aat)
     return jsonify(result)
 
 
@@ -41,21 +38,18 @@ def introspect_rpt():
     return jsonify(result)
 
 
-@app.route('/retrieve-pat', methods=['GET'])
-def retrieve_pat():
-    """ Endpoint to retrieve protection api token (PAT) """
-    return jsonify(keycloak_client.pat)
+@app.cli.command()
+def create_resources():
+    """ command to register resources with keycloak """
 
+    # read resources from json
+    with open('resources.json', 'r') as f:
+        resources = f.read()
 
-@app.route('/create-resource', methods=['GET'])
-def create_resource():
-    """ Endpoint to create resource """
-    result = keycloak_client.create_resource(
-        'Containers',
-        ['/containers/*', '/con/*'],
-        ['create', 'read', 'update', 'delete']
-    )
-    return jsonify(result)
+    # create resources in the keycloak server
+    resources = json.loads(resources)
+    for item in resources:
+        keycloak_client.create_resource(item)
 
 
 if __name__ == '__main__':

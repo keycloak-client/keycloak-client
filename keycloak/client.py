@@ -2,12 +2,13 @@
 import os
 import json
 
+from .jwt import JwtMixin
 from .openid import OpenIdMixin
 from .authorization import AuthorizationMixin
 from .resource import ResourceMixin
 
 
-class KeycloakClient(OpenIdMixin, AuthorizationMixin, ResourceMixin):
+class KeycloakClient(JwtMixin, OpenIdMixin, AuthorizationMixin, ResourceMixin):
 
     def __init__(self, config_file=None):
         """
@@ -41,6 +42,7 @@ class KeycloakClient(OpenIdMixin, AuthorizationMixin, ResourceMixin):
         assert 'authentication_endpoint' in config
         assert 'token_endpoint' in config
         assert 'introspection_endpoint' in config
+        assert 'certs_endpoint' in config
 
         # load config to object
         self.config = config

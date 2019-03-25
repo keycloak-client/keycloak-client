@@ -53,27 +53,22 @@ class ResourceMixin(object):
 
         return response.json()
 
-    def create_resource(self, name, uris=[], scopes=[]):
+    def create_resource(self, resource={}):
         """
         Method to create resource
 
         Args:
-            name (str): name of the resource
-            uris (list): set of uris protected by the resource
-            scopes (list): list of scopes
+            resource (dict): resources to be created
+
+        example:
+        {
+            "name": "student",
+            "uris": ["/student/*"],
+            "scopes": ["create", "read", "update", "delete"]
+          }
         """
-
-        # prepare payload
-        payload = {
-            'name': name,
-            'uris': uris,
-            'scopes': scopes,
-        }
-
-        # create resource
-        response = requests.post(self.config['resource_endpoint'], json=payload, headers=self.headers)
+        response = requests.post(self.config['resource_endpoint'], json=resource, headers=self.headers)
         response.raise_for_status()
-
         return response.json()
 
     def read_resource(self, resource_id):
@@ -93,26 +88,20 @@ class ResourceMixin(object):
 
         return response.json()
 
-    def update_resource(self, resource_id, name, scopes=[]):
+    def update_resource(self, resource_id, resource):
         """
         Method to update resource
 
         Args:
             resource_id (str): id of the resource to be updated
-            name (str): name of the resource
-            scopes (list): list of scopes
+            resource (dict): resource to be updated
         """
-        # prepare payload
-        payload = {
-            'name': name,
-            'scopes': scopes,
-        }
 
         # prepare endpoint
         endpoint = self.config['resource_endpoint'] + resource_id
 
         # update resource
-        response = requests.get(endpoint, json=payload, headers=self.headers)
+        response = requests.get(endpoint, json=resource, headers=self.headers)
         response.raise_for_status()
 
         return response.json()
