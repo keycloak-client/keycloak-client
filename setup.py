@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='keycloak',
-    version='1.2.0',
+    version='1.3.0',
     description='Keycloak client',
     long_description='Client application to interact with Keycloak server',
     url='https://github.com/akhilputhiry/keycloak-client',
