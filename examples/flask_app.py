@@ -1,4 +1,5 @@
 #! -*- coding: utf-8 -*-
+import requests
 from flask import Flask, request, redirect, jsonify, Response
 from keycloak import KeycloakClient
 
@@ -38,6 +39,18 @@ def introspect_rpt():
     """ Endpoint to introspect/validate authorization tokens """
     rpt = request.json.get('rpt')
     result = keycloak_client.validate_rpt(rpt)
+    return jsonify(result)
+
+
+@app.route('/retrieve-pat', methods=['GET'])
+def retrieve_pat():
+    """ Endpoint to retrieve protection api token (PAT) """
+    return jsonify(keycloak_client.pat)
+
+
+@app.route('/create-resource', methods=['GET'])
+def create_resource():
+    result = keycloak_client.create_resource('Notebook', ['create', 'read', 'update', 'delete'])
     return jsonify(result)
 
 

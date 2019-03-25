@@ -4,5 +4,6 @@
   "redirect_uri": "http://localhost:5000/login-callback",
   "authentication_endpoint": "https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/auth",
   "token_endpoint": "https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/token",
-  "introspection_endpoint": "https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/token/introspect"
+  "introspection_endpoint": "https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/token/introspect",
+  "resource_endpoint": "https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/authz/protection/resource_set"
 }
