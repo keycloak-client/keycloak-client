@@ -5,6 +5,7 @@ import uuid
 import base64
 import urllib
 import requests
+from datetime import datetime
 
 
 class KeycloakClient(object):
@@ -21,7 +22,7 @@ class KeycloakClient(object):
         config_file = 'keycloak.json' if config_file is None else config_file
 
         # validate config file
-        if os.path.isfile(config_file) == False:
+        if not os.path.isfile(config_file):
             raise ValueError('Unable to find the config file in the given path')
 
         # read config file
@@ -44,7 +45,6 @@ class KeycloakClient(object):
 
         # load config to object
         self.config = config
-
 
     @property
     def login_url(self):
@@ -161,3 +161,52 @@ class KeycloakClient(object):
 
         # convert json to dict
         return json.loads(id_token)
+
+    @staticmethod
+    def get_user_info(id_token):
+        """
+        Method to parse user info from the id token
+
+        Args:
+            id_token (str): id token received
+
+        Returns:
+            dict
+        """
+        id_token = KeycloakClient.get_id_token_info(id_token)
+        return {
+            'id': id_token['sub'],
+            'name': id_token['name'],
+            'email': id_token['email'],
+            'expiration_time': datetime.fromtimestamp(id_token['exp']),
+            'authentication_time': datetime.fromtimestamp(id_token['auth_time']),
+        }
+
+    def get_access_info(self, access_token):
+        """
+        Method to parse access info from the access token
+
+        Args:
+             access_token (str): access token received
+
+        Returns:
+            dict
+        """
+        access_token = KeycloakClient.get_access_token_info(access_token)
+        return access_token['resource_access'].get(self.config['client_id'], {'roles': []})
+
+    def get_info(self, access_token, id_token):
+        """
+        Method to parse information out of the tokens
+
+        Args:
+            access_token (str): access token received
+            id_token (str): id token received
+
+        Returns:
+            dict
+        """
+        user_info = KeycloakClient.get_user_info(id_token)
+        access_info = self.get_access_info(access_token)
+        user_info.update(access_info)
+        return user_info

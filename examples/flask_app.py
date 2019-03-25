@@ -22,12 +22,8 @@ def callback():
     """ Endpoint to retrieve user tokens """
     code = request.args.get('code')
     access_token, refresh_token, id_token = keycloak_client.retrieve_tokens(code)
-    access_token_info = keycloak_client.get_access_token_info(access_token)
-    id_token_info = keycloak_client.get_id_token_info(id_token)
-    return jsonify({
-        'access_token_info': access_token_info,
-        'id_token_info': id_token_info,
-    })
+    user_info = keycloak_client.get_info(access_token, id_token)
+    return jsonify(user_info)
 
 
 if __name__ == '__main__':

@@ -2,6 +2,7 @@
 
 clean:
 	find . -type f -name '*.pyc' -delete
+	rm -rf build dist || true
 
 install:
 	pip install -e .
