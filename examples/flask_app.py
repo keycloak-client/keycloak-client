@@ -1,5 +1,5 @@
 #! -*- coding: utf-8 -*-
-from flask import Flask, request, redirect, jsonify
+from flask import Flask, request, redirect, jsonify, Response
 from keycloak import KeycloakClient
 
 
@@ -14,25 +14,42 @@ app = Flask(__name__)
 @app.route('/login', methods=['GET'])
 def login():
     """ Endpoint to initiate login """
-    return redirect(keycloak_client.login_url)
+    return redirect(keycloak_client.authentication_url)
 
 
-@app.route('/callback', methods=['GET'])
+@app.route('/login-callback', methods=['GET'])
 def callback():
     """ Endpoint to retrieve user tokens """
     code = request.args.get('code')
-    access_token, refresh_token, id_token = keycloak_client.retrieve_tokens(code)
-    print(access_token)
-    user_info = keycloak_client.get_info(access_token, id_token)
-    return jsonify(user_info)
+    tokens = keycloak_client.authentication_callback(code)
+    return jsonify(tokens)
 
 
-@app.route('/introspect', methods=['POST'])
-def introspect():
-    """ Endpoint to introspect user tokens """
-    request_data = request.get_json()
-    access_token = request_data['access_token']
-    result = keycloak_client.validate_access_token(access_token)
+@app.route('/retrieve-rpt', methods=['POST'])
+def rpt():
+    """ Endpoint to fetch RPT """
+
+    # validate input
+    access_token = request.json.get('access_token')
+    if access_token is None:
+        return Response('access_token missing', status=400)
+
+    # fetch RPT
+    result = keycloak_client.retrieve_rpt(access_token)
+    return jsonify(result)
+
+
+@app.route('/introspect-rpt', methods=['POST'])
+def introspect_rpt():
+    """ Endpoint to introspect RPT """
+
+    # validate input
+    access_token = request.json.get('access_token')
+    if access_token is None:
+        return Response('access_token missing', status=400)
+
+    # validate RPT
+    result = keycloak_client.validate_rpt(access_token)
     return jsonify(result)
 
 
