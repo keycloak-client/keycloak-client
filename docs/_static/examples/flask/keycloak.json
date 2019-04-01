@@ -1,0 +1,10 @@
+{
+  "client_id": "flask-app",
+  "client_secret": "1f49f057-bbf9-4389-a90f-3c5972f5564a",
+  "redirect_uri": "http://localhost:5000/login-callback",
+  "authentication_endpoint": "https://keycloak-server.com/auth/realms/akhil-poc/protocol/openid-connect/auth",
+  "token_endpoint": "https://keycloak-server.com/auth/realms/akhil-poc/protocol/openid-connect/token",
+  "introspection_endpoint": "https://keycloak-server.com/auth/realms/akhil-poc/protocol/openid-connect/token/introspect",
+  "resource_endpoint": "https://keycloak-server.com/auth/realms/akhil-poc/authz/protection/resource_set",
+  "certs_endpoint": "https://keycloak-server.com/auth/realms/akhil-poc/protocol/openid-connect/certs"
+}
