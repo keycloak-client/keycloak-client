@@ -101,7 +101,7 @@ class ResourceMixin(object):
         endpoint = self.config['resource_endpoint'] + resource_id
 
         # update resource
-        response = requests.get(endpoint, json=resource, headers=self.headers)
+        response = requests.put(endpoint, json=resource, headers=self.headers)
         response.raise_for_status()
 
         return response.json()
