@@ -1,11 +1,15 @@
 #! -*- coding: utf-8 -*-
+
+""" This mixin takes care of all functionalities associated with resources """
+
 import requests
 
 
-class ResourceMixin(object):
+class ResourceMixin:
     """
     This class includes methods to interact with the protection api
-    For details see https://www.keycloak.org/docs/5.0/authorization_services/#_service_protection_api
+    For details see keycloak documentation availabe in the below url
+    https://www.keycloak.org/docs/5.0/authorization_services/#_service_protection_api
     """
 
     @property
@@ -27,7 +31,7 @@ class ResourceMixin(object):
         }
 
         # retrieve PAT
-        response = requests.post(self.config['token_endpoint'], data=payload, headers=headers)
+        response = requests.post(self.config.token_endpoint, data=payload, headers=headers)
         response.raise_for_status()
 
         return response.json()
@@ -48,11 +52,12 @@ class ResourceMixin(object):
         """
 
         # create resource
-        response = requests.get(self.config['resource_endpoint'], headers=self.headers)
+        response = requests.get(self.config.resource_endpoint, headers=self.headers)
         response.raise_for_status()
 
         return response.json()
 
+    # pylint: disable=dangerous-default-value
     def create_resource(self, resource={}):
         """
         Method to create resource
@@ -67,7 +72,11 @@ class ResourceMixin(object):
             "scopes": ["create", "read", "update", "delete"]
           }
         """
-        response = requests.post(self.config['resource_endpoint'], json=resource, headers=self.headers)
+        response = requests.post(
+            self.config.resource_endpoint,
+            json=resource,
+            headers=self.headers
+        )
         response.raise_for_status()
         return response.json()
 
@@ -80,7 +89,7 @@ class ResourceMixin(object):
         """
 
         # prepare endpoint
-        endpoint = self.config['resource_endpoint'] + resource_id
+        endpoint = self.config.resource_endpoint + resource_id
 
         # create resource
         response = requests.get(endpoint, headers=self.headers)
@@ -98,7 +107,7 @@ class ResourceMixin(object):
         """
 
         # prepare endpoint
-        endpoint = self.config['resource_endpoint'] + resource_id
+        endpoint = self.config.resource_endpoint + resource_id
 
         # update resource
         response = requests.put(endpoint, json=resource, headers=self.headers)
@@ -115,7 +124,7 @@ class ResourceMixin(object):
         """
 
         # prepare endpoint
-        endpoint = self.config['resource_endpoint'] + resource_id
+        endpoint = self.config.resource_endpoint + resource_id
 
         # create resource
         response = requests.delete(endpoint, headers=self.headers)

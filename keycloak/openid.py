@@ -1,11 +1,14 @@
 #! -*- coding: utf-8 -*-
+
+""" This mixin takes care of all functionalities associated with openid authentication """
+
 import urllib
 import uuid
 
 import requests
 
 
-class OpenIdMixin(object):
+class OpenIdMixin:
     """
     This class includes the methods to interact with the openid/authentication flow
     """
@@ -20,12 +23,12 @@ class OpenIdMixin(object):
         """
         arguments = urllib.parse.urlencode({
             'state': uuid.uuid4(),
-            'client_id': self.config['client_id'],
+            'client_id': self.config.client_id,
             'response_type': 'code',
             'scope': 'openid email profile user_roles',
-            'redirect_uri': self.config['redirect_uri']
+            'redirect_uri': self.config.redirect_uri
         })
-        return self.config['authentication_endpoint'] + '?' + arguments
+        return self.config.authentication_endpoint + '?' + arguments
 
     def authentication_callback(self, code=None):
         """
@@ -48,13 +51,13 @@ class OpenIdMixin(object):
         payload = {
             'code': code,
             'grant_type': 'authorization_code',
-            'client_id': self.config['client_id'],
-            'redirect_uri': self.config['redirect_uri'],
-            'client_secret': self.config['client_secret'],
+            'client_id': self.config.client_id,
+            'redirect_uri': self.config.redirect_uri,
+            'client_secret': self.config.client_secret,
         }
 
         # retrieve tokens from keycloak server
-        response = requests.post(self.config['token_endpoint'], data=payload)
+        response = requests.post(self.config.token_endpoint, data=payload)
         response.raise_for_status()
 
         return response.json()

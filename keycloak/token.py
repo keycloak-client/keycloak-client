@@ -1,9 +1,12 @@
 #! -*- coding: utf-8 -*-
+
+""" This mixin takes care of all functionalities associated with json web tokens """
+
 import base64
 import json
 
-import jwt
 import requests
+import jwt
 from jwt.algorithms import (
     ECAlgorithm,
     HMACAlgorithm,
@@ -14,7 +17,7 @@ from jwt.algorithms import (
 from .utils import fix_padding
 
 
-class JwtMixin(object):
+class JwtMixin:
     """ This class consists of methods that can be user to perform JWT operations """
 
     @property
@@ -25,7 +28,7 @@ class JwtMixin(object):
         Returns:
             list
         """
-        response = requests.get(self.config['certs_endpoint'])
+        response = requests.get(self.config.certs_endpoint)
         response.raise_for_status()
         return response.json().get('keys', [])
 
@@ -50,6 +53,7 @@ class JwtMixin(object):
         # convert to dictionary
         return json.loads(jwt_header)
 
+    # pylint: disable=inconsistent-return-statements
     def get_signing_key(self, jwt_header):
         """
         Method to retrieve signing key
@@ -58,7 +62,7 @@ class JwtMixin(object):
             jwt_header (dict): decoded jwt header as dict
 
         Returns:
-            jwt.algorithms.RSAAlgorithm
+            jwt.algorithms.Algorithm
         """
 
         # identify key json
@@ -110,7 +114,7 @@ class JwtMixin(object):
         """
 
         # parse jwt segments
-        header, payload, signature = token.split('.')
+        header, _, _ = token.split('.')
 
         # parse jwt header
         header = self.parse_header(header)

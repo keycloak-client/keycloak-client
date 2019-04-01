@@ -1,5 +1,7 @@
 #! -*- coding: utf-8 -*-
 
+""" utility functions """
+
 
 def fix_padding(encoded_string):
     """

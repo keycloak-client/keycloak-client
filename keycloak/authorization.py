@@ -1,10 +1,13 @@
 #! -*- coding: utf-8 -*-
+
+""" This mixin takes care of all functionalities associated with authorization """
+
 import base64
 
 import requests
 
 
-class AuthorizationMixin(object):
+class AuthorizationMixin:
     """
     This class include methods that interact with the authorization api
     For details see https://www.keycloak.org/docs/5.0/authorization_services/index.html
@@ -20,7 +23,7 @@ class AuthorizationMixin(object):
         """
 
         # construct authorization string
-        authorization = '{}:{}'.format(self.config['client_id'], self.config['client_secret'])
+        authorization = '{}:{}'.format(self.config.client_id, self.config.client_secret)
 
         # convert to bytes
         authorization = bytes(authorization, 'utf-8')
@@ -44,7 +47,7 @@ class AuthorizationMixin(object):
         # prepare payload
         payload = {
             'grant_type': 'urn:ietf:params:oauth:grant-type:uma-ticket',
-            'audience': self.config['client_id']
+            'audience': self.config.client_id
         }
 
         # prepare headers
@@ -53,7 +56,7 @@ class AuthorizationMixin(object):
         }
 
         # fetch RPT token
-        response = requests.post(self.config['token_endpoint'], data=payload, headers=headers)
+        response = requests.post(self.config.token_endpoint, data=payload, headers=headers)
         response.raise_for_status()
 
         return response.json()
@@ -78,7 +81,11 @@ class AuthorizationMixin(object):
         }
 
         # introspect token
-        response = requests.post(self.config['introspection_endpoint'], data=payload, headers=headers)
+        response = requests.post(
+            self.config.introspection_endpoint,
+            data=payload,
+            headers=headers
+        )
         response.raise_for_status()
 
         return response.json()

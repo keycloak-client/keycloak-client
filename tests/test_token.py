@@ -10,7 +10,7 @@ def test_keys(mock_get, keycloak_client):
     """ Test case for keys """
     mock_get.return_value.json = MagicMock()
     keycloak_client.keys
-    mock_get.assert_called_once_with(keycloak_client.config['certs_endpoint'])
+    mock_get.assert_called_once_with(keycloak_client.config.certs_endpoint)
     mock_get.return_value.json.assert_called_once()
 
 

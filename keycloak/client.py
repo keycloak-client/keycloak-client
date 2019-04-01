@@ -1,4 +1,7 @@
 #! -*- coding: utf-8 -*-
+
+""" keycloak client created out of different mixins """
+
 import json
 import os
 
@@ -8,11 +11,13 @@ from .resource import ResourceMixin
 from .token import JwtMixin
 
 
-class KeycloakClient(JwtMixin, OpenIdMixin, AuthorizationMixin, ResourceMixin):
+# pylint: disable=too-few-public-methods
+class KeycloakConfiguration:
+    """ keycloak configuration """
 
     def __init__(self, config_file=None):
         """
-        Method to initialize keycloak client
+        initialize keycloak configuration
 
         Args:
             config_file(str): path to the keycloak config file
@@ -42,7 +47,23 @@ class KeycloakClient(JwtMixin, OpenIdMixin, AuthorizationMixin, ResourceMixin):
         assert 'authentication_endpoint' in config
         assert 'token_endpoint' in config
         assert 'introspection_endpoint' in config
+        assert 'resource_endpoint' in config
         assert 'certs_endpoint' in config
 
-        # load config to object
-        self.config = config
+        # set attributes
+        for key, val in config.items():
+            setattr(self, key, val)
+
+
+class KeycloakClient(JwtMixin, OpenIdMixin, AuthorizationMixin, ResourceMixin):
+    """ keycloak client """
+
+    def __init__(self, config_file=None):
+        """
+        Method to initialize keycloak client
+
+        Args:
+            config_file(str): path to the keycloak config file
+        """
+        _config = KeycloakConfiguration(config_file=config_file)
+        self.config = _config

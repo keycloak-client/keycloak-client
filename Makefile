@@ -1,22 +1,38 @@
-.PHONY: clean install test _build build upload
+.PHONY: clean _req_dep _dev_dep install _pytest _lint test _build build upload
 
 clean:
+	@echo 'Cleaning junk files'
 	find . -type f -name '*.pyc' -delete
 	rm -rf build dist || true
 
-install:
+_req_dep:
+	@echo 'Installaing dependencies required to run the application'
 	pip install -e .
-	pip install sphinx sphinx_rtd_theme pytest==4.3.1 pytest-cov==2.6.1 codecov==2.0.15
 
-test:
-	pytest --cov=keycloak tests/
+_dev_dep:
+	@echo 'Installing extra dependencies required for development purpose'
+	pip install -r dev.txt
+
+install: _req_dep _dev_dep
+
+_pytest:
+	@echo 'Running test cases'
+	pytest --cov=keycloak tests/ --cov-fail-under=90
+
+_lint:
+	@echo 'Running static code analysis'
+	python linter.py --fail-under=9 keycloak
+
+test: _lint _pytest
 
 _build:
+	@echo 'Creating distribution build'
 	python setup.py sdist bdist_wheel
 
 build: clean _build
 
 upload:
+	@echo 'Uploading build to the python registry'
 	python -m twine upload dist/*
 
-all: clean install build upload
+all: clean install test build upload
