@@ -10,7 +10,7 @@ solution for the modern application and services. The key features of keycloak i
    Authentication <authentication>
    Authorization <authorization>
    Resource Management <resources>
-   Example - Flask <eg_flask>
+   Examples <examples>
 
 To know more about keycloak, please visit their official website. The focus of
 this library is to provide easy integration with keycloak server, so that the

@@ -15,8 +15,10 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
+        'cached-property==1.5.1',
         'cryptography==2.6.1',
         'pyjwt==1.7.1',
         'requests==2.21.0',
+        'werkzeug==0.15.1',
     ],
 )
