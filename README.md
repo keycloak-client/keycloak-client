@@ -11,3 +11,7 @@ This repo contains a python client for [Keycloak](https://www.keycloak.org/)
 # Documentation
 
 [https://keycloak-client.readthedocs.io](https://keycloak-client.readthedocs.io)
+
+# Coverage
+
+[![codecov](https://codecov.io/gh/puthiry-lab/keycloak-client/branch/master/graphs/commits.svg)](https://codecov.io/gh/puthiry-lab/keycloak-client)
