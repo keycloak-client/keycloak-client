@@ -68,7 +68,7 @@ class AuthenticationHandler:
         self.start_response(HttpStatus.REDIRECT, headers)
 
         # write content
-        return [b'Initiaing authentication']
+        return [b'Initiating authentication']
 
     def login_callback(self):
         """ Keycloak authentication callback handler """

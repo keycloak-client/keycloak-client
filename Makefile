@@ -17,7 +17,7 @@ install: _req_dep _dev_dep
 
 _pytest:
 	@echo 'Running test cases'
-	pytest --cov=keycloak tests/ --cov-fail-under=85
+	pytest --cov=keycloak tests/ --cov-fail-under=90
 
 _lint:
 	@echo 'Running static code analysis'
