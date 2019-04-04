@@ -2,14 +2,23 @@
 
 """ middlewares for flask framework """
 
-import json
-from base64 import b64encode
-from http.cookies import SimpleCookie
+import logging
 
 from cached_property import cached_property
+from werkzeug.utils import dump_cookie
 from werkzeug.wrappers import Request
 
 from keycloak import KeycloakClient
+
+
+log = logging.getLogger('keycloak-client')
+
+
+# pylint: disable=too-few-public-methods
+class AatConstants:
+    """ Costants associated with AAT """
+    ACCESS_TOKEN = 'AAT_ACCESS_TOKEN'
+    REFRESH_TOKEN = 'AAT_REFRESH_TOKEN'
 
 
 # pylint: disable=too-few-public-methods
@@ -55,12 +64,33 @@ class AuthenticationHandler:
         """ Keycloak client """
         return KeycloakClient(config_file=self.keycloak_config_file)
 
+    @property
+    def is_aat_access_token_valid(self):
+        """ Access token valid or not """
+        if AatConstants.ACCESS_TOKEN  in self.request.cookies:
+            try:
+                self.keycloak_client.decode_jwt(self.request.cookies[AatConstants.ACCESS_TOKEN])
+                return True
+            except Exception:
+                log.exception('Invalid AAT access token')
+        return False
+
+    @property
+    def is_aat_refresh_token_valid(self):
+        """ Refresh token valid or not """
+        if AatConstants.REFRESH_TOKEN in self.request.cookies:
+            try:
+                self.keycloak_client.decode_jwt(self.request.cookies[AatConstants.ACCESS_TOKEN])
+                return True
+            except Exception:
+                log.exception('Invalid AAT refresh token')
+        return False
+
     def login(self):
         """ Method to initiate keycloak authentication """
 
         # prepare headers
         headers = [
-            (HttpHeaders.CONTENT_TYPE, 'text/html; charset=utf-8'),
             (HttpHeaders.LOCATION, self.keycloak_client.authentication_url),
         ]
 
@@ -77,23 +107,18 @@ class AuthenticationHandler:
         code = self.request.args.get('code')
 
         # retrieve aat
-        keycloak_aat = self.keycloak_client.authentication_callback(code)
+        aat_token = self.keycloak_client.authentication_callback(code)
+        access_token = bytes(aat_token['access_token'], 'utf-8')
+        refresh_token = bytes(aat_token['refresh_token'], 'utf-8')
 
-        # encode aat with base64 encoding
-        keycloak_aat = json.dumps(keycloak_aat)
-        keycloak_aat = keycloak_aat.encode('utf-8')
-        keycloak_aat = b64encode(keycloak_aat)
-        keycloak_aat = keycloak_aat.decode('utf-8')
-
-        # create cookie and insert aat
-        cookie = SimpleCookie()
-        cookie['keycloak_aat'] = keycloak_aat
-        cookie['keycloak_aat']['path'] = '/'
+        # create cookies
+        aat_access_token = dump_cookie(AatConstants.ACCESS_TOKEN, access_token)
+        aat_refresh_token = dump_cookie(AatConstants.REFRESH_TOKEN, refresh_token)
 
         # prepare headers
         headers = [
-            (HttpHeaders.CONTENT_TYPE, 'application/json; charset=utf-8'),
-            (HttpHeaders.SET_COOKIE, cookie.output(header='')),
+            (HttpHeaders.SET_COOKIE, aat_access_token),
+            (HttpHeaders.SET_COOKIE, aat_refresh_token),
             (HttpHeaders.LOCATION, self.keycloak_return_url),
         ]
 
@@ -141,13 +166,15 @@ class  AuthenticationMiddleware:
         # define the path
         path = environ.get('PATH_INFO', '/')
 
-        # handle login requests
-        if path == '/login':
-            return auth_handlers.login()
-
-        # handle callback requests
+        # handle login callback requests
         if path == '/login-callback':
+            log.info('Incoming request to the login-callback handler')
             return auth_handlers.login_callback()
+
+        # initiate login if aat access token is not valid
+        if not auth_handlers.is_aat_access_token_valid:
+            log.info('Redirecting to keycloak login page')
+            return auth_handlers.login()
 
         # handle other requests
         return self.app(environ, start_response)

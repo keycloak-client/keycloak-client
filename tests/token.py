@@ -61,3 +61,13 @@ def test_decode_jwt(mock_parse_header, mock_get_signing_key, mock_get_signing_al
     mock_get_signing_key.assert_called_once_with('header')
     mock_get_signing_algorithm.assert_called_once_with('header')
     mock_decode.assert_called_once_with(token, 'signing_key', algorithms=['signing_algorithm'], options=options)
+
+
+@patch('keycloak.token.requests.post')
+@patch('keycloak.token.JwtMixin.decode_jwt')
+def test_refresh_access_token(mock_decode_jwt, mock_post, keycloak_client):
+    """ Test case for refresh_access_token """
+    token = 'header.payload.signature'
+    keycloak_client.refresh_access_token(token)
+    mock_decode_jwt.assert_called_once()
+    mock_post.assert_called_once()

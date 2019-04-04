@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock, PropertyMock
 
 from keycloak import KeycloakClient
 from keycloak.contrib.wsgi.middleware import AuthenticationMiddleware
-from keycloak.contrib.wsgi.middleware.authentication import HttpHeaders, HttpStatus, AuthenticationHandler
+from keycloak.contrib.wsgi.middleware.authentication import HttpHeaders, HttpStatus, AatConstants, AuthenticationHandler
 
 
 @patch('keycloak.contrib.wsgi.middleware.AuthenticationMiddleware.__init__')
@@ -14,17 +14,26 @@ def test_middleware_init(mock_init):
     mock_init.assert_called_once_with('param-1', 'param-2', 'param-3')
 
 
-@patch('keycloak.contrib.wsgi.middleware.AuthenticationMiddleware.__call__')
-def test_middleware_call(mock_call):
-    """ Test case for AuthenticationMiddleware.__call__ """
-    middleware = AuthenticationMiddleware('param-1', 'param-2', 'param-3')
-    middleware()
-    mock_call.assert_called_once()
-
-
+@patch('keycloak.contrib.wsgi.middleware.authentication.AuthenticationHandler.keycloak_client')
 @patch('keycloak.contrib.wsgi.middleware.authentication.AuthenticationHandler.login_callback')
 @patch('keycloak.contrib.wsgi.middleware.authentication.AuthenticationHandler.login')
-def test_middleware_other(mock_login, mock_login_callback):
+def test_middleware_call(mock_login, mock_callback, mock_keycloak):
+    """ Test case for AuthenticationMiddleware.__call__ """
+    mock_app = MagicMock()
+    return_url = 'http://return-url.com'
+    mock_config = MagicMock()
+    mock_start_response = MagicMock()
+    middleware = AuthenticationMiddleware(mock_app, return_url, mock_config)
+    middleware({'PATH_INFO': '/login-callback'}, mock_start_response)
+    mock_callback.assert_called_once()
+    middleware({}, mock_start_response)
+    mock_login.assert_called_once()
+
+
+@patch('keycloak.contrib.wsgi.middleware.authentication.AuthenticationHandler.is_aat_access_token_valid')
+@patch('keycloak.contrib.wsgi.middleware.authentication.AuthenticationHandler.login_callback')
+@patch('keycloak.contrib.wsgi.middleware.authentication.AuthenticationHandler.login')
+def test_middleware_other(mock_login, mock_login_callback, mock_token):
     """ Test case for URLS not handled by the middleware """
     mock_app = MagicMock()
     mock_environ = MagicMock()
@@ -68,7 +77,6 @@ def test_handler_login(mock_keycloak_client):
     handler = AuthenticationHandler('param-1', mock_start_response, 'param-2', 'param-3')
     response = handler.login()
     headers = [
-        (HttpHeaders.CONTENT_TYPE, 'text/html; charset=utf-8'),
         (HttpHeaders.LOCATION, 'https://login.com'),
     ]
     mock_start_response.assert_called_once_with(HttpStatus.REDIRECT, headers)
@@ -80,17 +88,29 @@ def test_handler_login_callback(mock_keycloak_client):
     """ Test case for AuthenticationHandler.login_callback """
     mock_environ = MagicMock()
     mock_keycloak_client.return_value.authentication_callback = MagicMock()
-    mock_keycloak_client.return_value.authentication_callback.return_value = {'key': 'val'}
+    mock_keycloak_client.return_value.authentication_callback.return_value = {'access_token': 'val', 'refresh_token': 'val'}
     mock_start_response = MagicMock()
     handler = AuthenticationHandler(mock_environ, mock_start_response, 'param-1', 'param-2')
     response = handler.login_callback()
     headers = [
-        (HttpHeaders.CONTENT_TYPE, 'application/json; charset=utf-8'),
-        (HttpHeaders.SET_COOKIE, ' keycloak_aat="eyJrZXkiOiAidmFsIn0="; Path=/'),
+        (HttpHeaders.SET_COOKIE, 'AAT_ACCESS_TOKEN=val; Path=/'),
+        (HttpHeaders.SET_COOKIE, 'AAT_REFRESH_TOKEN=val; Path=/'),
         (HttpHeaders.LOCATION, 'param-1'),
     ]
     mock_start_response.assert_called_once_with(HttpStatus.REDIRECT, headers)
     assert response == [b'Authentication successful']
+
+
+@patch('keycloak.contrib.wsgi.middleware.authentication.AuthenticationHandler.request')
+def test_handler_access_token_valid(mock_request):
+    """ Test case for token validity flags """
+    mock_request = MagicMock()
+    mock_request.return_value.cookies.return_value = {'AAT_ACCESS_TOKEN': 'val', 'AAT_REFRESH_TOKEN': 'val'}
+    mock_environ = MagicMock()
+    mock_start_response = MagicMock()
+    handler = AuthenticationHandler(mock_environ, mock_start_response, 'param-1', 'param-2')
+    assert handler.is_aat_access_token_valid == False
+    assert handler.is_aat_refresh_token_valid == False
 
 
 def test_http_headers():
@@ -104,3 +124,9 @@ def test_http_status():
     """ Test case for HttpHeaders """
     assert HttpStatus.SUCCESS == '200 Ok'
     assert HttpStatus.REDIRECT == '302 Found'
+
+
+def test_aat_constants():
+    """ Test case for AatConstants """
+    assert AatConstants.ACCESS_TOKEN == 'AAT_ACCESS_TOKEN'
+    assert AatConstants.REFRESH_TOKEN == 'AAT_REFRESH_TOKEN'

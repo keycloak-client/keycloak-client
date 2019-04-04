@@ -6,6 +6,7 @@ import urllib
 import uuid
 
 import requests
+from cached_property import cached_property
 
 
 class OpenIdMixin:
@@ -13,7 +14,7 @@ class OpenIdMixin:
     This class includes the methods to interact with the openid/authentication flow
     """
 
-    @property
+    @cached_property
     def authentication_url(self):
         """
         Method which builds the login url for keycloak

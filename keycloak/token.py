@@ -5,8 +5,9 @@
 import base64
 import json
 
-import requests
 import jwt
+import requests
+from cached_property import cached_property
 from jwt.algorithms import (
     ECAlgorithm,
     HMACAlgorithm,
@@ -20,7 +21,7 @@ from .utils import fix_padding
 class JwtMixin:
     """ This class consists of methods that can be user to perform JWT operations """
 
-    @property
+    @cached_property
     def keys(self):
         """
         Method to retrieve keys used to sign jwt tokens
@@ -126,3 +127,34 @@ class JwtMixin:
         # decrypt jwt
         options = {'verify_aud': verify_aud, 'verify_iss': verify_iss}
         return jwt.decode(token, signing_key, algorithms=[signing_algorithm], options=options)
+
+    def refresh_access_token(self, refresh_token):
+        """
+        Method to refresh access token using refresh token
+
+        Args:
+            refresh_token (str): refresh token using which new access_token can be retrieved
+        """
+
+        try:
+            self.decode_jwt(refresh_token)
+        except Exception:
+            raise ValueError('Invalid refresh token')
+
+        # prepare payload
+        payload = {
+            'client_id': self.config.client_id,
+            'grant_type': 'refresh_token',
+            'refresh_token': refresh_token
+        }
+
+        # prepare headers
+        headers = {
+            'Authorization': self.basic_authorization_header
+        }
+
+        # send request to keycloak server
+        response = requests.post(self.config.token_endpoint, data=payload, headers=headers)
+        response.raise_for_status()
+
+        return response.json()

@@ -18,10 +18,12 @@ install: _req_dep _dev_dep
 _pytest:
 	@echo 'Running test cases'
 	pytest --cov=keycloak tests/ --cov-fail-under=90
+	# pytest --cov=keycloak tests/
 
 _lint:
 	@echo 'Running static code analysis'
 	python linter.py --fail-under=9 keycloak
+	# python linter.py keycloak
 
 test: _lint _pytest
 

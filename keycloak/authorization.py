@@ -5,6 +5,7 @@
 import base64
 
 import requests
+from cached_property import cached_property
 
 
 class AuthorizationMixin:
@@ -13,7 +14,7 @@ class AuthorizationMixin:
     For details see https://www.keycloak.org/docs/5.0/authorization_services/index.html
     """
 
-    @property
+    @cached_property
     def basic_authorization_header(self):
         """
         Method to prepare the authorization header

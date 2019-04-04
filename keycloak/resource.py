@@ -3,6 +3,7 @@
 """ This mixin takes care of all functionalities associated with resources """
 
 import requests
+from cached_property import cached_property
 
 
 class ResourceMixin:
@@ -12,7 +13,7 @@ class ResourceMixin:
     https://www.keycloak.org/docs/5.0/authorization_services/#_service_protection_api
     """
 
-    @property
+    @cached_property
     def pat(self):
         """
         Protection API Token (PAT)
@@ -36,7 +37,7 @@ class ResourceMixin:
 
         return response.json()
 
-    @property
+    @cached_property
     def headers(self):
         """ Common headers used within the class """
         return {
