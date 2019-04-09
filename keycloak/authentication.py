@@ -1,6 +1,6 @@
 #! -*- coding: utf-8 -*-
 
-""" This mixin takes care of all functionalities associated with openid authentication """
+""" This mixin takes care of all functionalities associated with authentication """
 
 import urllib
 import uuid
@@ -9,9 +9,9 @@ import requests
 from cached_property import cached_property
 
 
-class OpenIdMixin:
+class AuthenticationMixin:
     """
-    This class includes the methods to interact with the openid/authentication flow
+    This class includes the methods to interact with the authentication flow
     """
 
     @cached_property
@@ -46,6 +46,7 @@ class OpenIdMixin:
 
         # validate code
         if code is None:
+            self.log.error('Invalid code')
             raise ValueError('Invalid code')
 
         # prepare request payload
@@ -58,7 +59,11 @@ class OpenIdMixin:
         }
 
         # retrieve tokens from keycloak server
-        response = requests.post(self.config.token_endpoint, data=payload)
-        response.raise_for_status()
+        try:
+            response = requests.post(self.config.token_endpoint, data=payload)
+            response.raise_for_status()
+        except Exception as ex:
+            self.log.exception('Failed to retrieve AAT from keycloak server')
+            raise ex
 
         return response.json()

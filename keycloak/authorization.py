@@ -37,19 +37,31 @@ class AuthorizationMixin:
 
         return 'Basic {}'.format(authorization)
 
-    def retrieve_rpt(self, aat):
+    @cached_property
+    def permission_ticket(self):
+        """ Method to generate permission ticket """
+        return {
+            'grant_type': 'urn:ietf:params:oauth:grant-type:uma-ticket',
+            'audience': self.config.client_id
+        }
+
+    def retrieve_rpt(self, aat=None, permission_ticket=None):
         """
         Method to fetch the request party token (RPT)
 
         Args:
             aat (str): authorization api token
         """
+        # validate inputs
+        try:
+            assert isinstance(aat, str)
+        except Exception as ex:
+            self.log.error('Invalid AAT')
+            raise ex
 
-        # prepare payload
-        payload = {
-            'grant_type': 'urn:ietf:params:oauth:grant-type:uma-ticket',
-            'audience': self.config.client_id
-        }
+        # handle default value for permission ticket
+        if permission_ticket is None:
+            permission_ticket = self.permission_ticket
 
         # prepare headers
         headers = {
@@ -57,8 +69,16 @@ class AuthorizationMixin:
         }
 
         # fetch RPT token
-        response = requests.post(self.config.token_endpoint, data=payload, headers=headers)
-        response.raise_for_status()
+        try:
+            response = requests.post(
+                self.config.token_endpoint,
+                data=self.permission_ticket,
+                headers=headers
+            )
+            response.raise_for_status()
+        except Exception as ex:
+            self.log.exception('Failed to retrieve RPT from keycloak server')
+            raise ex
 
         return response.json()
 
@@ -69,6 +89,12 @@ class AuthorizationMixin:
         Args:
              rpt (str): RPT received
         """
+
+        try:
+            assert isinstance(rpt, str)
+        except Exception as ex:
+            self.log.error('Invalid RPT')
+            raise ex
 
         # prepare payload
         payload = {
@@ -82,11 +108,15 @@ class AuthorizationMixin:
         }
 
         # introspect token
-        response = requests.post(
-            self.config.introspection_endpoint,
-            data=payload,
-            headers=headers
-        )
-        response.raise_for_status()
+        try:
+            response = requests.post(
+                self.config.introspection_endpoint,
+                data=payload,
+                headers=headers
+            )
+            response.raise_for_status()
+        except Exception as ex:
+            self.log.exception('Failed to validate RPT from keycloak server')
+            raise ex
 
         return response.json()

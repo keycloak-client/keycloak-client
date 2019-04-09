@@ -1,11 +1,11 @@
 #! -*- coding: utf-8 -*-
 import urllib
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from .fixtures import keycloak_client
 
 
-@patch('keycloak.openid.uuid.uuid4')
+@patch('keycloak.authentication.uuid.uuid4')
 def test_authentication_url(mock_uuid4, keycloak_client):
     """ Test case for authentication_url """
     mock_uuid4.return_value = '862e94e4-e04b-463b-8d08-577161684b76'
@@ -21,7 +21,7 @@ def test_authentication_url(mock_uuid4, keycloak_client):
     assert authentication_url == keycloak_client.authentication_url
 
 
-@patch('keycloak.openid.requests.post')
+@patch('keycloak.authentication.requests.post')
 def test_authentication_callback(mock_post, keycloak_client):
     """ Test case for authentication_callback """
     mock_post.return_value.json = MagicMock()

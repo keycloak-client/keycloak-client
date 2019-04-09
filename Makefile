@@ -17,7 +17,7 @@ install: _req_dep _dev_dep
 
 _pytest:
 	@echo 'Running test cases'
-	pytest --cov=keycloak tests/ --cov-fail-under=90
+	pytest --cov=keycloak tests/ --cov-fail-under=80
 	# pytest --cov=keycloak tests/
 
 _lint:
@@ -36,5 +36,9 @@ build: clean _build
 upload:
 	@echo 'Uploading build to the python registry'
 	python -m twine upload dist/*
+
+importanize:
+	find keycloak -name '*.py' | xargs importanize
+	find tests -name '*.py' | xargs importanize
 
 all: clean install test build upload

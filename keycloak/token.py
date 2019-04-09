@@ -6,14 +6,14 @@ import base64
 import json
 
 import jwt
-import requests
-from cached_property import cached_property
 from jwt.algorithms import (
     ECAlgorithm,
     HMACAlgorithm,
     RSAAlgorithm,
     RSAPSSAlgorithm,
 )
+import requests
+from cached_property import cached_property
 
 from .utils import fix_padding
 
@@ -54,6 +54,22 @@ class JwtMixin:
         # convert to dictionary
         return json.loads(jwt_header)
 
+    def get_key_json(self, kid):
+        """
+        Method to retrieve key using kid
+
+        Args:
+            kid (str): unique key identifier
+
+        Returns:
+            str
+        """
+        _key = {}
+        for key in self.keys:
+            if key['kid'] == kid:
+                _key = key
+        return json.dumps(_key)
+
     # pylint: disable=inconsistent-return-statements
     def get_signing_key(self, jwt_header):
         """
@@ -66,32 +82,30 @@ class JwtMixin:
             jwt.algorithms.Algorithm
         """
 
-        # identify key json
-        for key in self.keys:
-            if key['kid'] == jwt_header['kid']:
-                key_json = json.dumps(key)
-                break
+        # parse jwt header info
+        kid = jwt_header.get('kid')
+        alg = jwt_header.get('alg')
 
-        # construct public key
-        algorithm = jwt_header['alg']
+        # fetch public key
+        key_json = self.get_key_json(kid)
 
         # see the following git issue to understand why public keys has been built this way
         # https://github.com/jpadilla/pyjwt/issues/359
 
         # handle EC
-        if algorithm in ('ES256', 'ES384', 'ES521', 'ES512'):
+        if alg in ('ES256', 'ES384', 'ES521', 'ES512'):
             return ECAlgorithm.from_jwk(key_json)
 
         # handle HMAC
-        if algorithm in ('HS256', 'HS384', 'HS512'):
+        if alg in ('HS256', 'HS384', 'HS512'):
             return HMACAlgorithm.from_jwk(key_json)
 
         # handle RSA
-        if algorithm in ('RS256', 'RS384', 'RS512'):
+        if alg in ('RS256', 'RS384', 'RS512'):
             return RSAAlgorithm.from_jwk(key_json)
 
         # handle RSAPSS
-        if algorithm in ('PS256', 'PS384', 'PS512'):
+        if alg in ('PS256', 'PS384', 'PS512'):
             return RSAPSSAlgorithm.from_jwk(key_json)
 
     @staticmethod
@@ -102,7 +116,7 @@ class JwtMixin:
         Args:
             jwt_header (dict): decoded jwt header as dict
         """
-        return jwt_header['alg']
+        return jwt_header.get('alg')
 
     def decode_jwt(self, token, verify_aud=False, verify_iss=False):
         """
@@ -136,25 +150,16 @@ class JwtMixin:
             refresh_token (str): refresh token using which new access_token can be retrieved
         """
 
-        try:
-            self.decode_jwt(refresh_token)
-        except Exception:
-            raise ValueError('Invalid refresh token')
-
         # prepare payload
         payload = {
             'client_id': self.config.client_id,
+            'client_secret': self.config.client_secret,
             'grant_type': 'refresh_token',
             'refresh_token': refresh_token
         }
 
-        # prepare headers
-        headers = {
-            'Authorization': self.basic_authorization_header
-        }
-
         # send request to keycloak server
-        response = requests.post(self.config.token_endpoint, data=payload, headers=headers)
+        response = requests.post(self.config.token_endpoint, data=payload)
         response.raise_for_status()
 
         return response.json()

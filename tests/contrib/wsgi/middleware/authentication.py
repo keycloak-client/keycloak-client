@@ -1,9 +1,14 @@
 #! -*- coding: utf-8 -*-
-from unittest.mock import patch, MagicMock, PropertyMock
+from unittest.mock import MagicMock, PropertyMock, patch
 
 from keycloak import KeycloakClient
 from keycloak.contrib.wsgi.middleware import AuthenticationMiddleware
-from keycloak.contrib.wsgi.middleware.authentication import HttpHeaders, HttpStatus, AatConstants, AuthenticationHandler
+from keycloak.contrib.wsgi.middleware.authentication import (
+    AatConstants,
+    AuthenticationHandler,
+    HttpHeaders,
+    HttpStatus,
+)
 
 
 @patch('keycloak.contrib.wsgi.middleware.AuthenticationMiddleware.__init__')

@@ -1,6 +1,6 @@
 #! -*- coding: utf-8 -*-
 import json
-from unittest.mock import patch, MagicMock, PropertyMock
+from unittest.mock import MagicMock, PropertyMock, patch
 
 from .fixtures import keycloak_client
 
@@ -64,10 +64,8 @@ def test_decode_jwt(mock_parse_header, mock_get_signing_key, mock_get_signing_al
 
 
 @patch('keycloak.token.requests.post')
-@patch('keycloak.token.JwtMixin.decode_jwt')
-def test_refresh_access_token(mock_decode_jwt, mock_post, keycloak_client):
+def test_refresh_access_token(mock_post, keycloak_client):
     """ Test case for refresh_access_token """
     token = 'header.payload.signature'
     keycloak_client.refresh_access_token(token)
-    mock_decode_jwt.assert_called_once()
     mock_post.assert_called_once()
