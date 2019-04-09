@@ -3,15 +3,6 @@
 [![PyPI version](https://badge.fury.io/py/keycloak.svg)](https://badge.fury.io/py/keycloak)
 [![codecov](https://codecov.io/gh/puthiry-lab/keycloak-client/branch/master/graph/badge.svg)](https://codecov.io/gh/puthiry-lab/keycloak-client)
 
+This repo contains a python client for [Keycloak](https://www.keycloak.org/) IAM
+The documentation can be found at [https://keycloak-client.readthedocs.io](https://keycloak-client.readthedocs.io)
 
-# Keycloak
-
-This repo contains a python client for [Keycloak](https://www.keycloak.org/)
-
-# Documentation
-
-[https://keycloak-client.readthedocs.io](https://keycloak-client.readthedocs.io)
-
-# Coverage
-
-[![codecov](https://codecov.io/gh/puthiry-lab/keycloak-client/branch/master/graphs/commits.svg)](https://codecov.io/gh/puthiry-lab/keycloak-client)
