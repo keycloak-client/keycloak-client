@@ -34,9 +34,10 @@ class LoggingMixin:
         """ log file """
         return os.path.join(self.log_dir, 'keycloak.log')
 
-    @cached_property
-    def format(self):
+    @staticmethod
+    def format():
         """ log format """
+        # pylint: disable=line-too-long
         return logging.Formatter('%(levelname)s - %(asctime)s - %(filename)s:%(lineno)d - %(message)s')
 
     @cached_property

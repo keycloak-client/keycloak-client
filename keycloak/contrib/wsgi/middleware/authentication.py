@@ -2,16 +2,11 @@
 
 """ middlewares for flask framework """
 
-import logging
-
 from cached_property import cached_property
-from werkzeug.utils import dump_cookie
+from werkzeug.http import dump_cookie
 from werkzeug.wrappers import Request
 
 from keycloak import KeycloakClient
-
-
-log = logging.getLogger('keycloak-client')
 
 
 # pylint: disable=too-few-public-methods
@@ -71,8 +66,9 @@ class AuthenticationHandler:
             try:
                 self.keycloak_client.decode_jwt(self.request.cookies[AatConstants.ACCESS_TOKEN])
                 return True
+            # pylint: disable=broad-except
             except Exception:
-                log.exception('Invalid AAT access token')
+                pass
         return False
 
     @property
@@ -82,8 +78,9 @@ class AuthenticationHandler:
             try:
                 self.keycloak_client.decode_jwt(self.request.cookies[AatConstants.ACCESS_TOKEN])
                 return True
+            # pylint: disable=broad-except
             except Exception:
-                log.exception('Invalid AAT refresh token')
+                pass
         return False
 
     def login(self):
@@ -168,12 +165,10 @@ class  AuthenticationMiddleware:
 
         # handle login callback requests
         if path == '/login-callback':
-            log.info('Incoming request to the login-callback handler')
             return auth_handlers.login_callback()
 
         # initiate login if aat access token is not valid
         if not auth_handlers.is_aat_access_token_valid:
-            log.info('Redirecting to keycloak login page')
             return auth_handlers.login()
 
         # handle other requests

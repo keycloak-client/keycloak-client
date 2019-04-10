@@ -10,6 +10,7 @@ from .resource import ResourceMixin
 from .token import JwtMixin
 
 
+# pylint: disable=line-too-long
 class KeycloakClient(LoggingMixin, JwtMixin, AuthenticationMixin, AuthorizationMixin, ResourceMixin):
     """ keycloak client """
 

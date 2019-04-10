@@ -1,12 +1,14 @@
 [
   {
     "name": "student",
+    "type": "urn:flask-app:resources:student",
     "uris": ["/student/*"],
-    "scopes": ["create", "read", "update", "delete"]
+    "scopes": ["student:create", "student:read", "student:update", "student:delete"]
   },
   {
     "name": "class",
+    "type": "urn:flask-app:resources:class",
     "uris": ["/class/*"],
-    "scopes": ["create", "read", "update", "delete"]
+    "scopes": ["class:create", "class:read", "class:update", "class:delete"]
   }
 ]

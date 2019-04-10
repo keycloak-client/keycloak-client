@@ -1,4 +1,5 @@
 #! -*- coding: utf-8 -*-
+import json
 from flask import Flask, redirect, request, jsonify
 from keycloak import KeycloakClient
 
@@ -38,9 +39,19 @@ def auth_rpt():
 
 @api.route('/auth/refresh', methods=['POST'])
 def auth_refresh():
+    """ Retrieve new access token using the existing refresh token """
     refresh_token = request.json.get('refresh_token')
     token = keycloak_client.refresh_access_token(refresh_token)
     return jsonify(token)
+
+
+@api.cli.command()
+def register_resources():
+    """ Register resources with the keycloak server """
+    with open('resources.json') as f:
+        resources = json.loads(f.read())
+    for resource in resources:
+        keycloak_client.create_resource(resource)
 
 
 if __name__ == '__main__':
