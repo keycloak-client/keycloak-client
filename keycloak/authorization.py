@@ -5,7 +5,7 @@
 import base64
 
 import requests
-from cached_property import cached_property
+from cached_property import cached_property, cached_property_with_ttl
 
 
 class AuthorizationMixin:
@@ -37,7 +37,7 @@ class AuthorizationMixin:
 
         return 'Basic {}'.format(authorization)
 
-    @cached_property
+    @cached_property_with_ttl(ttl=300)
     def permission_ticket(self):
         """ Method to generate permission ticket """
         return {
