@@ -3,7 +3,7 @@
 """ This mixin takes care of all functionalities associated with resources """
 
 import requests
-from cached_property import cached_property
+from cached_property import cached_property, cached_property_with_ttl
 
 
 class ResourceMixin:
@@ -13,7 +13,7 @@ class ResourceMixin:
     https://www.keycloak.org/docs/5.0/authorization_services/#_service_protection_api
     """
 
-    @cached_property
+    @cached_property_with_ttl(ttl=300)
     def pat(self):
         """
         Protection API Token (PAT)
