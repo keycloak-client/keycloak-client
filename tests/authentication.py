@@ -16,7 +16,7 @@ def test_authentication_url(mock_uuid4, keycloak_client):
         'scope': 'openid email profile user_roles',
         'redirect_uri': keycloak_client.config.redirect_uri
     })
-    authentication_url = keycloak_client.config.authentication_endpoint + '?' + arguments
+    authentication_url = keycloak_client.config.authorization_endpoint + '?' + arguments
     assert authentication_url is not None
     assert authentication_url == keycloak_client.authentication_url
 

@@ -39,11 +39,13 @@ class Configuration:
         assert 'client_id' in config
         assert 'client_secret' in config
         assert 'redirect_uri' in config
-        assert 'authentication_endpoint' in config
+        assert 'authorization_endpoint' in config
         assert 'token_endpoint' in config
         assert 'introspection_endpoint' in config
+        assert 'jwks_uri' in config
         assert 'resource_endpoint' in config
-        assert 'certs_endpoint' in config
+        assert 'policy_endpoint' in config
+        assert 'permission_endpoint' in config
 
         # set attributes
         for key, val in config.items():

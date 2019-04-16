@@ -22,18 +22,20 @@ def auth_callback():
     return jsonify(aat)
 
 
-@api.route('/auth/permission-ticket', methods=['GET'])
-def auth_permission_ticket():
+@api.route('/auth/ticket', methods=['POST'])
+def auth_ticket():
     """ Generate permission ticket """
-    return jsonify(keycloak_client.permission_ticket)
+    ticket = keycloak_client.retrieve_ticket(resources=request.json)
+    return jsonify(ticket)
 
 
 @api.route('/auth/rpt', methods=['POST'])
 def auth_rpt():
     """ Generate RPT (request party token) """
     aat = request.headers.get('Authorization')
-    permission_ticket = request.json.get('permission_ticket')
-    rpt = keycloak_client.retrieve_rpt(aat, permission_ticket)
+    ticket = request.json.get('ticket')
+    rpt = keycloak_client.retrieve_rpt(aat, ticket)
+    rpt = keycloak_client.decode_jwt(rpt)
     return jsonify(rpt)
 
 
@@ -55,4 +57,4 @@ def register_resources():
 
 
 if __name__ == '__main__':
-    api.run()
+    api.run(host='0.0.0.0')

@@ -37,31 +37,78 @@ class AuthorizationMixin:
 
         return 'Basic {}'.format(authorization)
 
-    @cached_property
-    def permission_ticket(self):
-        """ Method to generate permission ticket """
-        return {
-            'grant_type': 'urn:ietf:params:oauth:grant-type:uma-ticket',
-            'audience': self.config.client_id
+    # pylint: disable=dangerous-default-value
+    def retrieve_ticket(self, resources=[]):
+        """
+        Method to generate permission ticket
+
+        Args:
+            resources (list): list of resources fot which ticket needs to be generated
+
+        example:
+        [
+          {
+            "resource_id": "bd94ac68-ee19-4c05-a49c-0715ab2232bf",
+            "resource_scopes": [
+              "class:read"
+            ]
+          }
+        ]
+        """
+
+        # validate resoources
+        try:
+            assert isinstance(resources, list)
+        except Exception as ex:
+            self.log.error('Invalid resource_id')
+            raise ex
+
+        # prepare headers
+        headers = {
+            'Authorization': 'Bearer %s' % self.pat['access_token']
         }
 
-    def retrieve_rpt(self, aat=None, permission_ticket=None):
+        # retrieve permission ticket
+        try:
+            response = requests.post(
+                self.config.permission_endpoint,
+                json=resources,
+                headers=headers
+            )
+            response.raise_for_status()
+        except Exception as ex:
+            self.log.exception('Failed to retrieve the permission ticket')
+            raise ex
+
+        return response.json()
+
+    def retrieve_rpt(self, aat=None, ticket=None):
         """
         Method to fetch the request party token (RPT)
 
         Args:
             aat (str): authorization api token
+            ticket (str): permission ticket
         """
-        # validate inputs
+        # validate aat
         try:
             assert isinstance(aat, str)
         except Exception as ex:
             self.log.error('Invalid AAT')
             raise ex
 
-        # handle default value for permission ticket
-        if permission_ticket is None:
-            permission_ticket = self.permission_ticket
+        # validate ticket
+        try:
+            assert isinstance(ticket, str)
+        except Exception as ex:
+            self.log.error('Invalid Permission ticket')
+            raise ex
+
+        # prepare payload
+        payload = {
+            'grant_type': 'urn:ietf:params:oauth:grant-type:uma-ticket',
+            'ticket': ticket,
+        }
 
         # prepare headers
         headers = {
@@ -72,9 +119,10 @@ class AuthorizationMixin:
         try:
             response = requests.post(
                 self.config.token_endpoint,
-                data=self.permission_ticket,
+                data=payload,
                 headers=headers
             )
+            print(response.content)
             response.raise_for_status()
         except Exception as ex:
             self.log.exception('Failed to retrieve RPT from keycloak server')

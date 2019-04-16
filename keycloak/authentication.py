@@ -29,7 +29,7 @@ class AuthenticationMixin:
             'scope': 'openid email profile user_roles',
             'redirect_uri': self.config.redirect_uri
         })
-        return self.config.authentication_endpoint + '?' + arguments
+        return self.config.authorization_endpoint + '?' + arguments
 
     def authentication_callback(self, code=None):
         """

@@ -29,7 +29,7 @@ class JwtMixin:
         Returns:
             list
         """
-        response = requests.get(self.config.certs_endpoint)
+        response = requests.get(self.config.jwks_uri)
         response.raise_for_status()
         return response.json().get('keys', [])
 

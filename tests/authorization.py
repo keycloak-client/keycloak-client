@@ -15,10 +15,10 @@ def test_basic_authorization_header(keycloak_client):
 def test_retrieve_rpt(mock_post, keycloak_client):
     """ Test case for retrieve_rpt """
     mock_post.return_value.json = MagicMock()
-    payload = {'grant_type': 'urn:ietf:params:oauth:grant-type:uma-ticket', 'audience': 'flask-app'}
-    headers = {'Authorization': 'Bearer token123456789'}
+    payload = {'grant_type': 'urn:ietf:params:oauth:grant-type:uma-ticket', 'ticket': 'ticket-12345'}
+    headers = {'Authorization': 'Bearer access-token-12345'}
     token_endpoint = 'https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/token'
-    keycloak_client.retrieve_rpt('token123456789')
+    keycloak_client.retrieve_rpt('access-token-12345', 'ticket-12345')
     mock_post.assert_called_once_with(token_endpoint, data=payload, headers=headers)
     mock_post.return_value.json.assert_called_once()
 
