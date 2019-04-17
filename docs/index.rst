@@ -6,19 +6,15 @@
 
    Authentication <authentication>
    Authorization <authorization>
-   Resource Management <resources>
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Contrib Packages
-
-   Middlewares <contrib/middlewares>
+   Resource <resources>
+   Permission <permission>
 
 .. toctree::
    :maxdepth: 2
    :caption: Examples
 
-   Flask <examples/flask>
+   Authentication <examples/authentication>
+   Authorization <examples/authorization>
 
 .. toctree::
    :maxdepth: 2

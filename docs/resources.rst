@@ -1,5 +1,5 @@
-Resource Management
-===================
+Resource
+========
 
 Keycloak client provides the following methods to perform resource management
 
