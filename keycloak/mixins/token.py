@@ -6,16 +6,10 @@ import base64
 import json
 
 import jwt
-from jwt.algorithms import (
-    ECAlgorithm,
-    HMACAlgorithm,
-    RSAAlgorithm,
-    RSAPSSAlgorithm,
-)
 import requests
 from cached_property import cached_property
 
-from .utils import fix_padding
+from ..utils import fix_padding
 
 
 class JwtMixin:
@@ -94,19 +88,19 @@ class JwtMixin:
 
         # handle EC
         if alg in ('ES256', 'ES384', 'ES521', 'ES512'):
-            return ECAlgorithm.from_jwk(key_json)
+            return jwt.algorithms.ECAlgorithm.from_jwk(key_json)
 
         # handle HMAC
         if alg in ('HS256', 'HS384', 'HS512'):
-            return HMACAlgorithm.from_jwk(key_json)
+            return jwt.algorithms.HMACAlgorithm.from_jwk(key_json)
 
         # handle RSA
         if alg in ('RS256', 'RS384', 'RS512'):
-            return RSAAlgorithm.from_jwk(key_json)
+            return jwt.algorithms.RSAAlgorithm.from_jwk(key_json)
 
         # handle RSAPSS
         if alg in ('PS256', 'PS384', 'PS512'):
-            return RSAPSSAlgorithm.from_jwk(key_json)
+            return jwt.algorithms.RSAPSSAlgorithm.from_jwk(key_json)
 
     @staticmethod
     def get_signing_algorithm(jwt_header):

@@ -6,7 +6,7 @@ import pytest
 from keycloak import KeycloakClient
 
 
-@pytest.fixture
+@pytest.fixture(scope='package')
 def keycloak_client():
     """ fixture for keycloak client """
     current_dir = os.path.dirname(os.path.realpath(__file__))

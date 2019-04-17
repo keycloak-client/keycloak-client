@@ -53,7 +53,7 @@ class ResourceMixin:
         """
 
         # create resource
-        response = requests.get(self.config.resource_endpoint, headers=self.headers)
+        response = requests.get(self.config.resource_registration_endpoint, headers=self.headers)
         response.raise_for_status()
 
         return response.json()
@@ -74,7 +74,7 @@ class ResourceMixin:
           }
         """
         response = requests.post(
-            self.config.resource_endpoint,
+            self.config.resource_registration_endpoint,
             json=resource,
             headers=self.headers
         )
@@ -90,7 +90,7 @@ class ResourceMixin:
         """
 
         # prepare endpoint
-        endpoint = self.config.resource_endpoint + resource_id
+        endpoint = self.config.resource_registration_endpoint + resource_id
 
         # create resource
         response = requests.get(endpoint, headers=self.headers)
@@ -108,7 +108,7 @@ class ResourceMixin:
         """
 
         # prepare endpoint
-        endpoint = self.config.resource_endpoint + resource_id
+        endpoint = self.config.resource_registration_endpoint + resource_id
 
         # update resource
         response = requests.put(endpoint, json=resource, headers=self.headers)
@@ -125,7 +125,7 @@ class ResourceMixin:
         """
 
         # prepare endpoint
-        endpoint = self.config.resource_endpoint + resource_id
+        endpoint = self.config.resource_registration_endpoint + resource_id
 
         # create resource
         response = requests.delete(endpoint, headers=self.headers)

@@ -8,14 +8,14 @@ api = Flask(__name__)
 keycloak_client = KeycloakClient()
 
 
-@api.route('/auth', methods=['GET'])
-def auth():
+@api.route('/login', methods=['GET'])
+def login():
     """ Initiate authentication """
     return redirect(keycloak_client.authentication_url)
 
 
-@api.route('/auth/callback', methods=['GET'])
-def auth_callback():
+@api.route('/login/callback', methods=['GET'])
+def login_callback():
     """ Authentication callback handler """
     code = request.args.get('code')
     aat = keycloak_client.authentication_callback(code)

@@ -7,6 +7,8 @@ import base64
 import requests
 from cached_property import cached_property
 
+from ..exceptions import InvalidAAT, InvalidPermissionTicket, InvalidRPT
+
 
 class AuthorizationMixin:
     """
@@ -45,22 +47,15 @@ class AuthorizationMixin:
         Args:
             resources (list): list of resources fot which ticket needs to be generated
 
-        example:
-        [
-          {
-            "resource_id": "bd94ac68-ee19-4c05-a49c-0715ab2232bf",
-            "resource_scopes": [
-              "class:read"
-            ]
-          }
-        ]
+        Raises:
+            HTTPError
         """
 
         # validate resoources
         try:
             assert isinstance(resources, list)
         except Exception as ex:
-            self.log.error('Invalid resource_id')
+            self.log.error('Invalid resource')
             raise ex
 
         # prepare headers
@@ -70,13 +65,14 @@ class AuthorizationMixin:
 
         # retrieve permission ticket
         try:
+            self.log.info('Retrieving permission ticket from keycloak server')
             response = requests.post(
                 self.config.permission_endpoint,
                 json=resources,
                 headers=headers
             )
             response.raise_for_status()
-        except Exception as ex:
+        except requests.exceptions.HTTPError as ex:
             self.log.exception('Failed to retrieve the permission ticket')
             raise ex
 
@@ -89,20 +85,25 @@ class AuthorizationMixin:
         Args:
             aat (str): authorization api token
             ticket (str): permission ticket
+
+        Raises:
+            InvalidAAT
+            InvalidPermissionTicket
+            HTTPError
         """
         # validate aat
         try:
             assert isinstance(aat, str)
         except Exception as ex:
             self.log.error('Invalid AAT')
-            raise ex
+            raise InvalidAAT
 
         # validate ticket
         try:
             assert isinstance(ticket, str)
         except Exception as ex:
             self.log.error('Invalid Permission ticket')
-            raise ex
+            raise InvalidPermissionTicket
 
         # prepare payload
         payload = {
@@ -117,14 +118,14 @@ class AuthorizationMixin:
 
         # fetch RPT token
         try:
+            self.log.info('Retrieving RPT from keycloak server')
             response = requests.post(
                 self.config.token_endpoint,
                 data=payload,
                 headers=headers
             )
-            print(response.content)
             response.raise_for_status()
-        except Exception as ex:
+        except requests.exceptions.HTTPError as ex:
             self.log.exception('Failed to retrieve RPT from keycloak server')
             raise ex
 
@@ -135,14 +136,17 @@ class AuthorizationMixin:
         Method to introspect and validate the request party token (RPT)
 
         Args:
-             rpt (str): RPT received
+            rpt (str): RPT received
+
+        Raises:
+            HTTPError
         """
 
         try:
             assert isinstance(rpt, str)
-        except Exception as ex:
+        except Exception:
             self.log.error('Invalid RPT')
-            raise ex
+            raise InvalidRPT
 
         # prepare payload
         payload = {
@@ -157,13 +161,14 @@ class AuthorizationMixin:
 
         # introspect token
         try:
+            self.log.info('Introspecting RPT token')
             response = requests.post(
                 self.config.introspection_endpoint,
                 data=payload,
                 headers=headers
             )
             response.raise_for_status()
-        except Exception as ex:
+        except requests.exceptions.HTTPError as ex:
             self.log.exception('Failed to validate RPT from keycloak server')
             raise ex
 

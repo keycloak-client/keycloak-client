@@ -5,10 +5,34 @@
 import json
 import os
 
+import requests
+
 
 # pylint: disable=too-few-public-methods
 class Configuration:
     """ keycloak configuration """
+    realm = None
+    hostname = None
+    client_id = None
+    client_secret = None
+    redirect_uri = None
+    issuer = None
+    authorization_endpoint = None
+    token_endpoint = None
+    token_introspection_endpoint = None
+    end_session_endpoint = None
+    jwks_uri = None
+    grant_types_supported = None
+    response_types_supported = None
+    response_modes_supported = None
+    registration_endpoint = None
+    token_endpoint_auth_methods_supported = None
+    token_endpoint_auth_signing_alg_values_supported = None
+    scopes_supported = None
+    resource_registration_endpoint = None
+    permission_endpoint = None
+    policy_endpoint = None
+    introspection_endpoint = None
 
     def __init__(self, config_file=None):
         """
@@ -35,18 +59,16 @@ class Configuration:
         except json.decoder.JSONDecodeError:
             raise ValueError('Invalid json file')
 
-        # validate whether the required configs are present or not
-        assert 'client_id' in config
-        assert 'client_secret' in config
-        assert 'redirect_uri' in config
-        assert 'authorization_endpoint' in config
-        assert 'token_endpoint' in config
-        assert 'introspection_endpoint' in config
-        assert 'jwks_uri' in config
-        assert 'resource_endpoint' in config
-        assert 'policy_endpoint' in config
-        assert 'permission_endpoint' in config
-
         # set attributes
         for key, val in config.items():
+            setattr(self, key, val)
+
+        # fetch urls using well-known url
+        # pylint: disable=line-too-long
+        well_known = self.hostname + '/auth/realms/' + self.realm + '/.well-known/uma2-configuration'
+        response = requests.get(well_known)
+        response.raise_for_status()
+
+        # set attributes
+        for key, val in response.json().items():
             setattr(self, key, val)

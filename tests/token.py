@@ -2,10 +2,8 @@
 import json
 from unittest.mock import MagicMock, PropertyMock, patch
 
-from .fixtures import keycloak_client
 
-
-@patch('keycloak.token.requests.get')
+@patch('keycloak.mixins.token.requests.get')
 def test_keys(mock_get, keycloak_client):
     """ Test case for keys """
     mock_get.return_value.json = MagicMock()
@@ -14,9 +12,9 @@ def test_keys(mock_get, keycloak_client):
     mock_get.return_value.json.assert_called_once()
 
 
-@patch('keycloak.token.json.loads')
-@patch('keycloak.token.base64.b64decode')
-@patch('keycloak.token.fix_padding')
+@patch('keycloak.mixins.token.json.loads')
+@patch('keycloak.mixins.token.base64.b64decode')
+@patch('keycloak.mixins.token.fix_padding')
 def test_parse_header(mock_fix_padding, mock_b64decode, mock_loads, keycloak_client):
     """ Test case for parse_header """
     mock_fix_padding.return_value = 'Zmxhc2stYXBwOjFmNDlmMDU3LWJiZjktNDM4OS1hOTBmLTNjNTk3MmY1NTY0YQ'
@@ -27,8 +25,8 @@ def test_parse_header(mock_fix_padding, mock_b64decode, mock_loads, keycloak_cli
     mock_loads.assert_called_once_with('{"key":"value"}')
 
 
-@patch('keycloak.token.RSAAlgorithm.from_jwk')
-@patch('keycloak.token.JwtMixin.keys', new_callable=PropertyMock)
+@patch('keycloak.mixins.token.jwt.algorithms.RSAAlgorithm.from_jwk')
+@patch('keycloak.mixins.token.JwtMixin.keys', new_callable=PropertyMock)
 def test_get_signing_key(mock_keys, mock_rsa, keycloak_client):
     """ Test case for get_signing_key """
     key_info = {'kid': '123456789', 'alg': 'RS256'}
@@ -45,10 +43,10 @@ def test_get_signing_algorithm(keycloak_client):
     assert algorithm == jwt_header['alg']
 
 
-@patch('keycloak.token.jwt.decode')
-@patch('keycloak.token.JwtMixin.get_signing_algorithm')
-@patch('keycloak.token.JwtMixin.get_signing_key')
-@patch('keycloak.token.JwtMixin.parse_header')
+@patch('keycloak.mixins.token.jwt.decode')
+@patch('keycloak.mixins.token.JwtMixin.get_signing_algorithm')
+@patch('keycloak.mixins.token.JwtMixin.get_signing_key')
+@patch('keycloak.mixins.token.JwtMixin.parse_header')
 def test_decode_jwt(mock_parse_header, mock_get_signing_key, mock_get_signing_algorithm, mock_decode, keycloak_client):
     """ Test case for decode_jwt """
     token = 'header.payload.signature'
@@ -63,7 +61,7 @@ def test_decode_jwt(mock_parse_header, mock_get_signing_key, mock_get_signing_al
     mock_decode.assert_called_once_with(token, 'signing_key', algorithms=['signing_algorithm'], options=options)
 
 
-@patch('keycloak.token.requests.post')
+@patch('keycloak.mixins.token.requests.post')
 def test_refresh_access_token(mock_post, keycloak_client):
     """ Test case for refresh_access_token """
     token = 'header.payload.signature'

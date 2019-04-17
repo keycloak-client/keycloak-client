@@ -8,6 +8,8 @@ import uuid
 import requests
 from cached_property import cached_property
 
+from ..exceptions import InvalidAuthorizationCode
+
 
 class AuthenticationMixin:
     """
@@ -22,6 +24,7 @@ class AuthenticationMixin:
         Returns:
             str
         """
+        self.log.info('Constructing authentication url')
         arguments = urllib.parse.urlencode({
             'state': uuid.uuid4(),
             'client_id': self.config.client_id,
@@ -46,8 +49,8 @@ class AuthenticationMixin:
 
         # validate code
         if code is None:
-            self.log.error('Invalid code')
-            raise ValueError('Invalid code')
+            self.log.error('Invalid authorization code')
+            raise InvalidAuthorizationCode
 
         # prepare request payload
         payload = {
@@ -60,6 +63,7 @@ class AuthenticationMixin:
 
         # retrieve tokens from keycloak server
         try:
+            self.log.info('Retrieving AAT from keycloak server')
             response = requests.post(self.config.token_endpoint, data=payload)
             response.raise_for_status()
         except Exception as ex:
