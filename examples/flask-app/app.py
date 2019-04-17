@@ -32,7 +32,7 @@ def auth_ticket():
 @api.route('/auth/rpt', methods=['POST'])
 def auth_rpt():
     """ Generate RPT (request party token) """
-    aat = request.headers.get('Authorization')
+    _, aat = request.headers.get('Authorization').split()
     ticket = request.json.get('ticket')
     rpt = keycloak_client.retrieve_rpt(aat, ticket)
     rpt = keycloak_client.decode_jwt(rpt)
@@ -50,14 +50,27 @@ def auth_refresh():
 @api.cli.command()
 def register_resources():
     """ Register resources with the keycloak server """
+
+    # read resouces.json
     with open('resources.json') as f:
-        resources = json.loads(f.read())
-    _pat = keycloak_client.pat['access_token']
-    for resource, policies in resources.items():
-        _resource = keycloak_client.create_resource(resource)
-        _resource_id = _resource['id']
+        records = json.loads(f.read())
+
+    # define PAT
+    pat = keycloak_client.pat['access_token']
+
+    # iterate over resources
+    for record in records:
+
+        # parse resource and policies
+        resource = record.get('resource')
+        policies = record.get('policies')
+
+        # create resource
+        resource = keycloak_client.create_resource(resource)
+
+        # create policies
         for policy in policies:
-            keycloak_client.create_policy(_pat, _resource_id, policy)
+            keycloak_client.create_permission(pat, resource['_id'], policy)
 
 
 if __name__ == '__main__':

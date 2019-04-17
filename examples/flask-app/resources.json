@@ -1,31 +1,45 @@
-[
-  {
-    "resource": {
-      "name": "student",
-      "type": "urn:flask-app:resources:student",
-      "uris": ["/student/*"],
-      "scopes": ["student:create", "student:read", "student:update", "student:delete"],
-      "ownerManagedAccess": true,
-    },
-    "policies": [
-      {
-        "name": "Any app user",
-        "description": "Allow all app users to read class and student",
-        "scopes": ["class:read"],
-        "roles": ["AppUser"]
-      }
-    ]
-  },
-  {
-    "resource": {
-      "name": "class",
-      "type": "urn:flask-app:resources:class",
-      "uris": ["/class/*"],
-      "scopes": ["class:create", "class:read", "class:update", "class:delete"],
-      "ownerManagedAccess": true
-    },
-    "policies": [
-
-    ]
-  }
+[{
+		"resource": {
+			"name": "student",
+			"type": "urn:flask-app:resources:student",
+			"uris": ["/student/*"],
+			"scopes": ["student:create", "student:read", "student:update", "student:delete"],
+			"ownerManagedAccess": "true"
+		},
+		"policies": [{
+				"name": "Student: Read for all",
+				"description": "Allow all app users to read",
+				"scopes": ["student:read"],
+				"roles": ["AppUser"]
+			},
+			{
+				"name": "Student: Delete for admins",
+				"description": "Allow admin users to delete",
+				"scopes": ["student:delete"],
+				"roles": ["Administrator"]
+			}
+		]
+	},
+	{
+		"resource": {
+			"name": "class",
+			"type": "urn:flask-app:resources:class",
+			"uris": ["/class/*"],
+			"scopes": ["class:create", "class:read", "class:update", "class:delete"],
+			"ownerManagedAccess": "true"
+		},
+		"policies": [{
+				"name": "Class: Read for all",
+				"description": "Allow all app users to read",
+				"scopes": ["class:read"],
+				"roles": ["AppUser"]
+			},
+			{
+				"name": "Class: Delete for admins",
+				"description": "Allow admin users to delete",
+				"scopes": ["class:delete"],
+				"roles": ["Administrator"]
+			}
+		]
+	}
 ]
