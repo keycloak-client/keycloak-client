@@ -1,0 +1,7 @@
+{
+  "realm": "my-realm",
+  "hostname": "https://keycloak-server.com",
+  "client_id": "my-app",
+  "client_secret": "1f49f057-bbf9-4389-3c5972f5564a",
+  "redirect_uri": "http://localhost:5000/login/callback"
+}

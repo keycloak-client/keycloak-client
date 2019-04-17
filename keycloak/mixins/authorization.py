@@ -75,6 +75,7 @@ class AuthorizationMixin:
         Args:
             aat (str): authorization api token
             ticket (str): permission ticket
+            audience (str): client id or audience
 
         Raises:
             InvalidAAT
@@ -82,10 +83,15 @@ class AuthorizationMixin:
             HTTPError
         """
         # prepare payload
-        payload = {
-            'grant_type': 'urn:ietf:params:oauth:grant-type:uma-ticket',
-            'ticket': ticket,
-        }
+        payload = {'grant_type': 'urn:ietf:params:oauth:grant-type:uma-ticket'}
+
+        # with ticket
+        if ticket:
+            payload.update({'ticket': ticket})
+
+        # without ticket
+        else:
+            payload.update({'audience': self.config.client_id})
 
         # prepare headers
         headers = {

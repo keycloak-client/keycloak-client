@@ -133,3 +133,72 @@ class ResourceMixin:
         response.raise_for_status()
 
         return response.json()
+
+    def register_resouces(self, resources_file=None):
+        """
+        Method to register resources in the keycloak server
+
+        Args:
+            resources_file (str): file path
+
+        Example:
+        [
+          {
+            "resource":{
+              "name":"student",
+              "type":"urn:flask-app:resources:student",
+              "uris":[
+                "/student/*"
+              ],
+              "scopes":[
+                "student:create",
+                "student:read",
+                "student:update",
+                "student:delete"
+              ],
+              "ownerManagedAccess":"true"
+            },
+            "permissions":[
+              {
+                "name":"Student: Read for all",
+                "description":"Allow all app users to read",
+                "scopes":[
+                  "student:read"
+                ],
+                "roles":[
+                  "AppUser"
+                ]
+              },
+              {
+                "name":"Student: Delete for admins",
+                "description":"Allow admin users to delete",
+                "scopes":[
+                  "student:delete"
+                ],
+                "roles":[
+                  "Administrator"
+                ]
+              }
+            ]
+          }
+        ]
+        """
+        # read resouces file
+        with open('resources_file') as f:
+            records = json.loads(f.read())
+
+        # iterate over resources
+        for record in records:
+
+            # parse resource and permissions
+            resource = record.get('resource')
+            permissions = record.get('permissions')
+
+            # create resource
+            self.log.info('Processing resource %s', resource['name'])
+            resource = self.create_resource(resource)
+
+            # create policies
+            for permission in permissions:
+                self.log.info('Processing permission %s', permission['name'])
+                self.create_permission(self.pat['access_token'], resource['_id'], permission)
