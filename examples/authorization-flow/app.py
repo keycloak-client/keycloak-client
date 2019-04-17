@@ -59,44 +59,43 @@ def register_resources():
 
 def authorization():
     """ Authorization middleware """
-    if '/student' in request.path:
+    # rules
+    with open('permissions.json') as f:
+        rules = json.loads(f.read())
 
-        # deny
-        deny = Response('You do not have access to the requested resource', status=403)
+    # validate rules
+    for path, rule in rules.items():
 
-        # read access token
-        access_token = request.cookies.get('ACCESS_TOKEN')
+        if path == request.path:
 
-        # retrieve RPT
-        try:
-            rpt = keycloak_client.retrieve_rpt(access_token)['access_token']
-            rpt = keycloak_client.decode_jwt(rpt)
-        except Exception:
+            # deny
+            deny = Response('You do not have access to the requested resource', status=403)
+
+            # read access token
+            access_token = request.cookies.get('ACCESS_TOKEN')
+
+            # retrieve RPT
+            try:
+                rpt = keycloak_client.retrieve_rpt(access_token)['access_token']
+                rpt = keycloak_client.decode_jwt(rpt)
+            except Exception:
+                return deny
+
+            # retrieve permissions
+            permissions = rpt.get('authorization', {}).get('permissions')
+
+            _resource = rule['resource']
+            _permissions = rule['permissions']
+            _scope_required = _permissions[request.method.lower()]
+
+            for permission in permissions:
+                resource = permission.get('rsname')
+                scopes = permission.get('scopes', [])
+                if resource == _resource and _scope_required in scopes:
+                    return
+
+            # deny access by default
             return deny
-
-        # retrieve permissions
-        permissions = rpt.get('authorization', {}).get('permissions')
-        for permission in permissions:
-            if permission['rsname'] == 'student':
-
-                # create operation
-                if request.method == 'POST' and 'student:write' in permission['scopes']:
-                    return
-
-                # read operation
-                if request.method == 'GET' and 'student:read' in permission['scopes']:
-                    return
-
-                # update operation
-                if request.method == 'PUT' and 'student:update' in permission['scopes']:
-                    return
-
-                # delete operation
-                if request.method == 'DELETE' and 'student:delete' in permission['scopes']:
-                    return
-
-        # deny access by default
-        return deny
 
 
 # register middleware

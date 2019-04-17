@@ -1,0 +1,11 @@
+{
+	"/student": {
+		"resource": "student",
+		"permissions": {
+			"get": "student:read",
+			"post": "student:create",
+			"put": "student:update",
+			"delete": "student:delete"
+		}
+	}
+}
