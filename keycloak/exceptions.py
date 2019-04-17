@@ -17,3 +17,15 @@ class InvalidPermissionTicket(Exception):
 
 class InvalidRPT(Exception):
     """ Exception for wrong RPT """
+
+
+class InvalidPolicy(Exception):
+    """ Exception for wrong policy """
+
+
+class InvalidResource(Exception):
+    """ Exception for wrong policy """
+
+
+class InvalidPermission(Exception):
+    """ Exception for wrong permission """

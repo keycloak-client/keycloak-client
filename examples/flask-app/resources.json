@@ -1,14 +1,31 @@
 [
   {
-    "name": "student",
-    "type": "urn:flask-app:resources:student",
-    "uris": ["/student/*"],
-    "scopes": ["student:create", "student:read", "student:update", "student:delete"]
+    "resource": {
+      "name": "student",
+      "type": "urn:flask-app:resources:student",
+      "uris": ["/student/*"],
+      "scopes": ["student:create", "student:read", "student:update", "student:delete"],
+      "ownerManagedAccess": true,
+    },
+    "policies": [
+      {
+        "name": "Any app user",
+        "description": "Allow all app users to read class and student",
+        "scopes": ["class:read"],
+        "roles": ["AppUser"]
+      }
+    ]
   },
   {
-    "name": "class",
-    "type": "urn:flask-app:resources:class",
-    "uris": ["/class/*"],
-    "scopes": ["class:create", "class:read", "class:update", "class:delete"]
+    "resource": {
+      "name": "class",
+      "type": "urn:flask-app:resources:class",
+      "uris": ["/class/*"],
+      "scopes": ["class:create", "class:read", "class:update", "class:delete"],
+      "ownerManagedAccess": true
+    },
+    "policies": [
+
+    ]
   }
 ]

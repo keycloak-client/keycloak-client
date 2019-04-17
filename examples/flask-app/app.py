@@ -52,8 +52,12 @@ def register_resources():
     """ Register resources with the keycloak server """
     with open('resources.json') as f:
         resources = json.loads(f.read())
-    for resource in resources:
-        keycloak_client.create_resource(resource)
+    _pat = keycloak_client.pat['access_token']
+    for resource, policies in resources.items():
+        _resource = keycloak_client.create_resource(resource)
+        _resource_id = _resource['id']
+        for policy in policies:
+            keycloak_client.create_policy(_pat, _resource_id, policy)
 
 
 if __name__ == '__main__':

@@ -7,8 +7,6 @@ import base64
 import requests
 from cached_property import cached_property
 
-from ..exceptions import InvalidAAT, InvalidPermissionTicket, InvalidRPT
-
 
 class AuthorizationMixin:
     """
@@ -50,14 +48,6 @@ class AuthorizationMixin:
         Raises:
             HTTPError
         """
-
-        # validate resoources
-        try:
-            assert isinstance(resources, list)
-        except Exception as ex:
-            self.log.error('Invalid resource')
-            raise ex
-
         # prepare headers
         headers = {
             'Authorization': 'Bearer %s' % self.pat['access_token']
@@ -91,20 +81,6 @@ class AuthorizationMixin:
             InvalidPermissionTicket
             HTTPError
         """
-        # validate aat
-        try:
-            assert isinstance(aat, str)
-        except Exception as ex:
-            self.log.error('Invalid AAT')
-            raise InvalidAAT
-
-        # validate ticket
-        try:
-            assert isinstance(ticket, str)
-        except Exception as ex:
-            self.log.error('Invalid Permission ticket')
-            raise InvalidPermissionTicket
-
         # prepare payload
         payload = {
             'grant_type': 'urn:ietf:params:oauth:grant-type:uma-ticket',
@@ -141,13 +117,6 @@ class AuthorizationMixin:
         Raises:
             HTTPError
         """
-
-        try:
-            assert isinstance(rpt, str)
-        except Exception:
-            self.log.error('Invalid RPT')
-            raise InvalidRPT
-
         # prepare payload
         payload = {
             'token_type_hint': 'requesting_party_token',

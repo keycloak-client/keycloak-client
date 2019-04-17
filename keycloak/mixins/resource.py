@@ -52,7 +52,8 @@ class ResourceMixin:
             dict
         """
 
-        # create resource
+        # list resource
+        self.log.info('Fetching list of resources')
         response = requests.get(self.config.resource_registration_endpoint, headers=self.headers)
         response.raise_for_status()
 
