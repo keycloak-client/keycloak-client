@@ -16,7 +16,7 @@ from .mixins.token import JwtMixin
 class KeycloakClient(AuthenticationMixin, AuthorizationMixin, PermissionMixin, ResourceMixin, JwtMixin):
     """ keycloak client """
 
-    def __init__(self, config_file=None, log_dir=None, log_level=logging.DEBUG):
+    def __init__(self, config_file=None, log_dir=None, log_level=logging.INFO):
         """
         Method to initialize keycloak client
 

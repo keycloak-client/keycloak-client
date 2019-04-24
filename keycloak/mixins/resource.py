@@ -2,6 +2,7 @@
 
 """ This mixin takes care of all functionalities associated with resources """
 
+import json
 import requests
 from cached_property import cached_property, cached_property_with_ttl
 
@@ -184,8 +185,8 @@ class ResourceMixin:
         ]
         """
         # read resouces file
-        with open(resources_file) as f:
-            records = json.loads(f.read())
+        with open(resources_file) as file:
+            records = json.loads(file.read())
 
         # iterate over resources
         for record in records:

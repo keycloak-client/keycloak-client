@@ -7,7 +7,7 @@ import json
 
 import jwt
 import requests
-from cached_property import cached_property
+from cached_property import cached_property_with_ttl
 
 from ..utils import fix_padding
 
@@ -15,7 +15,7 @@ from ..utils import fix_padding
 class JwtMixin:
     """ This class consists of methods that can be user to perform JWT operations """
 
-    @cached_property
+    @cached_property_with_ttl(ttl=86400)
     def keys(self):
         """
         Method to retrieve keys used to sign jwt tokens
