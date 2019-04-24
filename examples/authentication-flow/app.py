@@ -10,7 +10,8 @@ keycloak_client = KeycloakClient()
 @api.route('/login', methods=['GET'])
 def login():
     """ Initiate authentication """
-    return redirect(keycloak_client.authentication_url)
+    auth_url = keycloak_client.authentication_url()
+    return redirect(auth_url)
 
 
 @api.route('/login/callback', methods=['GET'])

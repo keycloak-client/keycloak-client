@@ -4,9 +4,7 @@
 
 import urllib
 import uuid
-
 import requests
-from cached_property import cached_property
 
 
 class AuthenticationMixin:
@@ -14,10 +12,12 @@ class AuthenticationMixin:
     This class includes the methods to interact with the authentication flow
     """
 
-    @cached_property
-    def authentication_url(self):
+    def authentication_url(self, scopes=('openid',)):
         """
         Method which builds the login url for keycloak
+
+        Args:
+            scopes (tuple): list of scopes
 
         Returns:
             str
@@ -27,7 +27,7 @@ class AuthenticationMixin:
             'state': uuid.uuid4(),
             'client_id': self.config.client_id,
             'response_type': 'code',
-            'scope': 'openid email profile user_roles',
+            'scope': ' '.join(scopes),
             'redirect_uri': self.config.redirect_uri
         })
         return self.config.authorization_endpoint + '?' + arguments

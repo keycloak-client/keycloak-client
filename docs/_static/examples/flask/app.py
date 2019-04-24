@@ -11,7 +11,8 @@ keycloak_client = KeycloakClient()
 @app.route('/login', methods=['GET'])
 def login():
     """ Endpoint to initiate authentication """
-    return redirect(keycloak_client.authentication_url)
+    auth_url = keycloak_client.authentication_url()
+    return redirect(auth_url)
 
 
 @app.route('/login-callback', methods=['GET'])

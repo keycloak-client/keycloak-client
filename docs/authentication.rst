@@ -13,7 +13,8 @@ The following snippet is an example written in `Flask <http://flask.pocoo.org/>`
    @app.route('/login', methods=['GET'])
    def login():
        """ Endpoint to initiate authentication """
-       return redirect(keycloak_client.authentication_url)
+       auth_url = keycloak_client.authentication_url()
+       return redirect(auth_url)
 
 
    @app.route('/login-callback', methods=['GET'])

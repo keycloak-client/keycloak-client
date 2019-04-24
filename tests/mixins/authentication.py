@@ -11,12 +11,12 @@ def test_authentication_url(mock_uuid4, keycloak_client):
         'state': '862e94e4-e04b-463b-8d08-577161684b76',
         'client_id': keycloak_client.config.client_id,
         'response_type': 'code',
-        'scope': 'openid email profile user_roles',
+        'scope': 'openid',
         'redirect_uri': keycloak_client.config.redirect_uri
     })
     authentication_url = keycloak_client.config.authorization_endpoint + '?' + arguments
     assert authentication_url is not None
-    assert authentication_url == keycloak_client.authentication_url
+    assert authentication_url == keycloak_client.authentication_url()
 
 
 @patch('keycloak.mixins.authentication.requests.post')
