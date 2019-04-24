@@ -23,14 +23,15 @@ class AuthenticationMixin:
             str
         """
         self.log.info('Constructing authentication url')
+        state = str(uuid.uuid4())
         arguments = urllib.parse.urlencode({
-            'state': uuid.uuid4(),
+            'state': state,
             'client_id': self.config.client_id,
             'response_type': 'code',
             'scope': ' '.join(scopes),
             'redirect_uri': self.config.redirect_uri
         })
-        return self.config.authorization_endpoint + '?' + arguments
+        return self.config.authorization_endpoint + '?' + arguments, state
 
     def authentication_callback(self, code):
         """

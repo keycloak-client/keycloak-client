@@ -1,19 +1,19 @@
 #! -*- coding: utf-8 -*-
 import json
-from flask import Flask, redirect, request, jsonify, Response, render_template
+from flask import Flask, redirect, request, session, Response, render_template
 from keycloak import KeycloakClient
 
 
 api = Flask(__name__)
-
-
+api.config['SECRET_KEY'] = 'EYxuFcNqGamVU78GgfupoO5N4z2xokA58XtL0ag'
 keycloak_client = KeycloakClient()
 
 
 @api.route('/login', methods=['GET'])
 def login():
     """ Initiate authentication """
-    auth_url = keycloak_client.authentication_url()
+    auth_url, state = keycloak_client.authentication_url()
+    session[state] = True
     return redirect(auth_url)
 
 
@@ -21,11 +21,18 @@ def login():
 def login_callback():
     """ Authentication callback handler """
     code = request.args.get('code')
-    aat = keycloak_client.authentication_callback(code)
-    access_token = aat['access_token']
-    response = Response('Please open `/student` within the browser')
-    response.set_cookie('ACCESS_TOKEN', access_token)
-    return response
+    state = request.args.get('state', 'unknown')
+
+    # validate state
+    _session = session.pop(state, None)
+    if not _session:
+        return Response('Invalid state', status=403)
+
+    # retrieve tokens
+    response = keycloak_client.authentication_callback(code)
+    session['access_token'] = response['access_token']
+
+    return Response('Please open `/student` within the browser')
 
 
 @api.route('/student', methods=['GET'])
@@ -73,7 +80,7 @@ def authorization():
             deny = Response('You do not have access to the requested resource', status=403)
 
             # read access token
-            access_token = request.cookies.get('ACCESS_TOKEN')
+            access_token = session['access_token']
 
             # retrieve RPT
             try:
