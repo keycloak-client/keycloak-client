@@ -17,8 +17,9 @@ def login():
 def login_callback():
     """ Authentication callback handler """
     code = request.args.get('code')
-    aat = keycloak_client.authentication_callback(code)
-    return jsonify(aat)
+    response = keycloak_client.authentication_callback(code)
+    user_info = keycloak_client.decode_jwt(response['id_token'])
+    return jsonify(user_info)
 
 
 if __name__ == '__main__':

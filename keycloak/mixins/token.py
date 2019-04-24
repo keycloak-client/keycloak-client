@@ -112,14 +112,12 @@ class JwtMixin:
         """
         return jwt_header.get('alg')
 
-    def decode_jwt(self, token, verify_aud=False, verify_iss=False):
+    def decode_jwt(self, token):
         """
         Method to decode JWT token
 
         Args:
             token (str): JWT token
-            verify_aud (bool): flag to validate audience or not
-            verify_iss (bool): flag to validate issuer or not
         """
 
         # parse jwt segments
@@ -133,8 +131,10 @@ class JwtMixin:
         signing_algorithm = self.get_signing_algorithm(header)
 
         # decrypt jwt
-        options = {'verify_aud': verify_aud, 'verify_iss': verify_iss}
-        return jwt.decode(token, signing_key, algorithms=[signing_algorithm], options=options)
+        return jwt.decode(
+            token, signing_key, algorithms=[signing_algorithm], issuer=self.config.issuer,
+            audience=self.config.client_id
+        )
 
     def refresh_access_token(self, refresh_token):
         """

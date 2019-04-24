@@ -31,7 +31,7 @@ def test_get_signing_key(mock_keys, mock_rsa, keycloak_client):
     """ Test case for get_signing_key """
     key_info = {'kid': '123456789', 'alg': 'RS256'}
     mock_keys.return_value = [{'kid': '123456789', 'alg': 'RS256'}]
-    signing_key = keycloak_client.get_signing_key(key_info)
+    keycloak_client.get_signing_key(key_info)
     mock_keys.assert_called_once()
     mock_rsa.assert_called_once_with(json.dumps(key_info))
 
@@ -53,12 +53,11 @@ def test_decode_jwt(mock_parse_header, mock_get_signing_key, mock_get_signing_al
     mock_parse_header.return_value = 'header'
     mock_get_signing_key.return_value = 'signing_key'
     mock_get_signing_algorithm.return_value = 'signing_algorithm'
-    options = {'verify_aud': False, 'verify_iss': False}
     keycloak_client.decode_jwt(token)
     mock_parse_header.assert_called_once_with('header')
     mock_get_signing_key.assert_called_once_with('header')
     mock_get_signing_algorithm.assert_called_once_with('header')
-    mock_decode.assert_called_once_with(token, 'signing_key', algorithms=['signing_algorithm'], options=options)
+    mock_decode.assert_called_once_with(token, 'signing_key', algorithms=['signing_algorithm'], issuer=keycloak_client.config.issuer, audience=keycloak_client.config.client_id)
 
 
 @patch('keycloak.mixins.token.requests.post')
