@@ -134,7 +134,7 @@ class ResourceMixin:
 
         return response.json()
 
-    def register_resouces(self, resources_file=None):
+    def register_resources(self, resources_file=None):
         """
         Method to register resources in the keycloak server
 
@@ -184,7 +184,7 @@ class ResourceMixin:
         ]
         """
         # read resouces file
-        with open('resources_file') as f:
+        with open(resources_file) as f:
             records = json.loads(f.read())
 
         # iterate over resources
