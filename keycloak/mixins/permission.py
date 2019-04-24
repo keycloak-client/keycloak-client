@@ -12,7 +12,7 @@ class PermissionMixin:
     https://www.keycloak.org/docs/latest/authorization_services/index.html#_service_authorization_uma_policy_api
     """
 
-    def list_permission(self, aat=None):
+    def list_permission(self, aat):
         """
         Method to list all permissions associated with the user/client
 
@@ -42,7 +42,7 @@ class PermissionMixin:
         return response.json()
 
     # pylint: disable=dangerous-default-value
-    def create_permission(self, aat=None, resource_id=None, permission={}):
+    def create_permission(self, aat, resource_id, permission={}):
         """
         Method to create permission
 
@@ -76,7 +76,7 @@ class PermissionMixin:
         return response.json()
 
     # pylint: disable=dangerous-default-value
-    def update_permission(self, aat=None, permission_id=None, permission={}):
+    def update_permission(self, aat, permission_id, permission={}):
         """
         Method to update the permission
 
@@ -102,7 +102,7 @@ class PermissionMixin:
             self.log.exception('Failed to update permission')
             raise ex
 
-    def delete_permission(self, aat=None, permission_id=None):
+    def delete_permission(self, aat, permission_id):
         """
         Method to delete the permission
 

@@ -8,8 +8,6 @@ import uuid
 import requests
 from cached_property import cached_property
 
-from ..exceptions import InvalidAuthorizationCode
-
 
 class AuthenticationMixin:
     """
@@ -34,7 +32,7 @@ class AuthenticationMixin:
         })
         return self.config.authorization_endpoint + '?' + arguments
 
-    def authentication_callback(self, code=None):
+    def authentication_callback(self, code):
         """
         Method to retrieve access_token, refresh_token and id_token
 
@@ -46,11 +44,6 @@ class AuthenticationMixin:
             refresh_token (str)
             id_token (str)
         """
-
-        # validate code
-        if code is None:
-            self.log.error('Invalid authorization code')
-            raise InvalidAuthorizationCode
 
         # prepare request payload
         payload = {

@@ -68,7 +68,7 @@ class AuthorizationMixin:
 
         return response.json()
 
-    def retrieve_rpt(self, aat=None, ticket=None):
+    def retrieve_rpt(self, aat, ticket=None):
         """
         Method to fetch the request party token (RPT)
 
