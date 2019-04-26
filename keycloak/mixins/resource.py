@@ -4,7 +4,10 @@
 
 import json
 import requests
-from cached_property import cached_property, cached_property_with_ttl
+from cached_property import cached_property_with_ttl
+
+from ..utils import auth_header
+from ..constants import TokenType
 
 
 class ResourceMixin:
@@ -27,23 +30,20 @@ class ResourceMixin:
             'grant_type': 'client_credentials'
         }
 
-        # prepare headers
-        headers = {
-            'Authorization': self.basic_authorization_header
-        }
-
         # retrieve PAT
-        response = requests.post(self.config.token_endpoint, data=payload, headers=headers)
+        response = requests.post(
+            self.config.token_endpoint,
+            data=payload,
+            headers=self.basic_auth_header
+        )
         response.raise_for_status()
 
         return response.json()
 
     @property
-    def headers(self):
+    def pat_auth_header(self):
         """ Common headers used within the class """
-        return {
-            'Authorization': 'Bearer {}'.format(self.pat['access_token'])
-        }
+        return auth_header(self.pat['access_token'], TokenType.BEARER)
 
     def list_resource(self):
         """
@@ -55,7 +55,10 @@ class ResourceMixin:
 
         # list resource
         self.log.info('Fetching list of resources')
-        response = requests.get(self.config.resource_registration_endpoint, headers=self.headers)
+        response = requests.get(
+            self.config.resource_registration_endpoint,
+            headers=self.pat_auth_header
+        )
         response.raise_for_status()
 
         return response.json()
@@ -78,7 +81,7 @@ class ResourceMixin:
         response = requests.post(
             self.config.resource_registration_endpoint,
             json=resource,
-            headers=self.headers
+            headers=self.pat_auth_header
         )
         response.raise_for_status()
         return response.json()
@@ -95,7 +98,7 @@ class ResourceMixin:
         endpoint = self.config.resource_registration_endpoint + resource_id
 
         # create resource
-        response = requests.get(endpoint, headers=self.headers)
+        response = requests.get(endpoint, headers=self.pat_auth_header)
         response.raise_for_status()
 
         return response.json()
@@ -113,7 +116,7 @@ class ResourceMixin:
         endpoint = self.config.resource_registration_endpoint + resource_id
 
         # update resource
-        response = requests.put(endpoint, json=resource, headers=self.headers)
+        response = requests.put(endpoint, json=resource, headers=self.pat_auth_header)
         response.raise_for_status()
 
         return response.json()
@@ -130,7 +133,7 @@ class ResourceMixin:
         endpoint = self.config.resource_registration_endpoint + resource_id
 
         # create resource
-        response = requests.delete(endpoint, headers=self.headers)
+        response = requests.delete(endpoint, headers=self.pat_auth_header)
         response.raise_for_status()
 
         return response.json()
@@ -192,8 +195,8 @@ class ResourceMixin:
         for record in records:
 
             # parse resource and permissions
-            resource = record.get('resource')
-            permissions = record.get('permissions')
+            resource = record.get('resource', [])
+            permissions = record.get('permissions', [])
 
             # create resource
             self.log.info('Processing resource %s', resource['name'])

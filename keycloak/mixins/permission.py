@@ -4,6 +4,9 @@
 
 import requests
 
+from ..utils import auth_header
+from ..constants import TokenType
+
 
 class PermissionMixin:
     """
@@ -27,9 +30,7 @@ class PermissionMixin:
             HTTPError
         """
         # prepare headers
-        headers = {
-            'Authorization': 'Bearer %s' % aat
-        }
+        headers = auth_header(aat, TokenType.BEARER)
 
         # fetch list of policies
         try:
@@ -55,9 +56,7 @@ class PermissionMixin:
         endpoint = self.config.policy_endpoint + '/' + resource_id
 
         # prepare headers
-        headers = {
-            'Authorization': 'Bearer %s' % aat
-        }
+        headers = auth_header(aat, TokenType.BEARER)
 
         # prepare payload
         permission.update({
@@ -89,9 +88,7 @@ class PermissionMixin:
         endpoint = self.config.policy_endpoint + '/' + permission_id
 
         # prepare headers
-        headers = {
-            'Authorization': 'Bearer %s' % aat
-        }
+        headers = auth_header(aat, TokenType.BEARER)
 
         # update permission
         try:
@@ -114,9 +111,7 @@ class PermissionMixin:
         endpoint = self.config.policy_endpoint + '/' + permission_id
 
         # prepare headers
-        headers = {
-            'Authorization': 'Bearer %s' % aat
-        }
+        headers = auth_header(aat, TokenType.BEARER)
 
         # delete permission
         try:

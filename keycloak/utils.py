@@ -2,6 +2,43 @@
 
 """ utility functions """
 
+import base64
+
+
+def b64encode(string):
+    """
+    Method to encode string using base64
+
+    Args:
+        string (str): data to be encoded
+
+    Returns:
+        str
+    """
+    # convert to bytes
+    string = bytes(string, 'utf-8')
+
+    # perform base64 encoding
+    string = base64.b64encode(string)
+
+    # convert to str
+    return string.decode('utf-8')
+
+
+def auth_header(token_val, token_type):
+    """
+    Method to generate authorization header to be used with the requests
+
+    Args:
+        token_val (str): authentication token
+        token_type (str): token type eg: Basic, Bearer etc
+
+    Returns:
+        dict
+    """
+    return {
+        'Authorization': '{} {}'.format(token_type, token_val)
+    }
 
 def fix_padding(encoded_string):
     """

@@ -2,10 +2,11 @@
 
 """ This mixin takes care of all functionalities associated with authorization """
 
-import base64
-
 import requests
 from cached_property import cached_property
+
+from ..utils import b64encode, auth_header
+from ..constants import TokenType
 
 
 class AuthorizationMixin:
@@ -15,7 +16,7 @@ class AuthorizationMixin:
     """
 
     @cached_property
-    def basic_authorization_header(self):
+    def basic_auth_header(self):
         """
         Method to prepare the authorization header
 
@@ -26,16 +27,13 @@ class AuthorizationMixin:
         # construct authorization string
         authorization = '{}:{}'.format(self.config.client_id, self.config.client_secret)
 
-        # convert to bytes
-        authorization = bytes(authorization, 'utf-8')
+        # base64 encode
+        authorization = b64encode(authorization)
 
-        # perform base64 encoding
-        authorization = base64.b64encode(authorization)
+        # prepare header
+        headers = auth_header(authorization, TokenType.BASIC)
 
-        # convert to str
-        authorization = authorization.decode('utf-8')
-
-        return 'Basic {}'.format(authorization)
+        return headers
 
     # pylint: disable=dangerous-default-value
     def retrieve_ticket(self, resources=[]):
@@ -48,18 +46,13 @@ class AuthorizationMixin:
         Raises:
             HTTPError
         """
-        # prepare headers
-        headers = {
-            'Authorization': 'Bearer %s' % self.pat['access_token']
-        }
-
         # retrieve permission ticket
         try:
             self.log.info('Retrieving permission ticket from keycloak server')
             response = requests.post(
                 self.config.permission_endpoint,
                 json=resources,
-                headers=headers
+                headers=self.pat_auth_header
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:
@@ -94,9 +87,7 @@ class AuthorizationMixin:
             payload.update({'audience': self.config.client_id})
 
         # prepare headers
-        headers = {
-            'Authorization': 'Bearer {}'.format(aat)
-        }
+        headers = auth_header(aat, TokenType.BEARER)
 
         # fetch RPT token
         try:
@@ -129,18 +120,13 @@ class AuthorizationMixin:
             'token': rpt
         }
 
-        # prepare headers
-        headers = {
-            'Authorization': self.basic_authorization_header
-        }
-
         # introspect token
         try:
             self.log.info('Introspecting RPT token')
             response = requests.post(
                 self.config.introspection_endpoint,
                 data=payload,
-                headers=headers
+                headers=self.basic_auth_header
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:

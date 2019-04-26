@@ -18,13 +18,13 @@ def test_headers(mock_pat, keycloak_client):
     """ Test case for headers """
     mock_pat.return_value = {'access_token': 'token123456789'}
     headers = {'Authorization': 'Bearer token123456789'}
-    result = keycloak_client.headers
+    result = keycloak_client.pat_auth_header
     assert result == headers
     mock_pat.assert_called_once()
 
 
 @patch('keycloak.mixins.resource.requests.get')
-@patch('keycloak.mixins.resource.ResourceMixin.headers', new_callable=PropertyMock)
+@patch('keycloak.mixins.resource.ResourceMixin.pat_auth_header', new_callable=PropertyMock)
 def test_list_resource(mock_headers, mock_get, keycloak_client):
     """ Test case for list_resource """
     headers = {'Authorization': 'token123456789'}
@@ -36,7 +36,7 @@ def test_list_resource(mock_headers, mock_get, keycloak_client):
 
 
 @patch('keycloak.mixins.resource.requests.post')
-@patch('keycloak.mixins.resource.ResourceMixin.headers', new_callable=PropertyMock)
+@patch('keycloak.mixins.resource.ResourceMixin.pat_auth_header', new_callable=PropertyMock)
 def test_create_resource(mock_headers, mock_post, keycloak_client):
     """ Test case for list_resource """
     resource = {}
@@ -49,7 +49,7 @@ def test_create_resource(mock_headers, mock_post, keycloak_client):
 
 
 @patch('keycloak.mixins.resource.requests.get')
-@patch('keycloak.mixins.resource.ResourceMixin.headers', new_callable=PropertyMock)
+@patch('keycloak.mixins.resource.ResourceMixin.pat_auth_header', new_callable=PropertyMock)
 def test_read_resource(mock_headers, mock_get, keycloak_client):
     """ Test case for list_resource """
     resource_id = '123456789'
@@ -63,7 +63,7 @@ def test_read_resource(mock_headers, mock_get, keycloak_client):
 
 
 @patch('keycloak.mixins.resource.requests.put')
-@patch('keycloak.mixins.resource.ResourceMixin.headers', new_callable=PropertyMock)
+@patch('keycloak.mixins.resource.ResourceMixin.pat_auth_header', new_callable=PropertyMock)
 def test_update_resource(mock_headers, mock_put, keycloak_client):
     """ Test case for list_resource """
     resource_id = '123456789'
@@ -78,7 +78,7 @@ def test_update_resource(mock_headers, mock_put, keycloak_client):
 
 
 @patch('keycloak.mixins.resource.requests.delete')
-@patch('keycloak.mixins.resource.ResourceMixin.headers', new_callable=PropertyMock)
+@patch('keycloak.mixins.resource.ResourceMixin.pat_auth_header', new_callable=PropertyMock)
 def test_delete_resource(mock_headers, mock_delete, keycloak_client):
     """ Test case for list_resource """
     resource_id = '123456789'

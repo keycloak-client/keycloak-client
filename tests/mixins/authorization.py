@@ -2,11 +2,11 @@
 from unittest.mock import MagicMock, PropertyMock, patch
 
 
-def test_basic_authorization_header(keycloak_client):
-    """ Test case for basic_authorization_header """
-    authorization = keycloak_client.basic_authorization_header
+def test_basic_auth_header(keycloak_client):
+    """ Test case for basic_auth_header """
+    authorization = keycloak_client.basic_auth_header
     assert authorization is not None
-    assert authorization == 'Basic Zmxhc2stYXBwOjFmNDlmMDU3LWJiZjktNDM4OS1hOTBmLTNjNTk3MmY1NTY0YQ=='
+    assert authorization == {'Authorization': 'Basic Zmxhc2stYXBwOjFmNDlmMDU3LWJiZjktNDM4OS1hOTBmLTNjNTk3MmY1NTY0YQ=='}
 
 
 @patch('keycloak.mixins.resource.ResourceMixin.pat', new_callable=PropertyMock)
@@ -47,8 +47,7 @@ def test_validate_rpt(mock_post, keycloak_client):
     """ Test case for validate_rpt """
     mock_post.return_value.json = MagicMock()
     payload = {'token_type_hint': 'requesting_party_token', 'token': 'token123456789'}
-    headers = {'Authorization': keycloak_client.basic_authorization_header}
     introspection_endpoint = 'https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/token/introspect'
     keycloak_client.validate_rpt('token123456789')
-    mock_post.assert_called_once_with(introspection_endpoint, data=payload, headers=headers)
+    mock_post.assert_called_once_with(introspection_endpoint, data=payload, headers=keycloak_client.basic_auth_header)
     mock_post.return_value.json.assert_called_once()
