@@ -38,7 +38,7 @@ class ResourceMixin:
 
         return response.json()
 
-    @cached_property
+    @property
     def headers(self):
         """ Common headers used within the class """
         return {
