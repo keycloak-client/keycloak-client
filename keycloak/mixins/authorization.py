@@ -71,8 +71,6 @@ class AuthorizationMixin:
             audience (str): client id or audience
 
         Raises:
-            InvalidAAT
-            InvalidPermissionTicket
             HTTPError
         """
         # prepare payload

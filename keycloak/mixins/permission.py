@@ -26,7 +26,6 @@ class PermissionMixin:
             dict
 
         Raises:
-            InvalidAAT
             HTTPError
         """
         # prepare headers
