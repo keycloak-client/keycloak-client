@@ -6,7 +6,7 @@
 			"scopes": ["student:create", "student:read", "student:update", "student:delete"],
 			"ownerManagedAccess": "true"
 		},
-		"policies": [{
+		"permissions": [{
 				"name": "Student: Read for all",
 				"description": "Allow all app users to read",
 				"scopes": ["student:read"],
@@ -28,7 +28,7 @@
 			"scopes": ["class:create", "class:read", "class:update", "class:delete"],
 			"ownerManagedAccess": "true"
 		},
-		"policies": [{
+		"permissions": [{
 				"name": "Class: Read for all",
 				"description": "Allow all app users to read",
 				"scopes": ["class:read"],
