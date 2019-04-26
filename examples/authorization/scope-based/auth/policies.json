@@ -1,0 +1,14 @@
+{
+	"student": [
+    {
+  		"name": "Student: Read for all",
+  		"description": "Allow all to read",
+  		"scopes": [
+  			"student:read"
+  		],
+  		"roles": [
+  			"flask-app/AppUser"
+  		]
+	  }
+  ]
+}

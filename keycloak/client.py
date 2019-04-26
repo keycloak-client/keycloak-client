@@ -7,13 +7,13 @@ from .config import Configuration
 from .log import get_logger
 from .mixins.authentication import AuthenticationMixin
 from .mixins.authorization import AuthorizationMixin
-from .mixins.permission import PermissionMixin
+from .mixins.policy import PolicyMixin
 from .mixins.resource import ResourceMixin
 from .mixins.token import JwtMixin
 
 
 # pylint: disable=line-too-long
-class KeycloakClient(AuthenticationMixin, AuthorizationMixin, PermissionMixin, ResourceMixin, JwtMixin):
+class KeycloakClient(AuthenticationMixin, AuthorizationMixin, PolicyMixin, ResourceMixin, JwtMixin):
     """ keycloak client """
 
     def __init__(self, config_file=None, log_dir=None, log_level=logging.INFO):

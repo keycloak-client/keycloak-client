@@ -1,0 +1,16 @@
+[
+	{
+	  "name": "class",
+	  "type": "urn:flask-app:resources:class",
+	  "uris": ["/class/*"],
+	  "scopes": ["class:create", "class:read", "class:update", "class:delete"],
+		"ownerManagedAccess": "true"
+  },
+	{
+	  "name": "student",
+	  "type": "urn:flask-app:resources:student",
+	  "uris": ["/student/*"],
+	  "scopes": ["student:create", "student:read", "student:update", "student:delete"],
+		"ownerManagedAccess": "true"
+  }
+]

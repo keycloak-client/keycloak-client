@@ -54,7 +54,7 @@ def test_read_resource(mock_headers, mock_get, keycloak_client):
     """ Test case for list_resource """
     resource_id = '123456789'
     headers = {'Authorization': 'token123456789'}
-    endpoint = keycloak_client.config.resource_registration_endpoint + resource_id
+    endpoint = keycloak_client.config.resource_registration_endpoint + '/' + resource_id
     mock_headers.return_value = headers
     mock_get.return_value.json = MagicMock()
     keycloak_client.read_resource(resource_id)
@@ -69,7 +69,7 @@ def test_update_resource(mock_headers, mock_put, keycloak_client):
     resource_id = '123456789'
     resource = {}
     headers = {'Authorization': 'token123456789'}
-    endpoint = keycloak_client.config.resource_registration_endpoint + resource_id
+    endpoint = keycloak_client.config.resource_registration_endpoint + '/' + resource_id
     mock_headers.return_value = headers
     mock_put.return_value.json = MagicMock()
     keycloak_client.update_resource(resource_id, resource)
@@ -83,7 +83,7 @@ def test_delete_resource(mock_headers, mock_delete, keycloak_client):
     """ Test case for list_resource """
     resource_id = '123456789'
     headers = {'Authorization': 'token123456789'}
-    endpoint = keycloak_client.config.resource_registration_endpoint + resource_id
+    endpoint = keycloak_client.config.resource_registration_endpoint + '/' + resource_id
     mock_headers.return_value = headers
     mock_delete.return_value.json = MagicMock()
     keycloak_client.delete_resource(resource_id)

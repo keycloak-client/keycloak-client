@@ -12,7 +12,7 @@ keycloak_client = KeycloakClient()
 def login():
     """ Initiate authentication """
     auth_url, state = keycloak_client.authentication_url()
-    session[state] = True
+    session['state'] = state
     return redirect(auth_url)
 
 
@@ -23,8 +23,8 @@ def login_callback():
     state = request.args.get('state', 'unknown')
 
     # validate state
-    _session = session.pop(state, None)
-    if not _session:
+    _state = session.pop('state', None)
+    if state != _state:
         return Response('Invalid state', status=403)
 
     # retrieve user info

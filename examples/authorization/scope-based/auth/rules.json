@@ -1,0 +1,8 @@
+{
+  "/student": {
+    "get": "student:read"
+  },
+  "/class": {
+    "get": "class:read"
+  }
+}

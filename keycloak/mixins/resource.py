@@ -2,7 +2,6 @@
 
 """ This mixin takes care of all functionalities associated with resources """
 
-import json
 import requests
 from cached_property import cached_property_with_ttl
 
@@ -72,8 +71,9 @@ class ResourceMixin:
             resource (dict): resources to be created
 
         example:
-        {
+          {
             "name": "student",
+            "type": "urn:flask-app:resources:student",
             "uris": ["/student/*"],
             "scopes": ["create", "read", "update", "delete"]
           }
@@ -95,7 +95,7 @@ class ResourceMixin:
         """
 
         # prepare endpoint
-        endpoint = self.config.resource_registration_endpoint + resource_id
+        endpoint = self.config.resource_registration_endpoint + '/' + resource_id
 
         # create resource
         response = requests.get(endpoint, headers=self.pat_auth_header)
@@ -113,7 +113,7 @@ class ResourceMixin:
         """
 
         # prepare endpoint
-        endpoint = self.config.resource_registration_endpoint + resource_id
+        endpoint = self.config.resource_registration_endpoint + '/' + resource_id
 
         # update resource
         response = requests.put(endpoint, json=resource, headers=self.pat_auth_header)
@@ -130,79 +130,10 @@ class ResourceMixin:
         """
 
         # prepare endpoint
-        endpoint = self.config.resource_registration_endpoint + resource_id
+        endpoint = self.config.resource_registration_endpoint + '/' + resource_id
 
         # create resource
         response = requests.delete(endpoint, headers=self.pat_auth_header)
         response.raise_for_status()
 
         return response.json()
-
-    def register_resources(self, resources_file):
-        """
-        Method to register resources in the keycloak server
-
-        Args:
-            resources_file (str): file path
-
-        Example:
-        [
-          {
-            "resource":{
-              "name":"student",
-              "type":"urn:flask-app:resources:student",
-              "uris":[
-                "/student/*"
-              ],
-              "scopes":[
-                "student:create",
-                "student:read",
-                "student:update",
-                "student:delete"
-              ],
-              "ownerManagedAccess":"true"
-            },
-            "permissions":[
-              {
-                "name":"Student: Read for all",
-                "description":"Allow all app users to read",
-                "scopes":[
-                  "student:read"
-                ],
-                "roles":[
-                  "AppUser"
-                ]
-              },
-              {
-                "name":"Student: Delete for admins",
-                "description":"Allow admin users to delete",
-                "scopes":[
-                  "student:delete"
-                ],
-                "roles":[
-                  "Administrator"
-                ]
-              }
-            ]
-          }
-        ]
-        """
-        # read resouces file
-        with open(resources_file) as file:
-            records = json.loads(file.read())
-
-        # iterate over resources
-        for record in records:
-
-            # parse resource and permissions
-            resource = record.get('resource', [])
-            permissions = record.get('permissions', [])
-
-            # create resource
-            self.log.info('Processing resource %s', resource['name'])
-            resource = self.create_resource(resource)
-
-            # create policies
-            for permission in permissions:
-                self.log.info('Processing permission %s', permission['name'])
-                self.create_permission(self.pat['access_token'], resource['_id'], permission)
