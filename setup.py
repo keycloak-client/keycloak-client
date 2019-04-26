@@ -19,6 +19,5 @@ setup(
         'cryptography==2.6.1',
         'pyjwt==1.7.1',
         'requests==2.21.0',
-        'werkzeug==0.15.1',
     ],
 )

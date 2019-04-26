@@ -1,7 +1,12 @@
 language: python
 
 python:
+  - "3.4"
+  - "3.5"
   - "3.6"
+  - "3.6-dev"
+  - "3.7-dev"
+  - "nightly"
 
 before_install:
   - pip install pip --upgrade
@@ -9,7 +14,14 @@ before_install:
 install:
   - make install
 
-jobs:
-  include:
-    - stage: Run test cases
-      script: make test && codecov
+script:
+  - make test
+  - codecov
+
+notifications:
+    email: false
+
+matrix:
+  allow_failures:
+  - python: "3.4"
+  - python: "3.5"
