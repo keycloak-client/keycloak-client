@@ -6,7 +6,3 @@
 
 This repo contains a python client for [Keycloak](https://www.keycloak.org/) IAM   
 Visit [https://keycloak-client.readthedocs.io](https://keycloak-client.readthedocs.io) for documentation
-
-
-## Extensions using keycloak client
-[Flask Keycloak](https://github.com/akhilputhiry/flask-keycloak)
