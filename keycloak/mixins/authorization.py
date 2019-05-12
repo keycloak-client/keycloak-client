@@ -25,7 +25,7 @@ class AuthorizationMixin:
         """
 
         # construct authorization string
-        authorization = '{}:{}'.format(self.config.client_id, self.config.client_secret)
+        authorization = "{}:{}".format(self.config.client_id, self.config.client_secret)
 
         # base64 encode
         authorization = b64encode(authorization)
@@ -48,15 +48,15 @@ class AuthorizationMixin:
         """
         # retrieve permission ticket
         try:
-            self.log.info('Retrieving permission ticket from keycloak server')
+            self.log.info("Retrieving permission ticket from keycloak server")
             response = requests.post(
                 self.config.permission_endpoint,
                 json=resources,
-                headers=self.pat_auth_header
+                headers=self.pat_auth_header,
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:
-            self.log.exception('Failed to retrieve the permission ticket')
+            self.log.exception("Failed to retrieve the permission ticket")
             raise ex
 
         return response.json()
@@ -74,30 +74,28 @@ class AuthorizationMixin:
             HTTPError
         """
         # prepare payload
-        payload = {'grant_type': 'urn:ietf:params:oauth:grant-type:uma-ticket'}
+        payload = {"grant_type": "urn:ietf:params:oauth:grant-type:uma-ticket"}
 
         # with ticket
         if ticket:
-            payload.update({'ticket': ticket})
+            payload.update({"ticket": ticket})
 
         # without ticket
         else:
-            payload.update({'audience': self.config.client_id})
+            payload.update({"audience": self.config.client_id})
 
         # prepare headers
         headers = auth_header(aat, TokenType.BEARER)
 
         # fetch RPT token
         try:
-            self.log.info('Retrieving RPT from keycloak server')
+            self.log.info("Retrieving RPT from keycloak server")
             response = requests.post(
-                self.config.token_endpoint,
-                data=payload,
-                headers=headers
+                self.config.token_endpoint, data=payload, headers=headers
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:
-            self.log.exception('Failed to retrieve RPT from keycloak server')
+            self.log.exception("Failed to retrieve RPT from keycloak server")
             raise ex
 
         return response.json()
@@ -113,22 +111,19 @@ class AuthorizationMixin:
             HTTPError
         """
         # prepare payload
-        payload = {
-            'token_type_hint': 'requesting_party_token',
-            'token': rpt
-        }
+        payload = {"token_type_hint": "requesting_party_token", "token": rpt}
 
         # introspect token
         try:
-            self.log.info('Introspecting RPT token')
+            self.log.info("Introspecting RPT token")
             response = requests.post(
                 self.config.introspection_endpoint,
                 data=payload,
-                headers=self.basic_auth_header
+                headers=self.basic_auth_header,
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:
-            self.log.exception('Failed to validate RPT from keycloak server')
+            self.log.exception("Failed to validate RPT from keycloak server")
             raise ex
 
         return response.json()

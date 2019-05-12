@@ -6,5 +6,6 @@
 # pylint: disable=too-few-public-methods
 class TokenType:
     """ Different types of token """
-    BASIC = 'Basic'
-    BEARER = 'Bearer'
+
+    BASIC = "Basic"
+    BEARER = "Bearer"

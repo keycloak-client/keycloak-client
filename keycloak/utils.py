@@ -16,13 +16,13 @@ def b64encode(string):
         str
     """
     # convert to bytes
-    string = bytes(string, 'utf-8')
+    string = bytes(string, "utf-8")
 
     # perform base64 encoding
     string = base64.b64encode(string)
 
     # convert to str
-    return string.decode('utf-8')
+    return string.decode("utf-8")
 
 
 def auth_header(token_val, token_type):
@@ -36,9 +36,8 @@ def auth_header(token_val, token_type):
     Returns:
         dict
     """
-    return {
-        'Authorization': '{} {}'.format(token_type, token_val)
-    }
+    return {"Authorization": "{} {}".format(token_type, token_val)}
+
 
 def fix_padding(encoded_string):
     """
@@ -55,4 +54,4 @@ def fix_padding(encoded_string):
     required_padding = len(encoded_string) % 4
 
     # pad data
-    return encoded_string + ('=' * required_padding)
+    return encoded_string + ("=" * required_padding)

@@ -13,7 +13,9 @@ from .mixins.token import JwtMixin
 
 
 # pylint: disable=line-too-long
-class KeycloakClient(AuthenticationMixin, AuthorizationMixin, PolicyMixin, ResourceMixin, JwtMixin):
+class KeycloakClient(
+    AuthenticationMixin, AuthorizationMixin, PolicyMixin, ResourceMixin, JwtMixin
+):
     """ keycloak client """
 
     def __init__(self, config_file=None, log_dir=None, log_level=logging.INFO):

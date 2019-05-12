@@ -11,6 +11,7 @@ import requests
 # pylint: disable=too-few-public-methods
 class Configuration:
     """ keycloak configuration """
+
     realm = None
     hostname = None
     client_id = None
@@ -43,21 +44,21 @@ class Configuration:
         """
 
         # default config file to keycloak.json
-        config_file = 'keycloak.json' if config_file is None else config_file
+        config_file = "keycloak.json" if config_file is None else config_file
 
         # validate config file
         if not os.path.isfile(config_file):
-            raise ValueError('Unable to find the config file in the given path')
+            raise ValueError("Unable to find the config file in the given path")
 
         # read config file
-        with open(config_file, 'r') as file_descriptor:
+        with open(config_file, "r") as file_descriptor:
             file_content = file_descriptor.read()
 
         # validate file is json loadable
         try:
             config = json.loads(file_content)
         except json.decoder.JSONDecodeError:
-            raise ValueError('Invalid json file')
+            raise ValueError("Invalid json file")
 
         # set attributes
         for key, val in config.items():
@@ -65,7 +66,12 @@ class Configuration:
 
         # fetch urls using well-known url
         # pylint: disable=line-too-long
-        well_known = self.hostname + '/auth/realms/' + self.realm + '/.well-known/uma2-configuration'
+        well_known = (
+            self.hostname
+            + "/auth/realms/"
+            + self.realm
+            + "/.well-known/uma2-configuration"
+        )
         response = requests.get(well_known)
         response.raise_for_status()
 

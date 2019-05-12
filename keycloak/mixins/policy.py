@@ -26,15 +26,15 @@ class PolicyMixin:
             HTTPError
         """
         # prepare endpoint
-        endpoint = self.config.policy_endpoint + '?resource=' + resource_id
+        endpoint = self.config.policy_endpoint + "?resource=" + resource_id
 
         # fetch list of policies
         try:
-            self.log.info('Listing policies associated with resource=%s', resource_id)
+            self.log.info("Listing policies associated with resource=%s", resource_id)
             response = requests.get(endpoint, headers=self.pat_auth_header)
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:
-            self.log.exception('Failed to list of policies')
+            self.log.exception("Failed to list of policies")
             raise ex
         return response.json()
 
@@ -60,20 +60,20 @@ class PolicyMixin:
         }
         """
         # prepare endpoint
-        endpoint = self.config.policy_endpoint + '/' + resource_id
+        endpoint = self.config.policy_endpoint + "/" + resource_id
 
         # prepare payload
-        policy.update({
-            'clients': [self.config.client_id]
-        })
+        policy.update({"clients": [self.config.client_id]})
 
         # fetch list of policies
         try:
-            self.log.info('Creating policy for resource=%s', resource_id)
-            response = requests.post(endpoint, json=policy, headers=self.pat_auth_header)
+            self.log.info("Creating policy for resource=%s", resource_id)
+            response = requests.post(
+                endpoint, json=policy, headers=self.pat_auth_header
+            )
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:
-            self.log.exception('Failed to create policy')
+            self.log.exception("Failed to create policy")
             print(response.content)
             raise ex
 
@@ -89,15 +89,15 @@ class PolicyMixin:
             policy (dict): new policy definition
         """
         # prepare endpoint
-        endpoint = self.config.policy_endpoint + '/' + policy_id
+        endpoint = self.config.policy_endpoint + "/" + policy_id
 
         # update policy
         try:
-            self.log.info('Updating policy id=%s', policy_id)
+            self.log.info("Updating policy id=%s", policy_id)
             response = requests.put(endpoint, json=policy, headers=self.pat_auth_header)
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:
-            self.log.exception('Failed to update policy')
+            self.log.exception("Failed to update policy")
             raise ex
 
     def delete_policy(self, policy_id):
@@ -108,13 +108,13 @@ class PolicyMixin:
             policy_id (str): unique identifier for the policy
         """
         # prepare endpoint
-        endpoint = self.config.policy_endpoint + '/' + policy_id
+        endpoint = self.config.policy_endpoint + "/" + policy_id
 
         # delete policy
         try:
-            self.log.info('Deleting policy id=%s', policy_id)
+            self.log.info("Deleting policy id=%s", policy_id)
             response = requests.delete(endpoint, headers=self.pat_auth_header)
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:
-            self.log.exception('Failed to delete policy')
+            self.log.exception("Failed to delete policy")
             raise ex

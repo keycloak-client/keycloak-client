@@ -25,7 +25,7 @@ class JwtMixin:
         """
         response = requests.get(self.config.jwks_uri)
         response.raise_for_status()
-        return response.json().get('keys', [])
+        return response.json().get("keys", [])
 
     @staticmethod
     def parse_header(jwt_header):
@@ -60,7 +60,7 @@ class JwtMixin:
         """
         _key = {}
         for key in self.keys:
-            if key['kid'] == kid:
+            if key["kid"] == kid:
                 _key = key
         return json.dumps(_key)
 
@@ -77,8 +77,8 @@ class JwtMixin:
         """
 
         # parse jwt header info
-        kid = jwt_header.get('kid')
-        alg = jwt_header.get('alg')
+        kid = jwt_header.get("kid")
+        alg = jwt_header.get("alg")
 
         # fetch public key
         key_json = self.get_key_json(kid)
@@ -87,19 +87,19 @@ class JwtMixin:
         # https://github.com/jpadilla/pyjwt/issues/359
 
         # handle EC
-        if alg in ('ES256', 'ES384', 'ES521', 'ES512'):
+        if alg in ("ES256", "ES384", "ES521", "ES512"):
             return jwt.algorithms.ECAlgorithm.from_jwk(key_json)
 
         # handle HMAC
-        if alg in ('HS256', 'HS384', 'HS512'):
+        if alg in ("HS256", "HS384", "HS512"):
             return jwt.algorithms.HMACAlgorithm.from_jwk(key_json)
 
         # handle RSA
-        if alg in ('RS256', 'RS384', 'RS512'):
+        if alg in ("RS256", "RS384", "RS512"):
             return jwt.algorithms.RSAAlgorithm.from_jwk(key_json)
 
         # handle RSAPSS
-        if alg in ('PS256', 'PS384', 'PS512'):
+        if alg in ("PS256", "PS384", "PS512"):
             return jwt.algorithms.RSAPSSAlgorithm.from_jwk(key_json)
 
     @staticmethod
@@ -110,7 +110,7 @@ class JwtMixin:
         Args:
             jwt_header (dict): decoded jwt header as dict
         """
-        return jwt_header.get('alg')
+        return jwt_header.get("alg")
 
     def decode_jwt(self, token):
         """
@@ -121,7 +121,7 @@ class JwtMixin:
         """
 
         # parse jwt segments
-        header, _, _ = token.split('.')
+        header, _, _ = token.split(".")
 
         # parse jwt header
         header = self.parse_header(header)
@@ -132,8 +132,11 @@ class JwtMixin:
 
         # decrypt jwt
         return jwt.decode(
-            token, signing_key, algorithms=[signing_algorithm], issuer=self.config.issuer,
-            audience=self.config.client_id
+            token,
+            signing_key,
+            algorithms=[signing_algorithm],
+            issuer=self.config.issuer,
+            audience=self.config.client_id,
         )
 
     def refresh_access_token(self, refresh_token):
@@ -146,10 +149,10 @@ class JwtMixin:
 
         # prepare payload
         payload = {
-            'client_id': self.config.client_id,
-            'client_secret': self.config.client_secret,
-            'grant_type': 'refresh_token',
-            'refresh_token': refresh_token
+            "client_id": self.config.client_id,
+            "client_secret": self.config.client_secret,
+            "grant_type": "refresh_token",
+            "refresh_token": refresh_token,
         }
 
         # send request to keycloak server

@@ -12,7 +12,7 @@ class AuthenticationMixin:
     This class includes the methods to interact with the authentication flow
     """
 
-    def authentication_url(self, scopes=('openid',)):
+    def authentication_url(self, scopes=("openid",)):
         """
         Method which builds the login url for keycloak
 
@@ -22,16 +22,18 @@ class AuthenticationMixin:
         Returns:
             str
         """
-        self.log.info('Constructing authentication url')
+        self.log.info("Constructing authentication url")
         state = str(uuid.uuid4())
-        arguments = urllib.parse.urlencode({
-            'state': state,
-            'client_id': self.config.client_id,
-            'response_type': 'code',
-            'scope': ' '.join(scopes),
-            'redirect_uri': self.config.redirect_uri
-        })
-        return self.config.authorization_endpoint + '?' + arguments, state
+        arguments = urllib.parse.urlencode(
+            {
+                "state": state,
+                "client_id": self.config.client_id,
+                "response_type": "code",
+                "scope": " ".join(scopes),
+                "redirect_uri": self.config.redirect_uri,
+            }
+        )
+        return self.config.authorization_endpoint + "?" + arguments, state
 
     def authentication_callback(self, code):
         """
@@ -48,20 +50,20 @@ class AuthenticationMixin:
 
         # prepare request payload
         payload = {
-            'code': code,
-            'grant_type': 'authorization_code',
-            'client_id': self.config.client_id,
-            'redirect_uri': self.config.redirect_uri,
-            'client_secret': self.config.client_secret,
+            "code": code,
+            "grant_type": "authorization_code",
+            "client_id": self.config.client_id,
+            "redirect_uri": self.config.redirect_uri,
+            "client_secret": self.config.client_secret,
         }
 
         # retrieve tokens from keycloak server
         try:
-            self.log.info('Retrieving AAT from keycloak server')
+            self.log.info("Retrieving AAT from keycloak server")
             response = requests.post(self.config.token_endpoint, data=payload)
             response.raise_for_status()
         except Exception as ex:
-            self.log.exception('Failed to retrieve AAT from keycloak server')
+            self.log.exception("Failed to retrieve AAT from keycloak server")
             raise ex
 
         return response.json()
