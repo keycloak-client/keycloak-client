@@ -9,6 +9,7 @@ _install_dep:
 
 _dev_dep:
 	pip install -r dev.txt
+	pre-commit install
 
 install: _install_dep _dev_dep
 
