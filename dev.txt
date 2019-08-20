@@ -1,6 +1,7 @@
 # extra dependencies required for development purpose
 codecov==2.0.15
 importanize==0.7.0
+pre-commit==1.18.2
 pylint==2.3.1
 pytest==4.3.1
 pytest-cov==2.6.1
