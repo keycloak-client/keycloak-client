@@ -5,16 +5,14 @@
    :caption: User Documentation
 
    Authentication <authentication>
-   Authorization <authorization>
    Resource <resources>
    Permission <permission>
 
 .. toctree::
    :maxdepth: 2
-   :caption: Examples
+   :caption: Extensions
 
-   Authentication <examples/authentication>
-   Authorization <examples/authorization>
+   Flask <extensions/flask>
 
 .. toctree::
    :maxdepth: 2

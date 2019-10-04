@@ -1,9 +1,9 @@
-#! -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 """ This module takes care of all functionalities associated with logging """
 
-import os
 import logging
+import os
 from logging.handlers import RotatingFileHandler
 
 

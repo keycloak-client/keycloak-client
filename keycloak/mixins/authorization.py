@@ -1,12 +1,12 @@
-#! -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 """ This mixin takes care of all functionalities associated with authorization """
 
 import requests
 from cached_property import cached_property
 
-from ..utils import b64encode, auth_header
 from ..constants import TokenType
+from ..utils import auth_header, b64encode
 
 
 class AuthorizationMixin:

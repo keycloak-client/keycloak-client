@@ -8,18 +8,37 @@ The following snippet is an example written in `Flask <http://flask.pocoo.org/>`
 
 .. code-block:: python
    :linenos:
-   :emphasize-lines: 4,11
 
-   @app.route('/login', methods=['GET'])
+   #! -*- coding: utf-8 -*-
+   from flask import Flask, redirect, request, jsonify, session, Response
+   from keycloak import KeycloakClient
+
+
+   api = Flask(__name__)
+   api.config['SECRET_KEY'] = 'EYxuFcNqGamVU78GgfupoO5N4z2xokA58XtL0ag'
+   keycloak_client = KeycloakClient()
+
+
+   @api.route('/login', methods=['GET'])
    def login():
-       """ Endpoint to initiate authentication """
-       auth_url = keycloak_client.authentication_url()
+       """ Initiate authentication """
+       auth_url, state = keycloak_client.authentication_url()
+       session['state'] = state
        return redirect(auth_url)
 
 
-   @app.route('/login-callback', methods=['GET'])
+   @api.route('/login/callback', methods=['GET'])
    def login_callback():
-       """ Endpoint to retrieve authentication tokens """
+       """ Authentication callback handler """
        code = request.args.get('code')
-       tokens = keycloak_client.authentication_callback(code)
-       return jsonify(tokens)
+       state = request.args.get('state', 'unknown')
+       _state = session.pop('state', None)
+       if state != _state:
+           return Response('Invalid state', status=403)
+       response = keycloak_client.authentication_callback(code)
+       user_info = keycloak_client.decode_jwt(response['id_token'])
+       return jsonify(user_info)
+
+
+   if __name__ == '__main__':
+       api.run(host='0.0.0.0')

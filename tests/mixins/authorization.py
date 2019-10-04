@@ -1,4 +1,4 @@
-#! -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from unittest.mock import MagicMock, PropertyMock, patch
 
 

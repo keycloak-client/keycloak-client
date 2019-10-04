@@ -1,12 +1,12 @@
-#! -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 """ This mixin takes care of all functionalities associated with resources """
 
 import requests
 from cached_property import cached_property_with_ttl
 
-from ..utils import auth_header
 from ..constants import TokenType
+from ..utils import auth_header
 
 
 class ResourceMixin:

@@ -2,6 +2,7 @@
 
 clean:
 	find . -type f -name '*.pyc' -delete
+	find . -type f -name '*.log' -delete
 	rm -rf build dist || true
 
 _install_dep:

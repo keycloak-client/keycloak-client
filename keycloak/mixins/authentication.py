@@ -1,9 +1,10 @@
-#! -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 """ This mixin takes care of all functionalities associated with authentication """
 
 import urllib
 import uuid
+
 import requests
 
 

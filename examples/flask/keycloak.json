@@ -1,0 +1,7 @@
+{
+  "realm": "akhil-poc",
+  "hostname": "https://keycloak.dev.lti-mosaic.com",
+  "client_id": "flask-app",
+  "client_secret": "e2013b04-b8e1-417d-a416-f8e02b1c8554",
+  "redirect_uri": "http://localhost:5000/keycloak/callback"
+}
