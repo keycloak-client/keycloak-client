@@ -26,7 +26,7 @@ class PolicyMixin:
             HTTPError
         """
         # prepare endpoint
-        endpoint = self.config.policy_endpoint + "?resource=" + resource_id
+        endpoint = f"{self.config.policy_endpoint}?resource={resource_id}"
 
         # fetch list of policies
         try:
@@ -38,7 +38,6 @@ class PolicyMixin:
             raise ex
         return response.json()
 
-    # pylint: disable=dangerous-default-value
     def create_policy(self, resource_id, policy={}):
         """
         Method to create policy
@@ -60,7 +59,7 @@ class PolicyMixin:
         }
         """
         # prepare endpoint
-        endpoint = self.config.policy_endpoint + "/" + resource_id
+        endpoint = f"{self.config.policy_endpoint}/{resource_id}"
 
         # prepare payload
         policy.update({"clients": [self.config.client_id]})
@@ -79,7 +78,6 @@ class PolicyMixin:
 
         return response.json()
 
-    # pylint: disable=dangerous-default-value
     def update_policy(self, policy_id, policy={}):
         """
         Method to update the policy
@@ -89,7 +87,7 @@ class PolicyMixin:
             policy (dict): new policy definition
         """
         # prepare endpoint
-        endpoint = self.config.policy_endpoint + "/" + policy_id
+        endpoint = f"{self.config.policy_endpoint}/{policy_id}"
 
         # update policy
         try:
@@ -108,7 +106,7 @@ class PolicyMixin:
             policy_id (str): unique identifier for the policy
         """
         # prepare endpoint
-        endpoint = self.config.policy_endpoint + "/" + policy_id
+        endpoint = f"{self.config.policy_endpoint}/{policy_id}"
 
         # delete policy
         try:

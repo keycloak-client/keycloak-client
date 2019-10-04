@@ -1,37 +1,26 @@
-.PHONY: clean _install_dep _dev_dep install _pytest _lint test _build build upload importanize all
+.PHONY: clean install test build upload importanize all
 
 clean:
 	find . -type f -name '*.pyc' -delete
 	find . -type f -name '*.log' -delete
+	find . -type f -name '.coverage' -delete
+	find . -type d -name '.eggs' -exec rm -rf {} +
+	find . -type d -name '*.egg-info' -exec rm -rf {} +
+	find . -type d -name '__pycache__' -exec rm -rf {} +
+	find . -type d -name '.pytest_cache' -exec rm -rf {} +
 	rm -rf build dist || true
 
-_install_dep:
+install:
 	pip install -e .
+	pip install pre-commit && pre-commit install
 
-_dev_dep:
-	pip install -r dev.txt
-	pre-commit install
+test:
+	python setup.py pytest
 
-install: _install_dep _dev_dep
-
-_pytest:
-	pytest --cov=keycloak tests/ --cov-fail-under=80
-
-_lint:
-	python linter.py --fail-under=9 keycloak
-
-test: _lint _pytest
-
-_build:
-	python setup.py sdist bdist_wheel
-
-build: clean _build
+build: clean
+	python setup.py sdist
 
 upload:
 	python -m twine upload dist/*
-
-importanize:
-	find keycloak -name '*.py' | xargs importanize
-	find tests -name '*.py' | xargs importanize
 
 all: clean install test build upload

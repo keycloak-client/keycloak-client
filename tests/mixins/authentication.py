@@ -16,7 +16,7 @@ def test_authentication_url(mock_uuid4, keycloak_client):
             "redirect_uri": keycloak_client.config.redirect_uri,
         }
     )
-    authentication_url = keycloak_client.config.authorization_endpoint + "?" + arguments
+    authentication_url = f"{keycloak_client.config.authorization_endpoint}?{arguments}"
     _authentication_url, _ = keycloak_client.authentication_url()
     assert authentication_url is not None
     assert authentication_url == _authentication_url

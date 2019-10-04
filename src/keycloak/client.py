@@ -10,15 +10,20 @@ from .mixins.authorization import AuthorizationMixin
 from .mixins.policy import PolicyMixin
 from .mixins.resource import ResourceMixin
 from .mixins.token import JwtMixin
+from .utils import Singleton
 
 
-# pylint: disable=line-too-long
 class KeycloakClient(
-    AuthenticationMixin, AuthorizationMixin, PolicyMixin, ResourceMixin, JwtMixin
+    AuthenticationMixin,
+    AuthorizationMixin,
+    PolicyMixin,
+    ResourceMixin,
+    JwtMixin,
+    metaclass=Singleton,
 ):
     """ keycloak client """
 
-    def __init__(self, config_file=None, log_dir=None, log_level=logging.INFO):
+    def __init__(self, config_file=None, log_dir=None, log_level=logging.DEBUG):
         """
         Method to initialize keycloak client
 

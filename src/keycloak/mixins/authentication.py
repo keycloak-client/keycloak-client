@@ -34,7 +34,7 @@ class AuthenticationMixin:
                 "redirect_uri": self.config.redirect_uri,
             }
         )
-        return self.config.authorization_endpoint + "?" + arguments, state
+        return f"{self.config.authorization_endpoint}?{arguments}", state
 
     def authentication_callback(self, code):
         """

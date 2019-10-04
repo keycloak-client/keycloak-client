@@ -40,7 +40,7 @@ def get_file_handler(log_dir=None):
     return file_handler
 
 
-def get_logger(log_dir=None, log_level=logging.INFO):
+def get_logger(log_dir=None, log_level=logging.DEBUG):
     """
     Method to construct logger
 

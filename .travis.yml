@@ -2,12 +2,13 @@ language: python
 
 python:
   - "3.6"
-  - "3.6-dev"
+  - "3.7"
   - "3.7-dev"
+  - "3.8-dev"
   - "nightly"
 
 before_install:
-  - pip install pip --upgrade
+  - pip install pip codecov --upgrade
 
 install:
   - make install

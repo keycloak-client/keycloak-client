@@ -1,26 +1,25 @@
 # -*- coding: utf-8 -*-
 
-from flask import Response, redirect, request, session
-
+from flask import Flask, Response, redirect, request, session
 from keycloak import KeycloakClient
 
 
 class Authentication:
-    def __init__(self, app=None):
-        self.app = app
-        self.keycloak_client = KeycloakClient()
-        if app is not None:
-            self.add_routes(app)
-
-    def add_routes(self, app):
+    def __init__(self, app: Flask, keycloak_client: KeycloakClient):
         """ Initialize extension """
+        self.app = app
+        self.keycloak_client = keycloak_client
+        self.add_routes(app)
+
+    def add_routes(self, app: Flask):
+        """ add middleware and routes """
         app.add_url_rule("/keycloak/login", "keycloak-login", self.login)
         app.add_url_rule("/keycloak/callback", "keycloak-callback", self.callback)
         app.before_request(self.is_logged_in)
 
     @staticmethod
     def is_logged_in():
-        """ Middleware  to verify whether the user has logged in or not """
+        """ Middleware to verify whether the user has logged in or not """
         if all(["user" not in session, "/keycloak" not in request.path]):
             return redirect("/keycloak/login")
 

@@ -57,7 +57,6 @@ class ResourceMixin:
 
         return response.json()
 
-    # pylint: disable=dangerous-default-value
     def create_resource(self, resource={}):
         """
         Method to create resource
@@ -90,7 +89,7 @@ class ResourceMixin:
         """
 
         # prepare endpoint
-        endpoint = self.config.resource_registration_endpoint + "/" + resource_id
+        endpoint = f"{self.config.resource_registration_endpoint}/{resource_id}"
 
         # create resource
         response = requests.get(endpoint, headers=self.pat_auth_header)
@@ -108,7 +107,7 @@ class ResourceMixin:
         """
 
         # prepare endpoint
-        endpoint = self.config.resource_registration_endpoint + "/" + resource_id
+        endpoint = f"{self.config.resource_registration_endpoint}/{resource_id}"
 
         # update resource
         response = requests.put(endpoint, json=resource, headers=self.pat_auth_header)
@@ -125,7 +124,7 @@ class ResourceMixin:
         """
 
         # prepare endpoint
-        endpoint = self.config.resource_registration_endpoint + "/" + resource_id
+        endpoint = f"{self.config.resource_registration_endpoint}/{resource_id}"
 
         # create resource
         response = requests.delete(endpoint, headers=self.pat_auth_header)

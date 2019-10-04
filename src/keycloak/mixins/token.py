@@ -64,7 +64,6 @@ class JwtMixin:
                 _key = key
         return json.dumps(_key)
 
-    # pylint: disable=inconsistent-return-statements
     def get_signing_key(self, jwt_header):
         """
         Method to retrieve signing key

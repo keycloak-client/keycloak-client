@@ -8,15 +8,17 @@ import os
 import requests
 
 
-# pylint: disable=too-few-public-methods
 class Configuration:
     """ keycloak configuration """
 
+    # from config file
     realm = None
     hostname = None
     client_id = None
     client_secret = None
     redirect_uri = None
+
+    # from .well-known endpoint
     issuer = None
     authorization_endpoint = None
     token_endpoint = None
@@ -48,7 +50,9 @@ class Configuration:
 
         # validate config file
         if not os.path.isfile(config_file):
-            raise ValueError("Unable to find the config file in the given path")
+            raise ValueError(
+                "Unable to find the config file in the given path %s", config_file
+            )
 
         # read config file
         with open(config_file, "r") as file_descriptor:
@@ -65,12 +69,8 @@ class Configuration:
             setattr(self, key, val)
 
         # fetch urls using well-known url
-        # pylint: disable=line-too-long
         well_known = (
-            self.hostname
-            + "/auth/realms/"
-            + self.realm
-            + "/.well-known/uma2-configuration"
+            f"{self.hostname}/auth/realms/{self.realm}/.well-known/uma2-configuration"
         )
         response = requests.get(well_known)
         response.raise_for_status()

@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, PropertyMock, patch
 def test_list_policy(mock_get, mock_pat_auth_header, keycloak_client):
     """ Test case for list permission """
     resource = "resource-12345"
-    endpoint = keycloak_client.config.policy_endpoint + "?resource=" + resource
+    endpoint = f"{keycloak_client.config.policy_endpoint}?resource={resource}"
     headers = {"Authorization": "Bearer access-token-12345"}
     mock_pat_auth_header.return_value = headers
     mock_get.return_value.json = MagicMock()
@@ -34,7 +34,7 @@ def test_create_policy(mock_post, mock_pat_auth_header, keycloak_client):
     }
     headers = {"Authorization": "Bearer access-token-12345"}
     mock_pat_auth_header.return_value = headers
-    endpoint = keycloak_client.config.policy_endpoint + "/" + resource_id
+    endpoint = f"{keycloak_client.config.policy_endpoint}/{resource_id}"
     mock_post.return_value.json = MagicMock()
     keycloak_client.create_policy(resource_id, permission)
     mock_post.assert_called_once_with(endpoint, json=permission, headers=headers)
@@ -57,7 +57,7 @@ def test_update_policy(mock_put, mock_pat_auth_header, keycloak_client):
     }
     headers = {"Authorization": "Bearer access-token-12345"}
     mock_pat_auth_header.return_value = headers
-    endpoint = keycloak_client.config.policy_endpoint + "/" + permission_id
+    endpoint = f"{keycloak_client.config.policy_endpoint}/{permission_id}"
     keycloak_client.update_policy(permission_id, permission)
     mock_put.assert_called_once_with(endpoint, json=permission, headers=headers)
     mock_pat_auth_header.assert_called_once()
@@ -72,7 +72,7 @@ def test_delete_policy(mock_delete, mock_pat_auth_header, keycloak_client):
     permission_id = "permission-12345"
     headers = {"Authorization": "Bearer access-token-12345"}
     mock_pat_auth_header.return_value = headers
-    endpoint = keycloak_client.config.policy_endpoint + "/" + permission_id
+    endpoint = f"{keycloak_client.config.policy_endpoint}/{permission_id}"
     keycloak_client.delete_policy(permission_id)
     mock_delete.assert_called_once_with(endpoint, headers=headers)
     mock_pat_auth_header.assert_called_once()

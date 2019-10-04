@@ -35,7 +35,6 @@ class AuthorizationMixin:
 
         return headers
 
-    # pylint: disable=dangerous-default-value
     def retrieve_ticket(self, resources=[]):
         """
         Method to generate permission ticket
