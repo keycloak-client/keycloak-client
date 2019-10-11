@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
-
-""" This mixin takes care of all functionalities associated with authorization """
+import logging
+from typing import Tuple, Dict
 
 import requests
-from cached_property import cached_property
 
-from ..constants import TokenType
-from ..utils import auth_header, b64encode
+from ..config import config
+from ..constants import Logger, TokenType, GrantTypes, TokenTypeHints
+from ..utils import auth_header, basic_auth
+
+
+log = logging.getLogger(Logger.name)
 
 
 class AuthorizationMixin:
@@ -15,114 +18,151 @@ class AuthorizationMixin:
     For details see https://www.keycloak.org/docs/5.0/authorization_services/index.html
     """
 
-    @cached_property
-    def basic_auth_header(self):
-        """
-        Method to prepare the authorization header
+    @staticmethod
+    def payload_for_client() -> Dict:
+        """ method to generate payload for client """
+        return {"grant_type": GrantTypes.client_credentials}
 
-        Returns:
-            str
-        """
+    @staticmethod
+    def payload_for_user(username: str = None, password: str = None) -> Dict:
+        """ method to generate payload for user """
+        if username and password:
+            return {
+                "grant_type": GrantTypes.password,
+                "username": username,
+                "password": password,
+            }
 
-        # construct authorization string
-        authorization = "{}:{}".format(self.config.client_id, self.config.client_secret)
+    @staticmethod
+    def pat(username: str = None, password: str = None) -> Dict:
+        """ method to retrieve protection api token (PAT) """
 
-        # base64 encode
-        authorization = b64encode(authorization)
+        # prepare headers
+        headers = basic_auth(config.client.client_id, config.client.client_secret)
 
-        # prepare header
-        headers = auth_header(authorization, TokenType.BASIC)
+        # prepare payload
+        payload = (
+            AuthorizationMixin.payload_for_user(username, password)
+            or AuthorizationMixin.payload_for_client()
+        )
 
-        return headers
-
-    def retrieve_ticket(self, resources=[]):
-        """
-        Method to generate permission ticket
-
-        Args:
-            resources (list): list of resources fot which ticket needs to be generated
-
-        Raises:
-            HTTPError
-        """
-        # retrieve permission ticket
+        # retrieve PAT
         try:
-            self.log.info("Retrieving permission ticket from keycloak server")
+            log.info("Retrieving protection api token from keycloak server")
             response = requests.post(
-                self.config.permission_endpoint,
-                json=resources,
-                headers=self.pat_auth_header,
+                config.uma2.token_endpoint, data=payload, headers=headers
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:
-            self.log.exception("Failed to retrieve the permission ticket")
+            log.exception(
+                "Failed to retrieve protection api token from keycloak server"
+            )
             raise ex
 
         return response.json()
 
-    def retrieve_rpt(self, aat, ticket=None):
-        """
-        Method to fetch the request party token (RPT)
-
-        Args:
-            aat (str): authorization api token
-            ticket (str): permission ticket
-            audience (str): client id or audience
-
-        Raises:
-            HTTPError
-        """
-        # prepare payload
-        payload = {"grant_type": "urn:ietf:params:oauth:grant-type:uma-ticket"}
-
-        # with ticket
-        if ticket:
-            payload.update({"ticket": ticket})
-
-        # without ticket
-        else:
-            payload.update({"audience": self.config.client_id})
+    @staticmethod
+    def ticket(resources: Tuple, access_token: str) -> Dict:
+        """ method to retrieve permission ticket """
 
         # prepare headers
-        headers = auth_header(aat, TokenType.BEARER)
+        headers = auth_header(access_token, TokenType.bearer)
+
+        # retrieve permission ticket
+        try:
+            log.info("Retrieving permission ticket from keycloak server")
+            response = requests.post(
+                config.uma2.permission_endpoint, json=resources, headers=headers
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as ex:
+            log.exception("Failed to retrieve the permission ticket")
+            raise ex
+
+        return response.json()
+
+    @staticmethod
+    def rpt(ticket: str, access_token: str) -> Dict:
+        """ method to fetch the request party token """
+
+        # prepare payload
+        payload = {"grant_type": GrantTypes.uma_ticket, "ticket": ticket}
+
+        # prepare headers
+        headers = auth_header(access_token, TokenType.bearer)
 
         # fetch RPT token
         try:
-            self.log.info("Retrieving RPT from keycloak server")
+            log.info("Retrieving RPT from keycloak server")
             response = requests.post(
-                self.config.token_endpoint, data=payload, headers=headers
+                config.uma2.token_endpoint, data=payload, headers=headers
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:
-            self.log.exception("Failed to retrieve RPT from keycloak server")
+            log.exception("Failed to retrieve RPT from keycloak server")
             raise ex
 
         return response.json()
 
-    def validate_rpt(self, rpt):
-        """
-        Method to introspect and validate the request party token (RPT)
+    @staticmethod
+    def introspect(rpt: str, access_token: str) -> Dict:
+        """ method to introspect the request party token """
 
-        Args:
-            rpt (str): RPT received
-
-        Raises:
-            HTTPError
-        """
         # prepare payload
-        payload = {"token_type_hint": "requesting_party_token", "token": rpt}
+        payload = {"token_type_hint": TokenTypeHints.rpt, "token": rpt}
+
+        # prepare headers
+        headers = auth_header(access_token, TokenType.bearer)
 
         # introspect token
         try:
-            self.log.info("Introspecting RPT token")
+            log.info("Introspecting RPT token")
             response = requests.post(
-                self.config.introspection_endpoint,
-                data=payload,
-                headers=self.basic_auth_header,
+                config.uma2.introspection_endpoint, data=payload, headers=headers
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:
-            self.log.exception("Failed to validate RPT from keycloak server")
+            log.exception("Failed to validate RPT from keycloak server")
+            raise ex
+
+        return response.json()
+
+    @staticmethod
+    def resources(access_token: str) -> Dict:
+        """ method to fetch the list of resources available """
+
+        # prepare headers
+        headers = auth_header(access_token)
+
+        # retrieve resource
+        try:
+            log.info("Retrieving list of resources from keycloak server")
+            response = requests.get(
+                config.uma2.resource_registration_endpoint, headers=headers
+            )
+            response.raise_for_status()
+        except Exception as ex:
+            log.exception("Failed to retrieve list of resources")
+            raise ex
+
+        return response.json()
+
+    @staticmethod
+    def resource(resource_id: str, access_token: str) -> Dict:
+
+        # prepare headers
+        headers = auth_header(access_token)
+
+        # prepare endpoint
+        endpoint = f"{config.uma2.resource_registration_endpoint}/{resource_id}"
+
+        # retrieve resource
+        try:
+            log.info("Retrieving resource from keycloak server")
+            response = requests.get(endpoint, headers=headers)
+            response.raise_for_status()
+        except Exception as ex:
+            log.exception("Failed to retrieve list of resources")
             raise ex
 
         return response.json()

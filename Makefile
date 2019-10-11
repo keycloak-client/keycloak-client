@@ -18,9 +18,9 @@ test:
 	python setup.py pytest
 
 build: clean
-	python setup.py sdist
+	python setup.py sdist bdist_wheel
 
 upload:
-	python -m twine upload dist/*
+	twine upload -r pypi dist/*
 
 all: clean install test build upload

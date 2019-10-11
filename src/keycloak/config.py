@@ -1,80 +1,88 @@
 # -*- coding: utf-8 -*-
-
-""" This mixin takes care of all functionalities associated with configurations """
-
-import json
 import os
 
+import yaml
 import requests
 
+from .constants import EnvVar, Defaults, FileMode
+from .utils import Singleton
 
-class Configuration:
-    """ keycloak configuration """
 
-    # from config file
+class Configuration(metaclass=Singleton):
+    def __init__(self, **kwargs):
+        for key, val in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, val)
+
+
+class ClientConfiguration(Configuration):
     realm = None
     hostname = None
     client_id = None
     client_secret = None
     redirect_uri = None
 
-    # from .well-known endpoint
+
+class OpenIdConfiguration(Configuration):
     issuer = None
     authorization_endpoint = None
     token_endpoint = None
-    token_introspection_endpoint = None
+    userinfo_endpoint = None
     end_session_endpoint = None
     jwks_uri = None
-    grant_types_supported = None
-    response_types_supported = None
-    response_modes_supported = None
-    registration_endpoint = None
-    token_endpoint_auth_methods_supported = None
-    token_endpoint_auth_signing_alg_values_supported = None
-    scopes_supported = None
+    introspection_endpoint = None
+
+
+class Uma2Configuration(Configuration):
+    issuer = None
+    authorization_endpoint = None
+    token_endpoint = None
+    end_session_endpoint = None
+    jwks_uri = None
     resource_registration_endpoint = None
     permission_endpoint = None
     policy_endpoint = None
     introspection_endpoint = None
 
-    def __init__(self, config_file=None):
-        """
-        initialize keycloak configuration
 
-        Args:
-            config_file(str): path to the keycloak config file
-        """
+class KeycloakConfiguration(Configuration):
+    client = None
+    uma2 = None
+    openid = None
 
-        # default config file to keycloak.json
-        config_file = "keycloak.json" if config_file is None else config_file
+    @property
+    def settings_file(self) -> str:
+        return os.getenv(EnvVar.keycloak_settings, Defaults.keycloak_settings)
 
-        # validate config file
-        if not os.path.isfile(config_file):
-            raise ValueError(
-                "Unable to find the config file in the given path %s", config_file
-            )
+    def load_client_configuration(self):
+        with open(self.settings_file, FileMode.read_only) as stream:
+            data = yaml.safe_load(stream)
+            self.client = ClientConfiguration(**data)
 
-        # read config file
-        with open(config_file, "r") as file_descriptor:
-            file_content = file_descriptor.read()
+    @property
+    def openid_wellknown_endpoint(self) -> str:
+        return f"{self.client.hostname}/auth/realms/{self.client.realm}/.well-known/openid-configuration"
 
-        # validate file is json loadable
-        try:
-            config = json.loads(file_content)
-        except json.decoder.JSONDecodeError:
-            raise ValueError("Invalid json file")
+    @property
+    def uma_wellknown_endpoint(self) -> str:
+        return f"{self.client.hostname}/auth/realms/{self.client.realm}/.well-known/uma2-configuration"
 
-        # set attributes
-        for key, val in config.items():
-            setattr(self, key, val)
-
-        # fetch urls using well-known url
-        well_known = (
-            f"{self.hostname}/auth/realms/{self.realm}/.well-known/uma2-configuration"
-        )
-        response = requests.get(well_known)
+    def load_openid_configuration(self):
+        response = requests.get(self.openid_wellknown_endpoint)
         response.raise_for_status()
+        data = response.json()
+        self.openid = OpenIdConfiguration(**data)
 
-        # set attributes
-        for key, val in response.json().items():
-            setattr(self, key, val)
+    def load_uma2_configuration(self):
+        response = requests.get(self.uma_wellknown_endpoint)
+        response.raise_for_status()
+        data = response.json()
+        self.uma2 = Uma2Configuration(**data)
+
+    def __init__(self):
+        self.load_client_configuration()
+        self.load_openid_configuration()
+        self.load_uma2_configuration()
+
+
+config = KeycloakConfiguration()

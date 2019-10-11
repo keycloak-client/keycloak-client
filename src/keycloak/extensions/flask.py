@@ -1,41 +1,60 @@
 # -*- coding: utf-8 -*-
+import json
 
 from flask import Flask, Response, redirect, request, session
-from keycloak import KeycloakClient
+
+from .. import Client
 
 
 class Authentication:
-    def __init__(self, app: Flask, keycloak_client: KeycloakClient):
+    def __init__(self, app: Flask, kc: Client, redirect_to: str = "/"):
         """ Initialize extension """
         self.app = app
-        self.keycloak_client = keycloak_client
+        self.kc = kc
+        self.redirect_to = redirect_to
         self.add_routes(app)
 
     def add_routes(self, app: Flask):
         """ add middleware and routes """
-        app.add_url_rule("/keycloak/login", "keycloak-login", self.login)
-        app.add_url_rule("/keycloak/callback", "keycloak-callback", self.callback)
+        app.add_url_rule("/kc/login", "kc-login", self.login)
+        app.add_url_rule("/kc/callback", "kc-callback", self.callback)
         app.before_request(self.is_logged_in)
 
     @staticmethod
     def is_logged_in():
         """ Middleware to verify whether the user has logged in or not """
-        if all(["user" not in session, "/keycloak" not in request.path]):
-            return redirect("/keycloak/login")
+        if any(["tokens" not in session, "user" not in session]) and (
+            "/kc" not in request.path
+        ):
+            return redirect("/kc/login")
 
     def login(self):
         """ Initiate authentication """
-        auth_url, state = self.keycloak_client.authentication_url()
+        url, state = self.kc.login()
         session["state"] = state
-        return redirect(auth_url)
+        return redirect(url)
 
     def callback(self):
         """ Authentication callback handler """
-        code = request.args.get("code")
+
+        # validate state
         state = request.args.get("state", "unknown")
         _state = session.pop("state", None)
         if state != _state:
             return Response("Invalid state", status=403)
-        response = self.keycloak_client.authentication_callback(code)
-        session["user"] = self.keycloak_client.decode_jwt(response["id_token"])
-        return redirect("/")
+
+        # fetch user tokens
+        code = request.args.get("code")
+        tokens = self.kc.callback(code)
+        session["tokens"] = json.dumps(tokens)
+
+        # fetch user info
+        access_token = tokens["access_token"]
+        user = self.kc.userinfo(access_token)
+        session["user"] = json.dumps(user)
+
+        return redirect(self.redirect_to)
+
+
+class Authorization:
+    pass

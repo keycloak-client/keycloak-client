@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
-
-""" This mixin takes care of all functionalities associated with authentication """
-
-import urllib
-import uuid
+import logging
+from typing import Tuple, Dict
+from urllib.parse import urlencode
+from uuid import uuid4
 
 import requests
+
+from ..config import config
+from ..constants import GrantTypes, Logger, ResponseTypes
+from ..utils import auth_header
+
+
+log = logging.getLogger(Logger.name)
 
 
 class AuthenticationMixin:
@@ -13,58 +19,59 @@ class AuthenticationMixin:
     This class includes the methods to interact with the authentication flow
     """
 
-    def authentication_url(self, scopes=("openid",)):
-        """
-        Method which builds the login url for keycloak
-
-        Args:
-            scopes (tuple): list of scopes
-
-        Returns:
-            str
-        """
-        self.log.info("Constructing authentication url")
-        state = str(uuid.uuid4())
-        arguments = urllib.parse.urlencode(
+    @staticmethod
+    def login(scopes: Tuple = ("openid",)) -> Tuple:
+        """ openid login url """
+        log.info("Constructing authentication url")
+        state = uuid4().hex
+        arguments = urlencode(
             {
                 "state": state,
-                "client_id": self.config.client_id,
-                "response_type": "code",
+                "client_id": config.client.client_id,
+                "response_type": ResponseTypes.code,
                 "scope": " ".join(scopes),
-                "redirect_uri": self.config.redirect_uri,
+                "redirect_uri": config.client.redirect_uri,
             }
         )
-        return f"{self.config.authorization_endpoint}?{arguments}", state
+        return f"{config.openid.authorization_endpoint}?{arguments}", state
 
-    def authentication_callback(self, code):
-        """
-        Method to retrieve access_token, refresh_token and id_token
-
-        Args:
-            code (str): authentication code received in the callback
-
-        Returns:
-            access_token (str)
-            refresh_token (str)
-            id_token (str)
-        """
+    @staticmethod
+    def callback(code: str) -> Dict:
+        """ openid login callback handler """
 
         # prepare request payload
         payload = {
             "code": code,
-            "grant_type": "authorization_code",
-            "client_id": self.config.client_id,
-            "redirect_uri": self.config.redirect_uri,
-            "client_secret": self.config.client_secret,
+            "grant_type": GrantTypes.authorization_code,
+            "client_id": config.client.client_id,
+            "redirect_uri": config.client.redirect_uri,
+            "client_secret": config.client.client_secret,
         }
 
         # retrieve tokens from keycloak server
         try:
-            self.log.info("Retrieving AAT from keycloak server")
-            response = requests.post(self.config.token_endpoint, data=payload)
+            log.info("Retrieving user tokens from keycloak server")
+            response = requests.post(config.openid.token_endpoint, data=payload)
             response.raise_for_status()
         except Exception as ex:
-            self.log.exception("Failed to retrieve AAT from keycloak server")
+            log.exception("Failed to retrieve AAT from keycloak server")
+            raise ex
+
+        return response.json()
+
+    @staticmethod
+    def userinfo(access_token: str) -> Dict:
+
+        # prepare headers
+        headers = auth_header(access_token)
+
+        # retrieve user info
+        try:
+            log.info("Retrieving user info from keycloak server")
+            response = requests.post(config.openid.userinfo_endpoint, headers=headers)
+            response.raise_for_status()
+        except Exception as ex:
+            log.exception("Failed to retrieve user info from keycloak server")
             raise ex
 
         return response.json()

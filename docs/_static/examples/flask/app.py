@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import json
+
+from flask import Flask, jsonify, redirect, request
+
 from keycloak import KeycloakClient
-from flask import Flask, request, redirect, jsonify
 
 
 app = Flask(__name__)

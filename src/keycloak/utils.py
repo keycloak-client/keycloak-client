@@ -1,64 +1,37 @@
 # -*- coding: utf-8 -*-
-
-""" utility functions """
-
 import base64
+from typing import Dict
+
+from .constants import Headers, TokenType
 
 
-def b64encode(string):
-    """
-    Method to encode string using base64
-
-    Args:
-        string (str): data to be encoded
-
-    Returns:
-        str
-    """
-    # convert to bytes
+def b64encode(string: str) -> str:
+    """ method to encode string using base64 """
     string = bytes(string, "utf-8")
-
-    # perform base64 encoding
     string = base64.b64encode(string)
-
-    # convert to str
     return string.decode("utf-8")
 
 
-def auth_header(token_val, token_type):
-    """
-    Method to generate authorization header to be used with the requests
-
-    Args:
-        token_val (str): authentication token
-        token_type (str): token type eg: Basic, Bearer etc
-
-    Returns:
-        dict
-    """
-    return {"Authorization": "{} {}".format(token_type, token_val)}
+def auth_header(token_val: str, token_type: str = TokenType.bearer) -> Dict:
+    """ method to generate authorization header """
+    return {Headers.authorization: f"{token_type} {token_val}"}
 
 
-def fix_padding(encoded_string):
-    """
-    Method to correct padding for base64 encoding
+def basic_auth(username, password) -> Dict:
+    """ method to prepare the basic auth header """
+    token = f"{username}:{password}"
+    token = b64encode(token)
+    return auth_header(token, TokenType.basic)
 
-    Args:
-        encoded_string (str): base64 encoded string/data
 
-    Returns:
-        str
-    """
-
-    # calculate padding
+def fix_padding(encoded_string: str) -> str:
+    """ method to correct padding for base64 encoding """
     required_padding = len(encoded_string) % 4
-
-    # pad data
     return encoded_string + ("=" * required_padding)
 
 
 class Singleton(type):
-    """ Metaclass for creating singleton classes """
+    """ metaclass for creating singleton classes """
 
     _instances = {}
 

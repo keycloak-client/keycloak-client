@@ -1,60 +1,25 @@
 # -*- coding: utf-8 -*-
-
-""" This module takes care of all functionalities associated with logging """
-
+import sys
 import logging
-import os
-from logging.handlers import RotatingFileHandler
+
+from .constants import Logger
 
 
-def get_formatter():
-    """
-    Method to construct log formatter
-    """
-    return logging.Formatter(
-        "%(levelname)s - %(asctime)s - %(filename)s:%(lineno)d - %(message)s"
-    )
+# define log formatter
+log_format = "%(asctime)s [%(levelname)s] %(message)s"
+formatter = logging.Formatter(log_format)
 
 
-def get_file_handler(log_dir=None):
-    """
-    Method to construct file handler
-
-    Args:
-        log_dir (str): directory to write logs
-    """
-
-    # log file
-    log_dir = log_dir or os.getcwd()
-    log_file = os.path.join(log_dir, "keycloak.log")
-
-    # formatter
-    formatter = get_formatter()
-
-    # handler
-    file_handler = RotatingFileHandler(
-        filename=log_file, maxBytes=10000000, backupCount=5
-    )
-    file_handler.setFormatter(formatter)
-
-    return file_handler
+# define stream handler
+stream_handler = logging.StreamHandler(sys.stdout)
+stream_handler.setLevel(logging.DEBUG)
+stream_handler.setFormatter(formatter)
 
 
-def get_logger(log_dir=None, log_level=logging.DEBUG):
-    """
-    Method to construct logger
+# define logger
+logger = logging.getLogger(Logger.name)
+logger.setLevel(logging.DEBUG)
 
-    Args:
-        log_dir (str): directory to write logs
-        log_level (str): logging level
-    """
 
-    # handler
-    file_handler = get_file_handler(log_dir)
-
-    # create logger
-    logger = logging.getLogger("keycloak")
-    logger.setLevel(log_level)
-    logger.addHandler(file_handler)
-
-    return logger
+# add handlers
+logger.addHandler(stream_handler)

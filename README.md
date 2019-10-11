@@ -4,5 +4,10 @@
 [![codecov](https://codecov.io/gh/akhilputhiry/keycloak-client/branch/master/graph/badge.svg)](https://codecov.io/gh/akhilputhiry/keycloak-client)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/keycloak.svg)](https://pypistats.org/packages/keycloak)
 
-This repo contains a python client for [Keycloak](https://www.keycloak.org/) IAM   
+This repo contains a python client for [Keycloak](https://www.keycloak.org/) IAM
 Visit [https://keycloak-client.readthedocs.io](https://keycloak-client.readthedocs.io) for documentation
+
+
+### Workflow
+
+![Workflow](http://www.janua.fr/wp-content/uploads/2019/05/understandinf-UMA-and-Keycloak.png)
