@@ -103,6 +103,12 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# IDE
 .idea
 .vscode
+
+# macos
 .DS_Store
+
+# dev scripts
+scripts
