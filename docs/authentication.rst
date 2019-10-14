@@ -1,8 +1,9 @@
 Authentication
 ==============
 
-Keycloak client provides two methods called `authentication_url` and `authentication_callback`,
-using which you can connect to the authentication endpoints of keycloak server easily.
+Keycloak client provides two methods called `login` and `callback`,
+using which you can connect to the authentication endpoints of keycloak server
+and perform `openid` authentication easily.
 
 The following snippet is an example written in `Flask <http://flask.pocoo.org/>`_ framework
 
@@ -11,33 +12,43 @@ The following snippet is an example written in `Flask <http://flask.pocoo.org/>`
 
    #! -*- coding: utf-8 -*-
    from flask import Flask, redirect, request, jsonify, session, Response
-   from keycloak import KeycloakClient
+   from keycloak import Client
 
 
    api = Flask(__name__)
    api.config['SECRET_KEY'] = 'EYxuFcNqGamVU78GgfupoO5N4z2xokA58XtL0ag'
-   keycloak_client = KeycloakClient()
+   kc = Client()
 
 
    @api.route('/login', methods=['GET'])
    def login():
        """ Initiate authentication """
-       auth_url, state = keycloak_client.authentication_url()
+       url, state = kc.login()
        session['state'] = state
-       return redirect(auth_url)
+       return redirect(url)
 
 
    @api.route('/login/callback', methods=['GET'])
    def login_callback():
        """ Authentication callback handler """
-       code = request.args.get('code')
+
+       # validate state
        state = request.args.get('state', 'unknown')
        _state = session.pop('state', None)
        if state != _state:
            return Response('Invalid state', status=403)
-       response = keycloak_client.authentication_callback(code)
-       user_info = keycloak_client.decode_jwt(response['id_token'])
-       return jsonify(user_info)
+
+       # retrieve tokens
+       code = request.args.get('code')
+       tokens = kc.callback(code)
+
+       # retrieve userinfo
+       access_token = tokens["access_token"]
+       userinfo = kc.userinfo(access_token)
+       session["user"] = userinfo
+
+       # send userinfo to user
+       return jsonify(userinfo)
 
 
    if __name__ == '__main__':

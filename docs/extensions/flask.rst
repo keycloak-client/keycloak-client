@@ -7,7 +7,7 @@ Using Flask Extension
    # -*- coding: utf-8 -*-
    from flask import Flask, session, Response
 
-   from keycloak import KeycloakClient
+   from keycloak import Client
    from keycloak.extensions.flask import Authentication
 
 
@@ -17,16 +17,22 @@ Using Flask Extension
 
 
    # create keycloak client
-   keycloak_client = KeycloakClient()
+   kc = Client()
 
 
-   # add authentication extension to flask app
-   Authentication(api, keycloak_client)
+   # add authentication plugin
+   Authentication(api, kc)
 
 
-   @api.route("/")
-   def home():
-       return Response("Welcome Home")
+   @api.route("/info")
+   def user_info():
+       user = session["user"]
+       return Response(user)
+
+   @api.route("/tokens")
+   def user_tokens():
+       tokens = session["tokens"]
+       return Response(tokens)
 
 
    if __name__ == "__main__":
