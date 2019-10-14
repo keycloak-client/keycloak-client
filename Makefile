@@ -12,7 +12,7 @@ clean:
 
 install:
 	pip install -e .
-	pip install pre-commit && pre-commit install
+	pip install pre-commit twine && pre-commit install
 
 test:
 	python setup.py pytest

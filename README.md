@@ -7,7 +7,34 @@
 This repo contains a python client for [Keycloak](https://www.keycloak.org/) IAM
 Visit [https://keycloak-client.readthedocs.io](https://keycloak-client.readthedocs.io) for documentation
 
+### Examples
 
-### Workflow
+```python
+
+from keycloak import Client
+
+kc = Client()
+
+# generate pat for clients
+pat = kc.pat()
+
+# generate pat for users
+pat = kc.pat("username", "password")
+
+# generate permissiong ticket
+resources = [{
+    "resource_id": "",
+    "resource_scopes: []
+}]
+ticket = kc.ticket(resources, pat["access_token"])
+
+# generate rpt
+rpt = kc.rpt(ticket["ticket"], pat["access_token"])
+
+# introspect rpt
+kc.introspect(rpt, access_token=pat["access_token"])
+```
+
+### UMA Workflow
 
 ![Workflow](http://www.janua.fr/wp-content/uploads/2019/05/understandinf-UMA-and-Keycloak.png)
