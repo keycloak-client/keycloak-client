@@ -17,39 +17,47 @@ class Configuration(metaclass=Singleton):
 
 
 class ClientConfiguration(Configuration):
-    realm: str = None  # type: ignore
-    hostname: str = None  # type: ignore
-    client_id: str = None  # type: ignore
-    client_secret: str = None  # type: ignore
+    # fmt: off
+    realm: str = None         # type: ignore
+    hostname: str = None      # type: ignore
+    client_id: str = None     # type: ignore
+    client_secret: str = None # type: ignore
     redirect_uri: str = None  # type: ignore
+    # fmt: on
 
 
 class OpenIdConfiguration(Configuration):
-    issuer: str = None  # type: ignore
-    authorization_endpoint: str = None  # type: ignore
-    token_endpoint: str = None  # type: ignore
-    userinfo_endpoint: str = None  # type: ignore
-    end_session_endpoint: str = None  # type: ignore
-    jwks_uri: str = None  # type: ignore
-    introspection_endpoint: str = None  # type: ignore
+    # fmt: off
+    issuer: str = None                 # type: ignore
+    authorization_endpoint: str = None # type: ignore
+    token_endpoint: str = None         # type: ignore
+    userinfo_endpoint: str = None      # type: ignore
+    end_session_endpoint: str = None   # type: ignore
+    jwks_uri: str = None               # type: ignore
+    introspection_endpoint: str = None # type: ignore
+    # fmt: on
 
 
 class Uma2Configuration(Configuration):
-    issuer: str = None  # type: ignore
-    authorization_endpoint: str = None  # type: ignore
-    token_endpoint: str = None  # type: ignore
-    end_session_endpoint: str = None  # type: ignore
-    jwks_uri: str = None  # type: ignore
-    resource_registration_endpoint: str = None  # type: ignore
-    permission_endpoint: str = None  # type: ignore
-    policy_endpoint: str = None  # type: ignore
-    introspection_endpoint: str = None  # type: ignore
+    # fmt: off
+    issuer: str = None                         # type: ignore
+    authorization_endpoint: str = None         # type: ignore
+    token_endpoint: str = None                 # type: ignore
+    end_session_endpoint: str = None           # type: ignore
+    jwks_uri: str = None                       # type: ignore
+    resource_registration_endpoint: str = None # type: ignore
+    permission_endpoint: str = None            # type: ignore
+    policy_endpoint: str = None                # type: ignore
+    introspection_endpoint: str = None         # type: ignore
+    # fmt: on
 
 
 class KeycloakConfiguration(Configuration):
-    _client: ClientConfiguration = None  # type: ignore
-    _openid: OpenIdConfiguration = None  # type: ignore
-    _uma2: Uma2Configuration = None  # type: ignore
+    # fmt: off
+    _client: ClientConfiguration = None # type: ignore
+    _openid: OpenIdConfiguration = None # type: ignore
+    _uma2: Uma2Configuration = None     # type: ignore
+    # fmt: on
 
     @property
     def settings_file(self) -> str:
