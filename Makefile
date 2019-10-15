@@ -12,10 +12,18 @@ clean:
 
 install:
 	pip install -e .
-	pip install pre-commit twine && pre-commit install
+	pip install pre-commit twine mypy black && pre-commit install
 
-test:
+pytest:
 	python setup.py pytest
+
+mypy:
+	mypy src/keycloak --ignore-missing-imports --disallow-untyped-defs
+
+black:
+	black src/keycloak tests setup.py --check
+
+test: pytest mypy black
 
 build: clean
 	python setup.py sdist bdist_wheel
@@ -23,4 +31,4 @@ build: clean
 upload:
 	twine upload -r pypi dist/*
 
-all: clean install test build upload
+all: clean install test lint build upload

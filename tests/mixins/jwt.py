@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 from unittest.mock import MagicMock, patch
 
 
@@ -14,22 +15,22 @@ def test_keys(mock_get, kc_client, kc_config):
 @patch("keycloak.mixins.jwt.json.loads")
 @patch("keycloak.mixins.jwt.base64.b64decode")
 @patch("keycloak.mixins.jwt.fix_padding")
-def test_parse_key_and_alg(mock_fix_padding, mock_b64decode, mock_loads, kc_client):
+def test_parse_key_and_alg(
+    mock_fix_padding, mock_b64decode, mock_json_loads, kc_client, keys
+):
     """ Test case for parse_header """
-    mock_fix_padding.return_value = (
-        "Zmxhc2stYXBwOjFmNDlmMDU3LWJiZjktNDM4OS1hOTBmLTNjNTk3MmY1NTY0YQ"
+    header_encoded = "eyJraWQiOiAialZhc3I2T0dMNWswVkZCc3ViS3VjM1hnZWFjLUFmcHFvWFZHa21BYW40USIsICJhbGciOiAiUlMyNTYifQo="
+    header_decoded = (
+        '{"kid": "jVasr6OGL5k0VFBsubKuc3Xgeac-AfpqoXVGkmAan4Q", "alg": "RS256"}'
     )
-    mock_b64decode.return_value = '{"key":"value"}'
-    kc_client._parse_key_and_alg(
-        "Zmxhc2stYXBwOjFmNDlmMDU3LWJiZjktNDM4OS1hOTBmLTNjNTk3MmY1NTY0YQ"
-    )
-    mock_fix_padding.assert_called_once_with(
-        "Zmxhc2stYXBwOjFmNDlmMDU3LWJiZjktNDM4OS1hOTBmLTNjNTk3MmY1NTY0YQ"
-    )
-    mock_b64decode.assert_called_once_with(
-        "Zmxhc2stYXBwOjFmNDlmMDU3LWJiZjktNDM4OS1hOTBmLTNjNTk3MmY1NTY0YQ"
-    )
-    mock_loads.assert_called_with('{"key":"value"}')
+    header_dict = {"kid": "jVasr6OGL5k0VFBsubKuc3Xgeac-AfpqoXVGkmAan4Q", "alg": "RS256"}
+    mock_fix_padding.return_value = header_encoded
+    mock_b64decode.return_value = header_decoded
+    mock_json_loads.return_value = header_dict
+    kc_client._parse_key_and_alg(header_encoded)
+    mock_fix_padding.assert_called_once_with(header_encoded)
+    mock_b64decode.assert_called_once_with(header_encoded)
+    mock_json_loads.assert_called_with(header_decoded)
 
 
 @patch("keycloak.mixins.jwt.jwt.decode")
@@ -37,7 +38,7 @@ def test_parse_key_and_alg(mock_fix_padding, mock_b64decode, mock_loads, kc_clie
 def test_decode(mock_parse_key_and_alg, mock_decode, kc_client, kc_config):
     """ Test case for decode_jwt """
     token = "header.payload.signature"
-    mock_parse_key_and_alg.return_value = ("header", "key", "algorithm")
+    mock_parse_key_and_alg.return_value = ("key", "algorithm")
     kc_client.decode(token)
     mock_parse_key_and_alg.assert_called_once_with("header")
     mock_decode.assert_called_once_with(

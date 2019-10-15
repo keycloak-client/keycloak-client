@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from unittest.mock import MagicMock, patch
 from urllib.parse import urlencode
+
 from keycloak.utils import auth_header
 
 

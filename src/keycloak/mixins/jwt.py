@@ -2,7 +2,7 @@
 import base64
 import json
 import logging
-from typing import List, Tuple
+from typing import List, Tuple, Union, Dict
 
 import jwt
 import requests
@@ -11,6 +11,7 @@ from cached_property import cached_property_with_ttl
 
 from ..config import config
 from ..constants import Logger, Algorithms
+from ..exceptions import AlgorithmNotSupported
 from ..utils import fix_padding
 
 
@@ -27,13 +28,15 @@ class JWTMixin:
         response.raise_for_status()
         return response.json().get("keys", [])
 
-    def _jwk(self, kid) -> str:
-        for key in self._keys:
-            if key["kid"] == kid:
-                return json.dumps(key)
+    def _jwk(self, kid: str) -> str:
+        key: Dict = {}
+        for item in self._keys:
+            if item["kid"] == kid:
+                key = item
+        return json.dumps(key)
 
     @staticmethod
-    def _key(alg, jwk):
+    def _key(alg: str, jwk: str) -> bytes:
         if alg in Algorithms.ec:
             return algorithms.ECAlgorithm.from_jwk(jwk)
         if alg in Algorithms.hmac:
@@ -42,27 +45,28 @@ class JWTMixin:
             return algorithms.RSAAlgorithm.from_jwk(jwk)
         if alg in Algorithms.rsapss:
             return algorithms.RSAPSSAlgorithm.from_jwk(jwk)
+        raise AlgorithmNotSupported
 
-    def _parse_key_and_alg(self, header) -> Tuple:
+    def _parse_key_and_alg(self, header: str) -> Tuple[bytes, str]:
 
         # decode header
         header = fix_padding(header)
-        header = base64.b64decode(header)
-        header = json.loads(header)
+        header_decoded = base64.b64decode(header)
+        header_as_dict = json.loads(header_decoded)
 
         # fetch jwk
-        kid = header.get("kid")
+        kid = header_as_dict.get("kid")
         jwk = self._jwk(kid)
 
         # fetch key
-        alg = header.get("alg")
+        alg = header_as_dict.get("alg")
         key = self._key(alg, jwk)
 
-        return header, key, alg
+        return key, alg
 
-    def decode(self, token: str) -> str:
+    def decode(self, token: str) -> Dict:
         header, _, _ = token.split(".")
-        _, key, algorithm = self._parse_key_and_alg(header)
+        key, algorithm = self._parse_key_and_alg(header)
         return jwt.decode(
             token,
             key,

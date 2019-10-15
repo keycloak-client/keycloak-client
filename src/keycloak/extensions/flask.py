@@ -1,40 +1,44 @@
 # -*- coding: utf-8 -*-
 import json
+from typing import Union
 
-from flask import Flask, Response, redirect, request, session
+from flask import Flask, redirect, request, session
+from werkzeug.wrappers import Response
 
 from .. import Client
 
 
 class Authentication:
-    def __init__(self, app: Flask, kc: Client, redirect_to: str = "/"):
+    def __init__(self, app: Flask, kc: Client, redirect_to: str = "/") -> None:
         """ Initialize extension """
         self.app = app
         self.kc = kc
         self.redirect_to = redirect_to
         self.add_routes(app)
 
-    def add_routes(self, app: Flask):
+    def add_routes(self, app: Flask) -> None:
         """ add middleware and routes """
         app.add_url_rule("/kc/login", "kc-login", self.login)
         app.add_url_rule("/kc/callback", "kc-callback", self.callback)
         app.before_request(self.is_logged_in)
 
     @staticmethod
-    def is_logged_in():
+    def is_logged_in() -> Union[None, Response]:
         """ Middleware to verify whether the user has logged in or not """
         if any(["tokens" not in session, "user" not in session]) and (
             "/kc" not in request.path
         ):
             return redirect("/kc/login")
+        else:
+            return None
 
-    def login(self):
+    def login(self) -> Response:
         """ Initiate authentication """
         url, state = self.kc.login()
         session["state"] = state
         return redirect(url)
 
-    def callback(self):
+    def callback(self) -> Response:
         """ Authentication callback handler """
 
         # validate state
@@ -44,7 +48,7 @@ class Authentication:
             return Response("Invalid state", status=403)
 
         # fetch user tokens
-        code = request.args.get("code")
+        code: str = request.args.get("code", "unknown")
         tokens = self.kc.callback(code)
         session["tokens"] = json.dumps(tokens)
 

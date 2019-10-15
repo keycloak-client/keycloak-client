@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from .config import config
 from .mixins.authentication import AuthenticationMixin
 from .mixins.authorization import AuthorizationMixin
 from .mixins.jwt import JWTMixin
@@ -10,4 +9,4 @@ class Client(AuthenticationMixin, AuthorizationMixin, JWTMixin, metaclass=Single
     pass
 
 
-__all__ = ["Client", "config"]
+__all__ = ["Client"]

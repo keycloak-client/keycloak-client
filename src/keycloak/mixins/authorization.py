@@ -32,6 +32,8 @@ class AuthorizationMixin:
                 "username": username,
                 "password": password,
             }
+        else:
+            return {}
 
     @staticmethod
     def pat(username: str = None, password: str = None) -> Dict:
