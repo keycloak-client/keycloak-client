@@ -7,7 +7,6 @@ from typing import List, Tuple, Union, Dict
 import jwt
 import requests
 from jwt import algorithms
-from cached_property import cached_property_with_ttl
 
 from ..config import config
 from ..constants import Logger, Algorithms
@@ -21,12 +20,19 @@ log = logging.getLogger(Logger.name)
 class JWTMixin:
     """ This class consists of methods that can be user to perform JWT operations """
 
-    @cached_property_with_ttl(ttl=86400)
-    def _keys(self) -> List:
+    _certs: List = []
+
+    def load_keys(self) -> None:
         log.info("Retrieving keys from keycloak server")
         response = requests.get(config.uma2.jwks_uri)
         response.raise_for_status()
-        return response.json().get("keys", [])
+        self._certs = response.json().get("keys", [])
+
+    @property
+    def _keys(self) -> List:
+        if not self._certs:
+            self.load_keys()
+        return self._certs
 
     def _jwk(self, kid: str) -> str:
         key: Dict = {}

@@ -25,7 +25,7 @@ def read_json(file, cls=None):
 client = read_json("client.json", ClientConfiguration)
 openid = read_json("openid.json", OpenIdConfiguration)
 uma2 = read_json("uma2.json", Uma2Configuration)
-keys = read_json("keys.json")
+certs = read_json("certs.json")
 
 
 @pytest.fixture(autouse=True)
@@ -33,11 +33,7 @@ def configs(monkeypatch):
     monkeypatch.setattr("keycloak.config.KeycloakConfiguration.client", client)
     monkeypatch.setattr("keycloak.config.KeycloakConfiguration.openid", openid)
     monkeypatch.setattr("keycloak.config.KeycloakConfiguration.uma2", uma2)
-
-
-@pytest.fixture()
-def keys(monkeypatch):
-    monkeypatch.setattr("keycloak.mixins.jwt.JWTMixin._keys", keys)
+    monkeypatch.setattr("keycloak.mixins.jwt.JWTMixin._certs", certs)
 
 
 @pytest.fixture(autouse=True)
