@@ -77,15 +77,17 @@ def test_rpt(mock_auth_header, mock_post, kc_client, kc_config):
 
 
 @patch("keycloak.mixins.authorization.requests.post")
-@patch("keycloak.mixins.authorization.auth_header")
-def test_introspect(mock_auth_header, mock_post, kc_client, kc_config):
+@patch("keycloak.mixins.authorization.basic_auth")
+def test_introspect(mock_basic_auth, mock_post, kc_client, kc_config):
     rpt = "rpt123456789"
     payload = {"token_type_hint": TokenTypeHints.rpt, "token": rpt}
     token = "token123456789"
     header = {"Authorization": token}
-    mock_auth_header.return_value = header
-    kc_client.introspect(rpt, token)
-    mock_auth_header.assert_called_once_with(token, TokenType.bearer)
+    mock_basic_auth.return_value = header
+    kc_client.introspect(rpt)
+    mock_basic_auth.assert_called_once_with(
+        kc_config.client.client_id, kc_config.client.client_secret
+    )
     mock_post.assert_called_once_with(
         kc_config.uma2.introspection_endpoint, data=payload, headers=header
     )
