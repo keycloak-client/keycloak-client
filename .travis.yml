@@ -1,9 +1,19 @@
 language: python
 
+os:
+  - osx
+  - linux
+  - windows
+
 python:
   - "3.7"
   - "3.8"
   - "nightly"
+
+matrix:
+  allow_failures:
+    - os: windows
+    - python: nightly
 
 before_install:
   - pip install pip codecov --upgrade
