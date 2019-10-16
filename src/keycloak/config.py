@@ -17,7 +17,7 @@ log = logging.getLogger(Logger.name)
 
 
 class DataClassMixin:
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Dict):
         attrs = [x.name for x in fields(self)]
         for key, val in kwargs.items():
             if key in attrs:
@@ -68,7 +68,7 @@ class Config(metaclass=Singleton):
         log.debug("Loading client config from the settings file")
         with open(self.settings_file, FileMode.read_only) as stream:
             data = yaml.safe_load(stream)
-            return Client.from_kwargs(**data)
+            return Client(**data)
 
     @property
     def openid_endpoint(self) -> str:
