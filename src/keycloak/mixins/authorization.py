@@ -107,14 +107,14 @@ class AuthorizationMixin:
         return response.json()
 
     @staticmethod
-    def introspect(rpt: str, access_token: str) -> Dict:
+    def introspect(rpt: str) -> Dict:
         """ method to introspect the request party token """
 
         # prepare payload
         payload = {"token_type_hint": TokenTypeHints.rpt, "token": rpt}
 
         # prepare headers
-        headers = auth_header(access_token, TokenType.bearer)
+        headers = basic_auth(config.client.client_id, config.client.client_secret)
 
         # introspect token
         try:

@@ -10,12 +10,11 @@ Visit [https://keycloak-client.readthedocs.io](https://keycloak-client.readthedo
 ### Examples
 
 ```python
-
 from keycloak import Client
 
 kc = Client()
 
-# generate pat for clients
+# generate pat for client
 pat = kc.pat()
 
 # generate pat for users
@@ -23,8 +22,8 @@ pat = kc.pat("username", "password")
 
 # generate permissiong ticket
 resources = [{
-    "resource_id": "",
-    "resource_scopes: []
+    "resource_id": "5e6c4b9e-6691-4d8f-9bdb-5fd0b63ec37e",
+    "resource_scopes": ["view"]
 }]
 ticket = kc.ticket(resources, pat["access_token"])
 
@@ -32,7 +31,7 @@ ticket = kc.ticket(resources, pat["access_token"])
 rpt = kc.rpt(ticket["ticket"], pat["access_token"])
 
 # introspect rpt
-kc.introspect(rpt, access_token=pat["access_token"])
+is_valid = kc.introspect(rpt["access_token"])
 ```
 
 ### UMA Workflow

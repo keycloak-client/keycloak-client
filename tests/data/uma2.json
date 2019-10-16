@@ -1,1 +1,19 @@
-{"issuer":"https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc","authorization_endpoint":"https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/auth","token_endpoint":"https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/token","token_introspection_endpoint":"https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/token/introspect","end_session_endpoint":"https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/logout","jwks_uri":"https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/certs","grant_types_supported":["authorization_code","implicit","refresh_token","password","client_credentials"],"response_types_supported":["code","none","id_token","token","id_token token","code id_token","code token","code id_token token"],"response_modes_supported":["query","fragment","form_post"],"registration_endpoint":"https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/clients-registrations/openid-connect","token_endpoint_auth_methods_supported":["private_key_jwt","client_secret_basic","client_secret_post","client_secret_jwt"],"token_endpoint_auth_signing_alg_values_supported":["RS256"],"scopes_supported":["openid","address","email","offline_access","phone","profile","roles","user_roles","web-origins"],"resource_registration_endpoint":"https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/authz/protection/resource_set","permission_endpoint":"https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/authz/protection/permission","policy_endpoint":"https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/authz/protection/uma-policy","introspection_endpoint":"https://keycloak.dev.lti-mosaic.com/auth/realms/akhil-poc/protocol/openid-connect/token/introspect"}
+{
+	"issuer": "https://keycloak-server.com/auth/realms/my-realm",
+	"authorization_endpoint": "https://keycloak-server.com/auth/realms/my-realm/protocol/openid-connect/auth",
+	"token_endpoint": "https://keycloak-server.com/auth/realms/my-realm/protocol/openid-connect/token",
+	"token_introspection_endpoint": "https://keycloak-server.com/auth/realms/my-realm/protocol/openid-connect/token/introspect",
+	"end_session_endpoint": "https://keycloak-server.com/auth/realms/my-realm/protocol/openid-connect/logout",
+	"jwks_uri": "https://keycloak-server.com/auth/realms/my-realm/protocol/openid-connect/certs",
+	"grant_types_supported": ["authorization_code", "implicit", "refresh_token", "password", "client_credentials"],
+	"response_types_supported": ["code", "none", "id_token", "token", "id_token token", "code id_token", "code token", "code id_token token"],
+	"response_modes_supported": ["query", "fragment", "form_post"],
+	"registration_endpoint": "https://keycloak-server.com/auth/realms/my-realm/clients-registrations/openid-connect",
+	"token_endpoint_auth_methods_supported": ["private_key_jwt", "client_secret_basic", "client_secret_post", "client_secret_jwt"],
+	"token_endpoint_auth_signing_alg_values_supported": ["RS256"],
+	"scopes_supported": ["openid", "address", "email", "offline_access", "phone", "profile", "roles", "user_roles", "web-origins"],
+	"resource_registration_endpoint": "https://keycloak-server.com/auth/realms/my-realm/authz/protection/resource_set",
+	"permission_endpoint": "https://keycloak-server.com/auth/realms/my-realm/authz/protection/permission",
+	"policy_endpoint": "https://keycloak-server.com/auth/realms/my-realm/authz/protection/uma-policy",
+	"introspection_endpoint": "https://keycloak-server.com/auth/realms/my-realm/protocol/openid-connect/token/introspect"
+}
