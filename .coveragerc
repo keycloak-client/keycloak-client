@@ -1,0 +1,4 @@
+[run]
+omit =
+    src/keycloak/config.py
+    src/keycloak/log.py

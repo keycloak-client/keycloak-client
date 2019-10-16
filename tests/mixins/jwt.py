@@ -15,14 +15,27 @@ def test_keys(mock_get, kc_client, kc_config, monkeypatch):
     mock_get.return_value.json.assert_called_once()
 
 
-@pytest.mark.skip(reason="unknown error occuring from pyjwt")
+def test_jwk(kc_client):
+    key = kc_client._jwk("jVasr6OGL5k0VFBsubKuc3Xgeac-AfpqoXVGkmAan4Q")
+    assert key == json.dumps(
+        {
+            "kid": "jVasr6OGL5k0VFBsubKuc3Xgeac-AfpqoXVGkmAan4Q",
+            "kty": "RSA",
+            "alg": "RS256",
+            "use": "sig",
+            "n": "gvG6nS5gWCU60KbcjoMScEyo_avU0I1gfnKp-wNzL5n1MU3AexLp4dErafyXhwuHDc1Kx-v76NGykjpgMXTknhxltxJI9wewn6nDSSF6g-Qz08dUCstl3kdkwOXBYPqmbXknSMGTgQ4X94kFR4QeUUf_qdJxKaqB2eGciX5XGb95Z5rPFjH41wgyj_VcuZVfzSKj915PbJAMXEjGUtN-PNfEvF_3SPvRGU3lv-agAGlJrhBdNsnuVmnobgwufYC8XNwK3jkgprBWoH5UU3gUUH0979e8hYAov3wKlRT4X2HQDNrQvlne7ysAIIMp5XmrOctTcmT1AIPe8k0-41s0Xw",
+            "e": "AQAB",
+        }
+    )
+
+
+@pytest.mark.skip()
 @patch("keycloak.mixins.jwt.base64.b64decode")
 @patch("keycloak.mixins.jwt.fix_padding")
 def test_parse_key_and_alg(mock_fix_padding, mock_b64decode, kc_client):
     """ Test case for parse_header """
-    header_encoded = "eyJraWQiOiAialZhc3I2T0dMNWswVkZCc3ViS3VjM1hnZWFjLUFmcHFvWFZHa21BYW40USIsICJhbGciOiAiUlMyNTYifQo="
-    header_dict = {"kid": "jVasr6OGL5k0VFBsubKuc3Xgeac-AfpqoXVGkmAan4Q", "alg": "RS256"}
-    header_decoded = json.dumps(header_dict)
+    header_encoded = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJqVmFzcjZPR0w1azBWRkJzdWJLdWMzWGdlYWMtQWZwcW9YVkdrbUFhbjRRIn0"
+    header_decoded = '{"kid": "jVasr6OGL5k0VFBsubKuc3Xgeac-AfpqoXVGkmAan4Q", "alg": "RS256", "typ": "JWT"}'
     mock_fix_padding.return_value = header_encoded
     mock_b64decode.return_value = header_decoded
     kc_client._parse_key_and_alg(header_encoded)
