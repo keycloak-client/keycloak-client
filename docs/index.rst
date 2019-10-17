@@ -12,3 +12,4 @@
    :caption: Extensions
 
    Flask <extensions/flask>
+   Starlette <extensions/starlette>

@@ -8,7 +8,7 @@ from .utils import Singleton
 
 
 class Client(AuthenticationMixin, AuthorizationMixin, JWTMixin, metaclass=Singleton):
-    def __init__(self, redirect_uri: str):
+    def __init__(self, redirect_uri: str = "http://localhost/kc/callback"):
         self.redirect_uri = redirect_uri
 
 

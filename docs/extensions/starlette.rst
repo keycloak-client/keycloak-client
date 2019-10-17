@@ -4,25 +4,25 @@ Using Starlette Extension
 .. code-block:: python
    :linenos:
 
-   # -*- coding: utf-8 -*-
-   import uvicorn
+    #! /usr/bin/env python
+    import uvicorn
 
-   from keycloak.extensions.starlette import Authentication
+    from starlette.applications import Starlette
+    from starlette.middleware.sessions import SessionMiddleware
+    from starlette.responses import PlainTextResponse
 
-   from starlette.applications import Starlette
-   from starlette.middleware.sessions import SessionMiddleware
-   from starlette.responses import PlainTextResponse
-
-   app = Starlette()
-   app.debug = True
-   app.add_middleware(Authentication)
-   app.add_middleware(SessionMiddleware, secret_key="faaa5490558e4ec5aa74f6f8b36ffc77")
+    from keycloak.extensions.starlette import AuthenticationMiddleware
 
 
-   @app.route("/")
-   def index(request, **kwargs):
-       return PlainTextResponse("Howdy!")
+    app = Starlette()
+    app.add_middleware(AuthenticationMiddleware, callback_uri="http://localhost:8000/kc/callback", redirect_uri="/howdy")
+    app.add_middleware(SessionMiddleware, secret_key="adasdsadasdsad")
 
 
-   if __name__ == "__main__":
-       uvicorn.run(app, debug=True)
+    @app.route("/")
+    def howdy(request):
+        return PlainTextResponse("Howdy")
+
+
+    if __name__ == "__main__":
+        uvicorn.run(app)

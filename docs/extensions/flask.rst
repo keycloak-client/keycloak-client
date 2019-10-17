@@ -4,36 +4,20 @@ Using Flask Extension
 .. code-block:: python
    :linenos:
 
-   # -*- coding: utf-8 -*-
-   from flask import Flask, session, Response
-
-   from keycloak import Client
-   from keycloak.extensions.flask import Authentication
+    #! /usr/bin/env python
+    from flask import Flask
+    from keycloak.extensions.flask import Authentication
 
 
-   # create flask app
-   api = Flask(__name__)
-   api.config["SECRET_KEY"] = "EYxuFcNqGamVU78GgfupoO5N4z2xokA58XtL0ag"
+    app = Flask(__name__)
+    app.config["SECRET_KEY"] = "secret123456789"
+    Authentication(app, callback_uri="http://localhost:5000/kc/callback", redirect_uri="/howdy")
 
 
-   # create keycloak client
-   kc = Client()
+    @app.route("/howdy")
+    def howdy():
+        return "Howdy!"
 
 
-   # add authentication plugin
-   Authentication(api, kc)
-
-
-   @api.route("/info")
-   def user_info():
-       user = session["user"]
-       return Response(user)
-
-   @api.route("/tokens")
-   def user_tokens():
-       tokens = session["tokens"]
-       return Response(tokens)
-
-
-   if __name__ == "__main__":
-       api.run(host="0.0.0.0", debug=True)
+    if __name__ == "__main__":
+        app.run(debug=True)
