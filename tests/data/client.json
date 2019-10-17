@@ -1,6 +1,6 @@
 {
     "realm": "akhil-poc",
-    "auth-server-url": "https://keycloak.dev.lti-mosaic.com/auth",
+    "auth-server-url": "https://keycloak-server.com/auth",
     "ssl-required": "external",
     "resource": "flask-app",
     "verify-token-audience": true,

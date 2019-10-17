@@ -13,6 +13,7 @@ from .. import Client
 class EndpointHandler(HTTPEndpoint):
     def __init__(self, *args: Any, **kwargs: Any):
         self.kc = kwargs.pop("kc")
+        self.redirect_uri = kwargs.pop("redirect_uri", "/")
         super().__init__(*args, **kwargs)
 
 
@@ -43,13 +44,17 @@ class Callback(EndpointHandler):
         user = self.kc.userinfo(access_token)
         request.session["user"] = json.dumps(user)
 
-        return RedirectResponse("/")
+        return RedirectResponse(self.redirect_uri)
 
 
 class AuthenticationMiddleware:
-    def __init__(self, app: ASGIApp, redirect_uri: str) -> None:
+    def __init__(
+        self, app: ASGIApp, callback_uri: str, redirect_uri: str = "/"
+    ) -> None:
         self.app = app
-        self.kc = Client(redirect_uri=redirect_uri)
+        self.callback_uri = callback_uri
+        self.redirect_uri = redirect_uri
+        self.kc = Client(callback_uri)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] == "http":

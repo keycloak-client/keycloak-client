@@ -9,10 +9,12 @@ from .. import Client
 
 
 class Authentication:
-    def __init__(self, app: Flask, redirect_uri: str) -> None:
+    def __init__(self, app: Flask, callback_uri: str, redirect_uri: str = "/") -> None:
         """ Initialize extension """
         self.app = app
-        self.kc = Client(redirect_uri=redirect_uri)
+        self.callback_uri = callback_uri
+        self.redirect_uri = redirect_uri
+        self.kc = Client(callback_uri)
         self.add_routes(app)
 
     def add_routes(self, app: Flask) -> None:
@@ -56,7 +58,7 @@ class Authentication:
         user = self.kc.userinfo(access_token)
         session["user"] = json.dumps(user)
 
-        return redirect("/")
+        return redirect(self.redirect_uri)
 
 
 class Authorization:
