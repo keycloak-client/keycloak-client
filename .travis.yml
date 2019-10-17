@@ -7,9 +7,8 @@ python:
 
 matrix:
   allow_failures:
-    - python:
-        - "3.8"
-        - "nightly"
+    - python: "3.8"
+    - python: "nightly"
 
 before_install:
   - pip install pip codecov --upgrade
