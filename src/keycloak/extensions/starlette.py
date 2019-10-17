@@ -2,11 +2,12 @@
 import json
 from typing import Any
 
-from keycloak import Client
 from starlette.types import ASGIApp, Receive, Scope, Send
 from starlette.requests import Request
 from starlette.responses import Response, RedirectResponse, PlainTextResponse
 from starlette.endpoints import HTTPEndpoint
+
+from .. import Client
 
 
 kc = Client()

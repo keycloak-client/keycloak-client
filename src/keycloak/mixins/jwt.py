@@ -42,14 +42,16 @@ class JWTMixin:
 
     @staticmethod
     def _key(alg: str, jwk: str) -> bytes:
+        # fmt: off
         if alg in Algorithms.ec:
-            return algorithms.ECAlgorithm.from_jwk(jwk)
+            return algorithms.ECAlgorithm.from_jwk(jwk)      # pragma: nocover
         if alg in Algorithms.hmac:
-            return algorithms.HMACAlgorithm.from_jwk(jwk)
+            return algorithms.HMACAlgorithm.from_jwk(jwk)    # pragma: nocover
+        if alg in Algorithms.rsapss:
+            return algorithms.RSAPSSAlgorithm.from_jwk(jwk)  # pragma: nocover
+        # fmt: on
         if alg in Algorithms.rsa:
             return algorithms.RSAAlgorithm.from_jwk(jwk)
-        if alg in Algorithms.rsapss:
-            return algorithms.RSAPSSAlgorithm.from_jwk(jwk)
         raise AlgorithmNotSupported
 
     def _parse_key_and_alg(self, header: str) -> Tuple[bytes, str]:

@@ -3,6 +3,7 @@ import json
 from unittest.mock import MagicMock, patch
 
 import pytest
+from keycloak.exceptions import AlgorithmNotSupported
 
 
 @patch("keycloak.mixins.jwt.requests.get")
@@ -58,3 +59,9 @@ def test_decode(mock_parse_key_and_alg, mock_decode, kc_client, kc_config):
         issuer=kc_config.uma2.issuer,
         audience=kc_config.client.client_id,
     )
+
+
+def test_unsupported_key(kc_client):
+    with pytest.raises(AlgorithmNotSupported) as ex:
+        kc_client._key("unknown", "unknown")
+    assert ex.type == AlgorithmNotSupported
