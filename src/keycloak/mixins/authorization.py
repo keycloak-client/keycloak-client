@@ -144,7 +144,7 @@ class AuthorizationMixin:
             )
             response.raise_for_status()
         except Exception as ex:
-            log.exception("Failed to retrieve list of resources")
+            log.exception("Failed to retrieve list of resources from keycloak server")
             raise ex
 
         return response.json()
@@ -164,7 +164,7 @@ class AuthorizationMixin:
             response = requests.get(endpoint, headers=headers)
             response.raise_for_status()
         except Exception as ex:
-            log.exception("Failed to retrieve list of resources")
+            log.exception("Failed to find the resource in keycloak server")
             raise ex
 
         return response.json()
