@@ -29,18 +29,18 @@ def test_jwk(kc_client):
     )
 
 
-@pytest.mark.skip()
-@patch("keycloak.mixins.jwt.base64.b64decode")
-@patch("keycloak.mixins.jwt.fix_padding")
-def test_parse_key_and_alg(mock_fix_padding, mock_b64decode, kc_client):
+@patch("keycloak.mixins.jwt.b64decode")
+def test_parse_key_and_alg(mock_b64decode, kc_client):
     """ Test case for parse_header """
     header_encoded = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJqVmFzcjZPR0w1azBWRkJzdWJLdWMzWGdlYWMtQWZwcW9YVkdrbUFhbjRRIn0"
-    header_decoded = '{"kid": "jVasr6OGL5k0VFBsubKuc3Xgeac-AfpqoXVGkmAan4Q", "alg": "RS256", "typ": "JWT"}'
-    mock_fix_padding.return_value = header_encoded
+    header_decoded = {
+        "kid": "jVasr6OGL5k0VFBsubKuc3Xgeac-AfpqoXVGkmAan4Q",
+        "typ": "JWT",
+        "alg": "RS256",
+    }
     mock_b64decode.return_value = header_decoded
     kc_client._parse_key_and_alg(header_encoded)
-    mock_fix_padding.assert_called_once_with(header_encoded)
-    mock_b64decode.assert_called_once_with(header_encoded)
+    mock_b64decode.assert_called_once_with(header_encoded, deserialize=True)
 
 
 @patch("keycloak.mixins.jwt.jwt.decode")

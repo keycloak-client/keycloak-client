@@ -1,15 +1,23 @@
 # -*- coding: utf-8 -*-
 import base64
-from typing import Tuple, Dict, Any
+import json
+from typing import Tuple, Dict, Union, Any
 
 from .constants import Headers, TokenType
 
 
-def b64encode(string: str) -> str:
+def b64encode(data: Any, serialize: bool = False) -> str:
     """ method to encode string using base64 """
-    string_as_bytes = string.encode("utf-8")
-    encoded_string = base64.b64encode(string_as_bytes)
-    return encoded_string.decode("utf-8")
+    serialized_data = json.dumps(data) if serialize else data
+    data_as_bytes = serialized_data.encode("utf-8")
+    return base64.b64encode(data_as_bytes).decode("utf-8")
+
+
+def b64decode(string: str, deserialize: bool = False) -> Union[str, Dict]:
+    """ method to decode string using base64 """
+    string = fix_padding(string)
+    decoded_string = base64.b64decode(string).decode("utf-8")
+    return json.loads(decoded_string) if deserialize else decoded_string
 
 
 def auth_header(token_val: str, token_type: str = TokenType.bearer) -> Dict:

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import base64
 import json
 import logging
 from typing import List, Tuple, Union, Dict
@@ -11,7 +10,7 @@ from jwt import algorithms
 from ..config import config
 from ..constants import Logger, Algorithms
 from ..exceptions import AlgorithmNotSupported
-from ..utils import fix_padding
+from ..utils import b64decode
 
 
 log = logging.getLogger(Logger.name)
@@ -56,16 +55,14 @@ class JWTMixin:
     def _parse_key_and_alg(self, header: str) -> Tuple[bytes, str]:
 
         # decode header
-        header = fix_padding(header)
-        header_decoded = base64.b64decode(header)
-        header_as_dict = json.loads(header_decoded)
+        decoded_header: Dict = b64decode(header, deserialize=True)  # type: ignore
 
         # fetch jwk
-        kid = header_as_dict.get("kid")
+        kid = decoded_header["kid"]
         jwk = self._jwk(kid)
 
         # fetch key
-        alg = header_as_dict.get("alg")
+        alg = decoded_header["alg"]
         key = self._key(alg, jwk)
 
         return key, alg

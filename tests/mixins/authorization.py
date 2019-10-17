@@ -18,6 +18,11 @@ def test_payload_for_user(kc_client):
     }
 
 
+def test_payload_for_user_empty(kc_client):
+    payload = kc_client.payload_for_user()
+    assert payload == {}
+
+
 @patch("keycloak.mixins.authorization.requests.post")
 @patch("keycloak.mixins.authorization.AuthorizationMixin.payload_for_client")
 @patch("keycloak.mixins.authorization.AuthorizationMixin.payload_for_user")
