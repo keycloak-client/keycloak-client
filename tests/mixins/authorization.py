@@ -54,7 +54,7 @@ def test_pat(
     )
 
 
-@patch("keycloak.mixins.authorization.log.exception", side_effect=HTTPError)
+@patch("keycloak.mixins.authorization.log.exception")
 @patch("keycloak.mixins.authorization.requests.post", side_effect=HTTPError)
 @patch("keycloak.mixins.authorization.AuthorizationMixin.payload_for_client")
 @patch("keycloak.mixins.authorization.AuthorizationMixin.payload_for_user")

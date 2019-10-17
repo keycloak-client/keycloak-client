@@ -53,13 +53,13 @@ class Authentication:
         self.redirect_to = redirect_to
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        request = Request(scope, receive)
-
-        if request.url.path == "/kc/callback":
-            await Callback(scope, receive, send, redirect_to=self.redirect_to)
-
-        elif any(["/kc/login" in request.url.path, "user" not in request.session]):
-            await Login(scope, receive, send)
-
+        if scope["type"] == "http":
+            request = Request(scope, receive)
+            if request.url.path == "/kc/callback":
+                await Callback(scope, receive, send, redirect_to=self.redirect_to)
+            elif any(["/kc/login" in request.url.path, "user" not in request.session]):
+                await Login(scope, receive, send)
+            else:
+                await self.app(scope, receive, send)
         else:
             await self.app(scope, receive, send)
