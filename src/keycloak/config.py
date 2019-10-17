@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
+import json
 import os
 import logging
 from typing import Dict
 from dataclasses import dataclass, fields
 from functools import lru_cache
 
-import yaml
 import requests
 from cached_property import cached_property
 
@@ -20,6 +20,7 @@ class DataClassMixin:
     def __init__(self, **kwargs: Dict):
         attrs = [x.name for x in fields(self)]
         for key, val in kwargs.items():
+            key = key.replace("-", "_")
             if key in attrs:
                 setattr(self, key, val)
 
@@ -27,10 +28,21 @@ class DataClassMixin:
 @dataclass(init=False)
 class Client(DataClassMixin):
     realm: str
-    hostname: str
-    client_id: str
-    client_secret: str
-    redirect_uri: str
+    auth_server_url: str
+    ssl_required: str
+    resource: str
+    verify_token_audience: str
+    credentials: Dict
+    confidential_port: int
+    policy_enforcer: Dict
+
+    @property
+    def client_id(self) -> str:
+        return self.resource
+
+    @property
+    def client_secret(self) -> str:
+        return self.credentials["secret"]
 
 
 @dataclass(init=False)
@@ -67,14 +79,14 @@ class Config(metaclass=Singleton):
     def client(self) -> Client:
         log.debug("Loading client config from the settings file")
         with open(self.settings_file, FileMode.read_only) as stream:
-            data = yaml.safe_load(stream)
+            data = json.loads(stream.read())
             return Client(**data)
 
     @property
     def openid_endpoint(self) -> str:
         return (
-            self.client.hostname
-            + "/auth/realms/"
+            self.client.auth_server_url
+            + "/realms/"
             + self.client.realm
             + "/.well-known/openid-configuration"
         )
@@ -90,8 +102,8 @@ class Config(metaclass=Singleton):
     @property
     def uma_endpoint(self) -> str:
         return (
-            self.client.hostname
-            + "/auth/realms/"
+            self.client.auth_server_url
+            + "/realms/"
             + self.client.realm
             + "/.well-known/uma2-configuration"
         )

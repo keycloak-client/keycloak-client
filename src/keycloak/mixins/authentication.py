@@ -19,8 +19,9 @@ class AuthenticationMixin:
     This class includes the methods to interact with the authentication flow
     """
 
-    @staticmethod
-    def login(scopes: Tuple = ("openid",)) -> Tuple:
+    redirect_uri = "http://localhost/kc/callback"
+
+    def login(self, scopes: Tuple = ("openid",)) -> Tuple:
         """ openid login url """
         log.info("Constructing authentication url")
         state = uuid4().hex
@@ -30,21 +31,20 @@ class AuthenticationMixin:
                 "client_id": config.client.client_id,
                 "response_type": ResponseTypes.code,
                 "scope": " ".join(scopes),
-                "redirect_uri": config.client.redirect_uri,
+                "redirect_uri": self.redirect_uri,
             }
         )
         return f"{config.openid.authorization_endpoint}?{arguments}", state
 
-    @staticmethod
-    def callback(code: str) -> Dict:
+    def callback(self, code: str) -> Dict:
         """ openid login callback handler """
 
         # prepare request payload
         payload = {
             "code": code,
             "grant_type": GrantTypes.authorization_code,
+            "redirect_uri": self.redirect_uri,
             "client_id": config.client.client_id,
-            "redirect_uri": config.client.redirect_uri,
             "client_secret": config.client.client_secret,
         }
 

@@ -9,12 +9,14 @@ from starlette.responses import PlainTextResponse
 from starlette.testclient import TestClient
 
 from keycloak.constants import GrantTypes
-from keycloak.extensions.starlette import Authentication
+from keycloak.extensions.starlette import AuthenticationMiddleware
 from keycloak.utils import auth_header
 
 
 app = Starlette()
-app.add_middleware(Authentication)
+app.add_middleware(
+    AuthenticationMiddleware, redirect_uri="http://localhost/kc/callback"
+)
 app.add_middleware(SessionMiddleware, secret_key="key0123456789")
 
 
@@ -63,7 +65,7 @@ def test_kc_callback(mock_request, mock_post, kc_config):
         "grant_type": GrantTypes.authorization_code,
         "client_id": kc_config.client.client_id,
         "client_secret": kc_config.client.client_secret,
-        "redirect_uri": kc_config.client.redirect_uri,
+        "redirect_uri": "http://localhost/kc/callback",
     }
     headers = auth_header("token12345")
     expected_calls = [

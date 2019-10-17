@@ -10,7 +10,7 @@ class Logger:
 class Defaults:
     """ constants associated with default values """
 
-    keycloak_settings = "keycloak.yaml"
+    keycloak_settings = "keycloak.json"
 
 
 class EnvVar:

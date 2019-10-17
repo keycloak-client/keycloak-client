@@ -1,7 +1,12 @@
 {
-    "client_id": "id123456789",
-    "client_secret": "secret123456789",
-    "hostname": "https://keycloak-server.com",
-    "realm": "my-realm",
-    "redirect_uri": "https://localhost/8000/kc/callback"
-}
+    "realm": "akhil-poc",
+    "auth-server-url": "https://keycloak.dev.lti-mosaic.com/auth",
+    "ssl-required": "external",
+    "resource": "flask-app",
+    "verify-token-audience": true,
+    "credentials": {
+      "secret": "e2013b04-b8e1-417d-a416-f8e02b1c8554"
+    },
+    "confidential-port": 0,
+    "policy-enforcer": {}
+  }

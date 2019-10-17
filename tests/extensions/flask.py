@@ -12,7 +12,7 @@ from keycloak.utils import auth_header
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret0123456789"
-Authentication(app)
+Authentication(app, redirect_uri="http://localhost/kc/callback")
 
 
 @app.route("/howdy")
@@ -49,7 +49,7 @@ def test_callback(mock_session, mock_uuid4, mock_post, client, kc_config):
         "code": "code123",
         "grant_type": GrantTypes.authorization_code,
         "client_id": kc_config.client.client_id,
-        "redirect_uri": kc_config.client.redirect_uri,
+        "redirect_uri": "http://localhost/kc/callback",
         "client_secret": kc_config.client.client_secret,
     }
     userinfo_endpoint_header = auth_header("token123")

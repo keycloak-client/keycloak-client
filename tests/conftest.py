@@ -39,4 +39,4 @@ def kc_config(monkeypatch):
 
 @pytest.fixture()
 def kc_client(monkeypatch):
-    yield KeycloakClient()
+    yield KeycloakClient(redirect_uri="http://localhost/kc/callback")

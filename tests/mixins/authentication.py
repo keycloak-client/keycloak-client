@@ -18,7 +18,7 @@ def test_kc_login(mock_uuid4, kc_client, kc_config):
             "client_id": kc_config.client.client_id,
             "response_type": "code",
             "scope": "openid",
-            "redirect_uri": kc_config.client.redirect_uri,
+            "redirect_uri": kc_client.redirect_uri,
         }
     )
     login_url = f"{kc_config.openid.authorization_endpoint}?{arguments}"
@@ -34,7 +34,7 @@ def test_kc_callback(mock_post, kc_client, kc_config):
         "code": "code123456789",
         "grant_type": "authorization_code",
         "client_id": kc_config.client.client_id,
-        "redirect_uri": kc_config.client.redirect_uri,
+        "redirect_uri": kc_client.redirect_uri,
         "client_secret": kc_config.client.client_secret,
     }
     kc_client.callback(code="code123456789")
@@ -49,7 +49,7 @@ def test_kc_callback_failure(mock_post, mock_log, kc_client, kc_config):
         "code": "code123456789",
         "grant_type": "authorization_code",
         "client_id": kc_config.client.client_id,
-        "redirect_uri": kc_config.client.redirect_uri,
+        "redirect_uri": kc_client.redirect_uri,
         "client_secret": kc_config.client.client_secret,
     }
     with pytest.raises(HTTPError) as ex:
