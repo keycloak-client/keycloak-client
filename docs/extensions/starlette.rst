@@ -15,13 +15,14 @@ Using Starlette Extension
 
 
     app = Starlette()
+    app.debug = True
     app.add_middleware(AuthenticationMiddleware, callback_uri="http://localhost:8000/kc/callback", redirect_uri="/howdy")
-    app.add_middleware(SessionMiddleware, secret_key="adasdsadasdsad")
+    app.add_middleware(SessionMiddleware, secret_key="secret0123456789")
 
 
-    @app.route("/")
+    @app.route("/howdy")
     def howdy(request):
-        return PlainTextResponse("Howdy")
+        return PlainTextResponse("Howdy!")
 
 
     if __name__ == "__main__":

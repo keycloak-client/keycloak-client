@@ -6,12 +6,20 @@ Using Flask Extension
 
     #! /usr/bin/env python
     from flask import Flask
-    from keycloak.extensions.flask import Authentication
 
+    from keycloak.extensions.flask import AuthenticationMiddleware
 
     app = Flask(__name__)
-    app.config["SECRET_KEY"] = "secret123456789"
-    Authentication(app, callback_uri="http://localhost:5000/kc/callback", redirect_uri="/howdy")
+    app.config["SECRET_KEY"] = "secret0123456789"
+
+
+    app.wsgi = AuthenticationMiddleware(
+        app.wsgi,
+        app.config,
+        app.session_interface,
+        callback_uri="http://localhost:5000/kc/callback",
+        redirect_uri="/howdy"
+    )
 
 
     @app.route("/howdy")
