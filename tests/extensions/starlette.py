@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from unittest.mock import patch, MagicMock, call
 
-import pytest
-
 from starlette.applications import Starlette
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import PlainTextResponse
@@ -29,13 +27,6 @@ def test_no_login():
     """ Test case for invalid login """
     with TestClient(app) as client:
         response = client.get("/howdy", allow_redirects=False)
-        assert response.status_code == 307
-
-
-def test_kc_login():
-    """ Test case for /kc/login """
-    with TestClient(app) as client:
-        response = client.get("/kc/login", allow_redirects=False)
         assert response.status_code == 307
 
 

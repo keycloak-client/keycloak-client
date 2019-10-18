@@ -1,46 +1,46 @@
 # -*- coding: utf-8 -*-
-from unittest.mock import patch, MagicMock, call
-
-import pytest
+from unittest.mock import patch, MagicMock, PropertyMock, call
 
 from flask import Flask
 
 from keycloak.constants import GrantTypes
-from keycloak.extensions.flask import Authentication
+from keycloak.extensions.flask import AuthenticationMiddleware
 from keycloak.utils import auth_header
 
 
-app = Flask(__name__)
-app.config["SECRET_KEY"] = "secret0123456789"
-Authentication(app, callback_uri="http://localhost/kc/callback")
+def get_app():
+    app = Flask(__name__)
+    app.config["SECRET_KEY"] = "secret0123456789"
+    app.wsgi_app = AuthenticationMiddleware(
+        app.wsgi_app,
+        app.config,
+        app.session_interface,
+        callback_uri="http://localhost/kc/callback",
+    )
+
+    @app.route("/howdy")
+    def howdy():
+        return "Howdy!"
+
+    return app
 
 
-@app.route("/howdy")
-def howdy():
-    return "Howdy!"
-
-
-@pytest.fixture()
-def client():
-    yield app.test_client()
-
-
-def test_no_login(client):
+def test_login():
+    app = get_app()
+    client = app.test_client()
     response = client.get("/howdy")
     assert response.status_code == 302
-    assert response.headers["Location"] == "http://localhost/kc/login"
-
-
-def test_login(client):
-    response = client.get("/kc/login")
-    assert response.status_code == 302
+    assert "https://keycloak-server.com/" in response.headers["Location"]
 
 
 @patch("keycloak.mixins.authentication.requests.post")
 @patch("keycloak.mixins.authentication.uuid4")
-@patch("keycloak.extensions.flask.session")
-def test_callback(mock_session, mock_uuid4, mock_post, client, kc_config):
-    mock_session.pop.return_value = "state123"
+@patch.object(AuthenticationMiddleware, "session_interface", new_callable=PropertyMock)
+def test_callback(mock_session_interface, mock_uuid4, mock_post, kc_config):
+    mock_session_interface.return_value = MagicMock()
+    mock_session_interface.return_value.open_session.return_value = {
+        "state": "state123"
+    }
     mock_uuid4.return_value = MagicMock()
     mock_uuid4.return_value.hex.return_value = "0123456789"
     mock_post.return_value = MagicMock()
@@ -61,13 +61,32 @@ def test_callback(mock_session, mock_uuid4, mock_post, client, kc_config):
         call().raise_for_status(),
         call().json(),
     ]
+    app = get_app()
+    client = app.test_client()
     response = client.get("/kc/callback?state=state123&code=code123")
     assert response.status_code == 302
     mock_post.assert_has_calls(expected_calls)
 
 
-@patch("keycloak.extensions.flask.session")
-def test_invalid_callback(mock_session, client):
-    mock_session.pop.return_value = "unknown"
+@patch.object(AuthenticationMiddleware, "session_interface", new_callable=PropertyMock)
+def test_invalid_callback(mock_session_interface):
+    mock_session_interface.return_value = MagicMock()
+    mock_session_interface.return_value.open_session.return_value = {"state": "unknown"}
+    app = get_app()
+    client = app.test_client()
     response = client.get("/kc/callback?state=state123&code=code123")
     assert response.status_code == 403
+    assert response.data == b"Invalid state"
+
+
+@patch.object(AuthenticationMiddleware, "session_interface", new_callable=PropertyMock)
+def test_valid_request(mock_session_interface):
+    mock_session_interface.return_value = MagicMock()
+    mock_session_interface.return_value.open_session.return_value = {
+        "user": "user-data"
+    }
+    app = get_app()
+    client = app.test_client()
+    response = client.get("/howdy")
+    assert response.status_code == 200
+    assert response.data == b"Howdy!"

@@ -32,12 +32,9 @@ class Callback(EndpointHandler):
         if state != _state:
             return PlainTextResponse("Invalid state", status_code=403)
 
-        # retreive tokens
+        # retrieve tokens
         code = request.query_params["code"]
         tokens = self.kc.callback(code)
-        # cookie session backend has a limitation of 4096 bytes, so we are not storing tokens in session
-        # once https://github.com/encode/starlette/issues/284 is implemented, we shall save tokens in session
-        # request.session["tokens"] = json.dumps(tokens)
 
         # retrieve user info
         access_token = tokens["access_token"]
@@ -57,13 +54,25 @@ class AuthenticationMiddleware:
         self.kc = Client(callback_uri)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope["type"] == "http":
+
+        # handle http requests
+        if (scope["type"] == "http") and (scope["scheme"] == "http"):
             request = Request(scope, receive)
+
+            # handle callback request
             if request.url.path == "/kc/callback":
                 await Callback(scope, receive, send, kc=self.kc)
-            elif any(["/kc/login" in request.url.path, "user" not in request.session]):
+
+            # handle unauthorized requests
+            elif ("/kc/callback" not in request.url.path) and (
+                "user" not in request.session
+            ):
                 await Login(scope, receive, send, kc=self.kc)
+
+            # handle authorized requests
             else:
                 await self.app(scope, receive, send)
+
+        # handle non http requests
         else:
             await self.app(scope, receive, send)
