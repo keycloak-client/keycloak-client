@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from unittest.mock import MagicMock, patch
+from unittest.mock import Mock, MagicMock, patch
 from urllib.parse import urlencode
 
 import pytest
@@ -43,8 +43,11 @@ def test_kc_callback(mock_post, kc_client, kc_config):
 
 
 @patch("keycloak.mixins.authentication.log.exception")
-@patch("keycloak.mixins.authentication.requests.post", side_effect=HTTPError)
+@patch("keycloak.mixins.authentication.requests.post")
 def test_kc_callback_failure(mock_post, mock_log, kc_client, kc_config):
+    mock_post.return_value = MagicMock()
+    mock_post.return_value.content = "server error"
+    mock_post.return_value.raise_for_status = MagicMock(side_effect=HTTPError)
     payload = {
         "code": "code123456789",
         "grant_type": "authorization_code",
@@ -56,7 +59,9 @@ def test_kc_callback_failure(mock_post, mock_log, kc_client, kc_config):
         kc_client.callback(code="code123456789")
     assert ex.type == HTTPError
     mock_post.assert_called_once_with(kc_config.openid.token_endpoint, data=payload)
-    mock_log.assert_called_once_with("Failed to retrieve AAT from keycloak server")
+    mock_log.assert_called_once_with(
+        "Failed to retrieve AAT from keycloak server\n %s", "server error"
+    )
 
 
 @patch("keycloak.mixins.authentication.requests.post")
@@ -72,9 +77,11 @@ def test_kc_userinfo(mock_post, kc_client, kc_config):
 
 
 @patch("keycloak.mixins.authentication.log.exception")
-@patch("keycloak.mixins.authentication.requests.post", side_effect=HTTPError)
+@patch("keycloak.mixins.authentication.requests.post")
 def test_kc_userinfo_failure(mock_post, mock_log, kc_client, kc_config):
-    mock_post.return_value.json = MagicMock()
+    mock_post.return_value = MagicMock()
+    mock_post.return_value.content = "server error"
+    mock_post.return_value.raise_for_status = MagicMock(side_effect=HTTPError)
     token = "token123456789"
     headers = auth_header(token)
     with pytest.raises(HTTPError) as ex:
@@ -84,5 +91,5 @@ def test_kc_userinfo_failure(mock_post, mock_log, kc_client, kc_config):
         kc_config.openid.userinfo_endpoint, headers=headers
     )
     mock_log.assert_called_once_with(
-        "Failed to retrieve user info from keycloak server"
+        "Failed to retrieve user info from keycloak server\n %s", "server error"
     )

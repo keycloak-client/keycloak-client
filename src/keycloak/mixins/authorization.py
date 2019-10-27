@@ -49,43 +49,54 @@ class AuthorizationMixin:
         )
 
         # retrieve PAT
+        log.info("Retrieving protection api token from keycloak server")
+        response = requests.post(
+            config.uma2.token_endpoint, data=payload, headers=headers
+        )
         try:
-            log.info("Retrieving protection api token from keycloak server")
-            response = requests.post(
-                config.uma2.token_endpoint, data=payload, headers=headers
-            )
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:
             log.exception(
-                "Failed to retrieve protection api token from keycloak server"
+                "Failed to retrieve protection api token from keycloak server\n %s",
+                response.content,
             )
             raise ex
 
         return response.json()
 
-    @staticmethod
-    def ticket(resources: Tuple, access_token: str) -> Dict:
+    def ticket(self, resources: Tuple, access_token: str = None) -> Dict:
         """ method to retrieve permission ticket """
+
+        # populate access_token
+        access_token = (
+            access_token if access_token else self.access_token  # type: ignore
+        )
 
         # prepare headers
         headers = auth_header(access_token, TokenType.bearer)
 
         # retrieve permission ticket
+        log.info("Retrieving permission ticket from keycloak server")
+        response = requests.post(
+            config.uma2.permission_endpoint, json=resources, headers=headers
+        )
         try:
-            log.info("Retrieving permission ticket from keycloak server")
-            response = requests.post(
-                config.uma2.permission_endpoint, json=resources, headers=headers
-            )
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:
-            log.exception("Failed to retrieve the permission ticket")
+            log.exception(
+                "Failed to retrieve the permission ticket\n %s", response.content
+            )
             raise ex
 
         return response.json()
 
-    @staticmethod
-    def rpt(ticket: str, access_token: str) -> Dict:
+    def rpt(self, ticket: str, access_token: str = None) -> Dict:
         """ method to fetch the request party token """
+
+        # populate access_token
+        access_token = (
+            access_token if access_token else self.access_token  # type: ignore
+        )
 
         # prepare payload
         payload = {"grant_type": GrantTypes.uma_ticket, "ticket": ticket}
@@ -94,14 +105,16 @@ class AuthorizationMixin:
         headers = auth_header(access_token, TokenType.bearer)
 
         # fetch RPT token
+        log.info("Retrieving RPT from keycloak server")
+        response = requests.post(
+            config.uma2.token_endpoint, data=payload, headers=headers
+        )
         try:
-            log.info("Retrieving RPT from keycloak server")
-            response = requests.post(
-                config.uma2.token_endpoint, data=payload, headers=headers
-            )
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:
-            log.exception("Failed to retrieve RPT from keycloak server")
+            log.exception(
+                "Failed to retrieve RPT from keycloak server\n %s", response.content
+            )
             raise ex
 
         return response.json()
@@ -117,54 +130,16 @@ class AuthorizationMixin:
         headers = basic_auth(config.client.client_id, config.client.client_secret)
 
         # introspect token
+        log.info("Introspecting RPT token")
+        response = requests.post(
+            config.uma2.introspection_endpoint, data=payload, headers=headers
+        )
         try:
-            log.info("Introspecting RPT token")
-            response = requests.post(
-                config.uma2.introspection_endpoint, data=payload, headers=headers
-            )
             response.raise_for_status()
         except requests.exceptions.HTTPError as ex:
-            log.exception("Failed to validate RPT from keycloak server")
-            raise ex
-
-        return response.json()
-
-    @staticmethod
-    def resources(access_token: str) -> Dict:
-        """ method to fetch the list of resources available """
-
-        # prepare headers
-        headers = auth_header(access_token)
-
-        # retrieve resource
-        try:
-            log.info("Retrieving list of resources from keycloak server")
-            response = requests.get(
-                config.uma2.resource_registration_endpoint, headers=headers
+            log.exception(
+                "Failed to validate RPT from keycloak server\n %s", response.content
             )
-            response.raise_for_status()
-        except Exception as ex:
-            log.exception("Failed to retrieve list of resources from keycloak server")
-            raise ex
-
-        return response.json()
-
-    @staticmethod
-    def resource(resource_id: str, access_token: str) -> Dict:
-
-        # prepare headers
-        headers = auth_header(access_token)
-
-        # prepare endpoint
-        endpoint = f"{config.uma2.resource_registration_endpoint}/{resource_id}"
-
-        # retrieve resource
-        try:
-            log.info("Retrieving resource from keycloak server")
-            response = requests.get(endpoint, headers=headers)
-            response.raise_for_status()
-        except Exception as ex:
-            log.exception("Failed to find the resource in keycloak server")
             raise ex
 
         return response.json()

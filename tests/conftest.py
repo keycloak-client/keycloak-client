@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import json
+from unittest.mock import patch
 
 import pytest
 
@@ -29,7 +30,7 @@ def configs(monkeypatch):
     monkeypatch.setattr("keycloak.config.Config.client", client)
     monkeypatch.setattr("keycloak.config.Config.openid", openid)
     monkeypatch.setattr("keycloak.config.Config.uma2", uma2)
-    monkeypatch.setattr("keycloak.mixins.jwt.JWTMixin._certs", certs)
+    monkeypatch.setattr("keycloak.mixins.token.TokenMixin._certs", certs)
 
 
 @pytest.fixture()
@@ -39,4 +40,4 @@ def kc_config(monkeypatch):
 
 @pytest.fixture()
 def kc_client(monkeypatch):
-    yield KeycloakClient(redirect_uri="http://localhost/kc/callback")
+    yield KeycloakClient()

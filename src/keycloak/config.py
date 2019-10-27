@@ -68,6 +68,10 @@ class Uma2(DataClassMixin):
     policy_endpoint: str
     introspection_endpoint: str
 
+    @property
+    def resource_endpoint(self) -> str:
+        return self.resource_registration_endpoint
+
 
 class Config(metaclass=Singleton):
     @property

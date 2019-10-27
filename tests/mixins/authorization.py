@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 import pytest
 from requests.exceptions import HTTPError
 from keycloak.constants import GrantTypes, TokenType, TokenTypeHints
+from keycloak.mixins.authorization import AuthorizationMixin
 
 
 def test_payload_for_client(kc_client):
@@ -55,7 +56,7 @@ def test_pat(
 
 
 @patch("keycloak.mixins.authorization.log.exception")
-@patch("keycloak.mixins.authorization.requests.post", side_effect=HTTPError)
+@patch("keycloak.mixins.authorization.requests.post")
 @patch("keycloak.mixins.authorization.AuthorizationMixin.payload_for_client")
 @patch("keycloak.mixins.authorization.AuthorizationMixin.payload_for_user")
 @patch("keycloak.mixins.authorization.basic_auth")
@@ -68,6 +69,9 @@ def test_pat_failure(
     kc_client,
     kc_config,
 ):
+    mock_post.return_value = MagicMock()
+    mock_post.return_value.content = "server error"
+    mock_post.return_value.raise_for_status = MagicMock(side_effect=HTTPError)
     token = "token123456789"
     header = {"Authorization": token}
     payload = {"grant_type": GrantTypes.client_credentials}
@@ -78,7 +82,8 @@ def test_pat_failure(
         kc_client.pat()
     assert ex.type == HTTPError
     mock_log.assert_called_once_with(
-        "Failed to retrieve protection api token from keycloak server"
+        "Failed to retrieve protection api token from keycloak server\n %s",
+        "server error",
     )
     mock_auth_header.assert_called_once_with(
         kc_config.client.client_id, kc_config.client.client_secret
@@ -105,9 +110,12 @@ def test_ticket(mock_auth_header, mock_post, kc_client, kc_config):
 
 
 @patch("keycloak.mixins.authorization.log.exception")
-@patch("keycloak.mixins.authorization.requests.post", side_effect=HTTPError)
+@patch("keycloak.mixins.authorization.requests.post")
 @patch("keycloak.mixins.authorization.auth_header")
 def test_ticket_failure(mock_auth_header, mock_post, mock_log, kc_client, kc_config):
+    mock_post.return_value = MagicMock()
+    mock_post.return_value.content = "server error"
+    mock_post.return_value.raise_for_status = MagicMock(side_effect=HTTPError)
     token = "token123456789"
     header = {"Authorization": token}
     resources = [{"resource_id": "id123456789"}]
@@ -115,7 +123,9 @@ def test_ticket_failure(mock_auth_header, mock_post, mock_log, kc_client, kc_con
     with pytest.raises(HTTPError) as ex:
         kc_client.ticket(resources, token)
     assert ex.type == HTTPError
-    mock_log.assert_called_once_with("Failed to retrieve the permission ticket")
+    mock_log.assert_called_once_with(
+        "Failed to retrieve the permission ticket\n %s", "server error"
+    )
     mock_auth_header.assert_called_once_with(token, TokenType.bearer)
     mock_post.assert_called_once_with(
         kc_config.uma2.permission_endpoint, json=resources, headers=header
@@ -138,9 +148,12 @@ def test_rpt(mock_auth_header, mock_post, kc_client, kc_config):
 
 
 @patch("keycloak.mixins.authorization.log.exception")
-@patch("keycloak.mixins.authorization.requests.post", side_effect=HTTPError)
+@patch("keycloak.mixins.authorization.requests.post")
 @patch("keycloak.mixins.authorization.auth_header")
 def test_rpt_failure(mock_auth_header, mock_post, mock_log, kc_client, kc_config):
+    mock_post.return_value = MagicMock()
+    mock_post.return_value.content = "server error"
+    mock_post.return_value.raise_for_status = MagicMock(side_effect=HTTPError)
     ticket = "ticket123456789"
     token = "token123456789"
     header = {"Authorization": token}
@@ -149,7 +162,9 @@ def test_rpt_failure(mock_auth_header, mock_post, mock_log, kc_client, kc_config
     with pytest.raises(HTTPError) as ex:
         kc_client.rpt(ticket, token)
     assert ex.type == HTTPError
-    mock_log.assert_called_once_with("Failed to retrieve RPT from keycloak server")
+    mock_log.assert_called_once_with(
+        "Failed to retrieve RPT from keycloak server\n %s", "server error"
+    )
     mock_auth_header.assert_called_once_with(token, TokenType.bearer)
     mock_post.assert_called_once_with(
         kc_config.uma2.token_endpoint, data=payload, headers=header
@@ -174,9 +189,12 @@ def test_introspect(mock_basic_auth, mock_post, kc_client, kc_config):
 
 
 @patch("keycloak.mixins.authorization.log.exception")
-@patch("keycloak.mixins.authorization.requests.post", side_effect=HTTPError)
+@patch("keycloak.mixins.authorization.requests.post")
 @patch("keycloak.mixins.authorization.basic_auth")
 def test_introspect_failure(mock_basic_auth, mock_post, mock_log, kc_client, kc_config):
+    mock_post.return_value = MagicMock()
+    mock_post.return_value.content = "server error"
+    mock_post.return_value.raise_for_status = MagicMock(side_effect=HTTPError)
     rpt = "rpt123456789"
     payload = {"token_type_hint": TokenTypeHints.rpt, "token": rpt}
     token = "token123456789"
@@ -185,72 +203,12 @@ def test_introspect_failure(mock_basic_auth, mock_post, mock_log, kc_client, kc_
     with pytest.raises(HTTPError) as ex:
         kc_client.introspect(rpt)
     assert ex.type == HTTPError
-    mock_log.assert_called_once_with("Failed to validate RPT from keycloak server")
+    mock_log.assert_called_once_with(
+        "Failed to validate RPT from keycloak server\n %s", "server error"
+    )
     mock_basic_auth.assert_called_once_with(
         kc_config.client.client_id, kc_config.client.client_secret
     )
     mock_post.assert_called_once_with(
         kc_config.uma2.introspection_endpoint, data=payload, headers=header
     )
-
-
-@patch("keycloak.mixins.authorization.requests.get")
-@patch("keycloak.mixins.authorization.auth_header")
-def test_resources(mock_auth_header, mock_get, kc_client, kc_config):
-    token = "token123456789"
-    header = {"Authorization": token}
-    mock_auth_header.return_value = header
-    kc_client.resources(token)
-    mock_auth_header.assert_called_once_with(token)
-    mock_get.assert_called_once_with(
-        kc_config.uma2.resource_registration_endpoint, headers=header
-    )
-
-
-@patch("keycloak.mixins.authorization.log.exception")
-@patch("keycloak.mixins.authorization.requests.get", side_effect=HTTPError)
-@patch("keycloak.mixins.authorization.auth_header")
-def test_resources_failure(mock_auth_header, mock_get, mock_log, kc_client, kc_config):
-    token = "token123456789"
-    header = {"Authorization": token}
-    mock_auth_header.return_value = header
-    with pytest.raises(HTTPError) as ex:
-        kc_client.resources(token)
-    assert ex.type == HTTPError
-    mock_log.assert_called_once_with(
-        "Failed to retrieve list of resources from keycloak server"
-    )
-    mock_auth_header.assert_called_once_with(token)
-    mock_get.assert_called_once_with(
-        kc_config.uma2.resource_registration_endpoint, headers=header
-    )
-
-
-@patch("keycloak.mixins.authorization.requests.get")
-@patch("keycloak.mixins.authorization.auth_header")
-def test_resource(mock_auth_header, mock_get, kc_client, kc_config):
-    token = "token123456789"
-    resource = "resource123456789"
-    header = {"Authorization": token}
-    endpoint = f"{kc_config.uma2.resource_registration_endpoint}/{resource}"
-    mock_auth_header.return_value = header
-    kc_client.resource(resource, token)
-    mock_auth_header.assert_called_once_with(token)
-    mock_get.assert_called_once_with(endpoint, headers=header)
-
-
-@patch("keycloak.mixins.authorization.log.exception")
-@patch("keycloak.mixins.authorization.requests.get", side_effect=HTTPError)
-@patch("keycloak.mixins.authorization.auth_header")
-def test_resource_failure(mock_auth_header, mock_get, mock_log, kc_client, kc_config):
-    token = "token123456789"
-    resource = "resource123456789"
-    header = {"Authorization": token}
-    endpoint = f"{kc_config.uma2.resource_registration_endpoint}/{resource}"
-    mock_auth_header.return_value = header
-    with pytest.raises(HTTPError) as ex:
-        kc_client.resource(resource, token)
-    assert ex.type == HTTPError
-    mock_log.assert_called_once_with("Failed to find the resource in keycloak server")
-    mock_auth_header.assert_called_once_with(token)
-    mock_get.assert_called_once_with(endpoint, headers=header)

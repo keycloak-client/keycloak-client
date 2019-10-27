@@ -49,29 +49,38 @@ class AuthenticationMixin:
         }
 
         # retrieve tokens from keycloak server
+        log.info("Retrieving user tokens from keycloak server")
+        response = requests.post(config.openid.token_endpoint, data=payload)
         try:
-            log.info("Retrieving user tokens from keycloak server")
-            response = requests.post(config.openid.token_endpoint, data=payload)
             response.raise_for_status()
         except Exception as ex:
-            log.exception("Failed to retrieve AAT from keycloak server")
+            log.exception(
+                "Failed to retrieve AAT from keycloak server\n %s", response.content
+            )
             raise ex
 
         return response.json()
 
-    @staticmethod
-    def userinfo(access_token: str) -> Dict:
+    def userinfo(self, access_token: str = None) -> Dict:
+
+        # populate access_token
+        access_token = (
+            access_token if access_token else self.access_token  # type: ignore
+        )
 
         # prepare headers
         headers = auth_header(access_token)
 
         # retrieve user info
+        log.info("Retrieving user info from keycloak server")
+        response = requests.post(config.openid.userinfo_endpoint, headers=headers)
         try:
-            log.info("Retrieving user info from keycloak server")
-            response = requests.post(config.openid.userinfo_endpoint, headers=headers)
             response.raise_for_status()
         except Exception as ex:
-            log.exception("Failed to retrieve user info from keycloak server")
+            log.exception(
+                "Failed to retrieve user info from keycloak server\n %s",
+                response.content,
+            )
             raise ex
 
         return response.json()
