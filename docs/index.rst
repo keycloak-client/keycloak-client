@@ -13,3 +13,9 @@
 
    Flask <extensions/flask>
    Starlette <extensions/starlette>
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Reference
+
+   Keycloak <reference/keycloak>

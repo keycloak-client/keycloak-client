@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+from dataclasses import dataclass
 from typing import List, Dict
 
 import requests
@@ -18,7 +19,22 @@ class ResourceMixin:
     """
 
     def resources(self, access_token: str = None) -> Dict:
-        """ method to fetch the list of resources available """
+        """
+        Method to fetch the list of resources available
+
+        >>> from keycloak import Client
+        >>>
+        >>> kc = Client()
+        >>>
+        >>> kc.resources()
+        ['bb6a777f-a17b-4555-b035-a6ce12a1fd21']
+
+        Args:
+            access_token (str): access token to be used
+
+        Returns:
+            list
+        """
 
         # populate access_token
         access_token = (
@@ -43,6 +59,25 @@ class ResourceMixin:
         return response.json()
 
     def resource(self, resource_id: str, access_token: str = None) -> Dict:
+        """
+        Method to fetch the details of a resource
+
+        >>> from keycloak import Client
+        >>>
+        >>> kc = Client()
+        >>>
+        >>> kc.resources()
+        ['bb6a777f-a17b-4555-b035-a6ce12a1fd21']
+        >>>
+        >>> kc.resource('bb6a777f-a17b-4555-b035-a6ce12a1fd21')
+        {'name': 'Default Resource', 'type': 'urn:python-client:resources:default', 'owner': {'id': 'd74cc555-d46c-4ef8-8a30-ceb2b91d8823'}, 'ownerManagedAccess': False, 'attributes': {}, '_id': 'bb6a777f-a17b-4555-b035-a6ce12a1fd21', 'uris': ['/*'], 'resource_scopes': []}
+
+        Args:
+            access_token (str): access token to be used
+
+        Returns:
+            list
+        """
 
         # populate access_token
         access_token = (

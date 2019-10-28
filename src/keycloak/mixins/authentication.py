@@ -22,7 +22,35 @@ class AuthenticationMixin:
     redirect_uri = "http://localhost/kc/callback"
 
     def login(self, scopes: Tuple = ("openid",)) -> Tuple:
-        """ openid login url """
+        """
+        methot to generate openid login url and state
+
+        >>> from keycloak import Client
+        >>> from flask import Flask, request, session, redirect
+        >>>
+        >>> kc = Client()
+        >>>
+        >>> app = Flask(__name__)
+        >>>
+        >>> @app.route("/howdy)
+        >>> def howdy():
+        >>>     return "Howdy!"
+        >>>
+        >>> @app.route("/login)
+        >>> def login():
+        >>>     url, state = kc.login()
+        >>>     session["state"] = state
+        >>>     return redirect(url)
+        >>>
+        >>> if __name__ == "__main__":
+        >>>     app.run()
+
+        Args:
+            scopes (tuple): scopes to be requested eg: openid, email, profile etc
+
+        Returns:
+            tuple
+        """
         log.info("Constructing authentication url")
         state = uuid4().hex
         arguments = urlencode(
@@ -37,7 +65,45 @@ class AuthenticationMixin:
         return f"{config.openid.authorization_endpoint}?{arguments}", state
 
     def callback(self, code: str) -> Dict:
-        """ openid login callback handler """
+        """
+        openid login callback handler
+
+        >>> from keycloak import Client
+        >>> from flask import Flask, request, session, redirect, Response
+        >>>
+        >>> kc = Client()
+        >>>
+        >>> app = Flask(__name__)
+        >>>
+        >>> @app.route("/howdy)
+        >>> def howdy():
+        >>>     return "Howdy!"
+        >>>
+        >>> @app.route("/login)
+        >>> def login():
+        >>>     url, state = kc.login()
+        >>>     session["state"] = state
+        >>>     return redirect(url)
+        >>>
+        >>> @app.route("/callback)
+        >>> def callback():
+        >>>     state = request.params["state"]
+        >>>     if session["state"] != state:
+        >>>         return Response("Invalid state", status=400)
+        >>>
+        >>>     code = request.params["code"]
+        >>>     session["tokens"] = kc.callback(code)
+        >>>     return redirect("/howdy")
+        >>>
+        >>> if __name__ == "__main__":
+        >>>     app.run()
+
+        Args:
+            code (str): code send by the keycloak server
+
+        Returns:
+            dict
+        """
 
         # prepare request payload
         payload = {
@@ -62,6 +128,22 @@ class AuthenticationMixin:
         return response.json()
 
     def userinfo(self, access_token: str = None) -> Dict:
+        """
+        method to retrieve userinfo from the keycloak server
+
+        >>> from keycloak import Client
+        >>>
+        >>> kc = Client()
+        >>>
+        >>> kc.userinfo()
+        {'sub': 'e1fbd7d6-ad2b-407f-89cf-6c2b004d78bb', 'email_verified': False, 'preferred_username': 'service-account-python-client', 'email': 'service-account-python-client@placeholder.org'}
+
+        Args:
+            access_token (str): access token of the client or user
+
+        Returns:
+            dict
+        """
 
         # populate access_token
         access_token = (

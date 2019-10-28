@@ -8,6 +8,7 @@ from .mixins.authentication import AuthenticationMixin
 from .mixins.authorization import AuthorizationMixin
 from .mixins.token import TokenMixin
 from .mixins.resource import ResourceMixin
+from .representations.resource import Resource
 from .utils import Singleton
 
 
@@ -29,4 +30,4 @@ class Client(
         self.password = password
 
 
-__all__ = ["Client"]
+__all__ = ["Client", "Resource"]
