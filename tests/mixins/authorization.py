@@ -5,6 +5,7 @@ import pytest
 from requests.exceptions import HTTPError
 from keycloak.constants import GrantTypes, TokenType, TokenTypeHints
 from keycloak.mixins.authorization import AuthorizationMixin
+from keycloak.representations.resource import Resource
 
 
 def test_payload_for_client(kc_client):
@@ -100,12 +101,13 @@ def test_pat_failure(
 def test_ticket(mock_auth_header, mock_post, kc_client, kc_config):
     token = "token123456789"
     header = {"Authorization": token}
-    resources = [{"resource_id": "id123456789"}]
+    resources = [Resource("id123456789", ["create", "read"])]
+    payload = [{"resource_id": "id123456789", "resource_scopes": ["create", "read"]}]
     mock_auth_header.return_value = header
     kc_client.ticket(resources, token)
     mock_auth_header.assert_called_once_with(token, TokenType.bearer)
     mock_post.assert_called_once_with(
-        kc_config.uma2.permission_endpoint, json=resources, headers=header
+        kc_config.uma2.permission_endpoint, json=payload, headers=header
     )
 
 
@@ -118,7 +120,8 @@ def test_ticket_failure(mock_auth_header, mock_post, mock_log, kc_client, kc_con
     mock_post.return_value.raise_for_status = MagicMock(side_effect=HTTPError)
     token = "token123456789"
     header = {"Authorization": token}
-    resources = [{"resource_id": "id123456789"}]
+    resources = [Resource("id123456789", ["create", "read"])]
+    payload = [{"resource_id": "id123456789", "resource_scopes": ["create", "read"]}]
     mock_auth_header.return_value = header
     with pytest.raises(HTTPError) as ex:
         kc_client.ticket(resources, token)
@@ -128,7 +131,7 @@ def test_ticket_failure(mock_auth_header, mock_post, mock_log, kc_client, kc_con
     )
     mock_auth_header.assert_called_once_with(token, TokenType.bearer)
     mock_post.assert_called_once_with(
-        kc_config.uma2.permission_endpoint, json=resources, headers=header
+        kc_config.uma2.permission_endpoint, json=payload, headers=header
     )
 
 
