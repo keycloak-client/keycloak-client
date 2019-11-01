@@ -5,8 +5,23 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/3c0d666b018207a00d27/maintainability)](https://codeclimate.com/github/akhilputhiry/keycloak-client/maintainability)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/keycloak.svg)](https://pypistats.org/packages/keycloak)
 
-This repo contains a python client for [Keycloak](https://www.keycloak.org/) IAM
-Visit [https://keycloak-client.readthedocs.io](https://keycloak-client.readthedocs.io) for documentation
+This repo contains a python client for [Keycloak](https://www.keycloak.org/)
+Documentation is available in [https://keycloak-client.readthedocs.io](https://keycloak-client.readthedocs.io)
+
+### Installation
+
+```
+pip install keycloak[complete]
+```
+
+### Web Framework Support
+
+We provide prebuilt middlewares for the following frameworks
+
+* Flask
+* Starlette
+* Django
+
 
 ### Examples
 

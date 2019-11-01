@@ -21,11 +21,11 @@ class Client(
 ):
     def __init__(
         self,
-        redirect_uri: str = "http://localhost/kc/callback",
+        callback_uri: str = "http://localhost/kc/callback",
         username: str = None,
         password: str = None,
     ):
-        self.redirect_uri = redirect_uri
+        self.callback_uri = callback_uri
         self.username = username
         self.password = password
 

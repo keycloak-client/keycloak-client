@@ -2,3 +2,4 @@
 omit =
     src/keycloak/config.py
     src/keycloak/log.py
+    src/keycloak/extensions/django.py

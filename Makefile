@@ -13,7 +13,7 @@ clean:
 	find . -type d -name dist -exec rm -rf {} +
 
 install:
-	pip install -e .[extensions]
+	pip install -e .[complete]
 	pip install pre-commit mypy black
 	pre-commit install
 
