@@ -2,8 +2,9 @@
 from setuptools import setup, find_packages
 
 
+# extras
 docs = ["sphinx", "sphinx_rtd_theme"]
-extensions = ["flask", "starlette", "djanog"]
+extensions = ["flask", "starlette", "django"]
 complete = docs + extensions
 
 
@@ -12,5 +13,5 @@ setup(
         "version_scheme": "post-release",
         "local_scheme": "node-and-timestamp",
     },
-    extra_requires={"docs": docs, "extensions": extensions, "complete": complete},
+    extras_require={"complete": complete, "docs": docs, "extensions": extensions},
 )

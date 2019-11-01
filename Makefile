@@ -24,7 +24,7 @@ mypy:
 	mypy src/keycloak --ignore-missing-imports --disallow-untyped-defs
 
 black:
-	black src/keycloak tests setup.py --check
+	black src/keycloak tests --check
 
 test: pytest mypy black
 

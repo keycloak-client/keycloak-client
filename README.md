@@ -5,8 +5,9 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/3c0d666b018207a00d27/maintainability)](https://codeclimate.com/github/akhilputhiry/keycloak-client/maintainability)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/keycloak.svg)](https://pypistats.org/packages/keycloak)
 
-This repo contains a python client for [Keycloak](https://www.keycloak.org/)
+This repo contains a python client for [Keycloak](https://www.keycloak.org/).
 Documentation is available in [https://keycloak-client.readthedocs.io](https://keycloak-client.readthedocs.io)
+
 
 ### Installation
 
@@ -23,14 +24,15 @@ We provide prebuilt middlewares for the following frameworks
 * Django
 
 
-### Examples
+### Usage / Examples
 
 ```
 >>>
 >>> from keycloak import Client
 >>>
 >>>
->>> kc = Client()
+>>> kc = Client()  # for realm client
+>>> kc = Client(username="akhilputhiry", password="*****")  # for realm users
 >>>
 >>>
 >>> kc.userinfo()
@@ -50,7 +52,3 @@ We provide prebuilt middlewares for the following frameworks
 >>>
 >>>
 ```
-
-### UMA Workflow
-
-![Workflow](http://www.janua.fr/wp-content/uploads/2019/05/understandinf-UMA-and-Keycloak.png)
