@@ -18,7 +18,15 @@ class ResourceMixin:
     This class consists of methods that can be used to manage resources
     """
 
-    def resources(self, access_token: str = None) -> Dict:
+    _resources: List = []
+
+    @property
+    def resources(self):
+        if not self._resources:
+            self._resources = self.find_resources()
+        return self._resources
+
+    def find_resources(self, access_token: str = None) -> Dict:
         """
         Method to fetch the list of resources available
 
@@ -58,7 +66,7 @@ class ResourceMixin:
 
         return response.json()
 
-    def resource(self, resource_id: str, access_token: str = None) -> Dict:
+    def find_resource(self, resource_id: str, access_token: str = None) -> Dict:
         """
         Method to fetch the details of a resource
 
