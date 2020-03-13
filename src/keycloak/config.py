@@ -88,8 +88,9 @@ class Config(metaclass=Singleton):
 
     @property
     def openid_endpoint(self) -> str:
+        auth_server_url = self.client.auth_server_url.rstrip("/")
         return (
-            self.client.auth_server_url
+            auth_server_url
             + "/realms/"
             + self.client.realm
             + "/.well-known/openid-configuration"
@@ -105,8 +106,9 @@ class Config(metaclass=Singleton):
 
     @property
     def uma_endpoint(self) -> str:
+        auth_server_url = self.client.auth_server_url.rstrip("/")
         return (
-            self.client.auth_server_url
+            auth_server_url
             + "/realms/"
             + self.client.realm
             + "/.well-known/uma2-configuration"

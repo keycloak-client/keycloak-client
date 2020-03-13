@@ -19,6 +19,7 @@ class AuthenticationMixin:
     This class includes the methods to interact with the authentication flow
     """
 
+    _userinfo: Dict = {}
     callback_uri = "http://localhost/kc/callback"
 
     def login(self, scopes: Tuple = ("openid",)) -> Tuple:
@@ -127,7 +128,7 @@ class AuthenticationMixin:
 
         return response.json()
 
-    def userinfo(self, access_token: str = None) -> Dict:
+    def fetch_userinfo(self, access_token: str = None) -> Dict:
         """
         method to retrieve userinfo from the keycloak server
 
@@ -166,3 +167,9 @@ class AuthenticationMixin:
             raise ex
 
         return response.json()
+
+    @property
+    def userinfo(self) -> Dict:
+        if not self._userinfo:
+            self._userinfo = self.fetch_userinfo()
+        return self._userinfo
