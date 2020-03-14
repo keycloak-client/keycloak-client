@@ -127,7 +127,7 @@ class AuthenticationMixin:
         >>>
         >>> kc = Client()
         >>>
-        >>> kc.userinfo()
+        >>> kc.fetch_userinfo()
         {'sub': 'e1fbd7d6-ad2b-407f-89cf-6c2b004d78bb', 'email_verified': False, 'preferred_username': 'service-account-python-client', 'email': 'service-account-python-client@placeholder.org'}
 
         Args:
@@ -146,6 +146,28 @@ class AuthenticationMixin:
 
     @property
     def userinfo(self) -> Dict:
+        """
+        user information available within the server
+
+        >>>
+        >>> from keycloak import Client
+        >>>
+        >>> kc = Client()
+        >>>
+        >>> kc.userinfo
+        2020-03-14 16:51:24,115 [DEBUG] Loading client config from the settings file
+        2020-03-14 16:51:24,115 [DEBUG] Lookup settings file in the env vars
+        2020-03-14 16:51:24,118 [DEBUG] Retrieving PAT from server
+        2020-03-14 16:51:24,118 [DEBUG] Loading uma2 config using well-known endpoint
+        2020-03-14 16:51:24,164 [DEBUG] Retrieving user info from server
+        2020-03-14 16:51:24,164 [DEBUG] Loading openid config using well-known endpoint
+        2020-03-14 16:51:24,193 [DEBUG] User info retrieved successfully
+        {'sub': '4c9c2430-b2e7-4f0b-9325-aa81dffe0463', 'email_verified': False, 'preferred_username': 'service-account-keycloak-client'}
+        >>>
+
+        Returns:
+            dict
+        """
         if not self._userinfo:
             self._userinfo = self.fetch_userinfo()
         return self._userinfo
