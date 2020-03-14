@@ -80,7 +80,7 @@ def test_kc_userinfo_failure(mock_post, kc_client, kc_config):
     token = "token123456789"
     headers = auth_header(token)
     with pytest.raises(HTTPError) as ex:
-        kc_client.find_userinfo(token)
+        kc_client.fetch_userinfo(token)
     assert ex.type == HTTPError
     mock_post.assert_called_once_with(
         kc_config.openid.userinfo_endpoint, headers=headers

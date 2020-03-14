@@ -95,7 +95,7 @@ def test_ticket(mock_auth_header, mock_post, kc_client, kc_config):
     token = "token123456789"
     header = {"Authorization": token}
     resources = [{"_id": "id123456789", "resource_scopes": ["create", "read"]}]
-    payload = [{"_id": "id123456789", "resource_scopes": ["create", "read"]}]
+    payload = [{"resource_id": "id123456789", "resource_scopes": ["create", "read"]}]
     mock_auth_header.return_value = header
     kc_client.fetch_ticket(resources, token)
     mock_auth_header.assert_called_once_with(token, TokenType.bearer)
@@ -113,13 +113,14 @@ def test_ticket_failure(mock_auth_header, mock_post, kc_client, kc_config):
     token = "token123456789"
     header = {"Authorization": token}
     resources = [{"_id": "id123456789", "resource_scopes": ["create", "read"]}]
+    payload = [{"resource_id": "id123456789", "resource_scopes": ["create", "read"]}]
     mock_auth_header.return_value = header
     with pytest.raises(HTTPError) as ex:
         kc_client.fetch_ticket(resources, token)
     assert ex.type == HTTPError
     mock_auth_header.assert_called_once_with(token, TokenType.bearer)
     mock_post.assert_called_once_with(
-        kc_config.uma2.permission_endpoint, json=resources, headers=header
+        kc_config.uma2.permission_endpoint, json=payload, headers=header
     )
 
 
