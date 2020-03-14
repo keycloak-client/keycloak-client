@@ -21,7 +21,7 @@ class ResourceMixin:
     _resources: List = []
 
     @property
-    def resources(self):
+    def resources(self) -> List:
         if not self._resources:
             self._resources = self.find_resources()
         return self._resources
