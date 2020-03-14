@@ -123,12 +123,21 @@ class AuthenticationMixin:
         """
         method to retrieve userinfo from the keycloak server
 
+        >>>
         >>> from keycloak import Client
         >>>
         >>> kc = Client()
         >>>
         >>> kc.fetch_userinfo()
-        {'sub': 'e1fbd7d6-ad2b-407f-89cf-6c2b004d78bb', 'email_verified': False, 'preferred_username': 'service-account-python-client', 'email': 'service-account-python-client@placeholder.org'}
+        2020-03-14 16:56:41,645 [DEBUG] Loading client config from the settings file
+        2020-03-14 16:56:41,645 [DEBUG] Lookup settings file in the env vars
+        2020-03-14 16:56:41,647 [DEBUG] Retrieving PAT from server
+        2020-03-14 16:56:41,647 [DEBUG] Loading uma2 config using well-known endpoint
+        2020-03-14 16:56:41,692 [DEBUG] Retrieving user info from server
+        2020-03-14 16:56:41,692 [DEBUG] Loading openid config using well-known endpoint
+        2020-03-14 16:56:41,710 [DEBUG] User info retrieved successfully
+        {'sub': '4c9c2430-b2e7-4f0b-9325-aa81dffe0463', 'email_verified': False, 'preferred_username': 'service-account-keycloak-client'}
+        >>>
 
         Args:
             access_token (str): access token of the client or user

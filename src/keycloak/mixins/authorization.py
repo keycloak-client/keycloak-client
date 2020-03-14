@@ -24,12 +24,26 @@ class AuthorizationMixin:
 
     @staticmethod
     def payload_for_client() -> Dict:
-        """ method to generate payload for client """
+        """
+        method to generate payload for client
+
+        Returns:
+            dict
+        """
         return {"grant_type": GrantTypes.client_credentials}
 
     @staticmethod
     def payload_for_user(username: str = None, password: str = None) -> Dict:
-        """ method to generate payload for user """
+        """
+        method to generate payload for user
+
+        Args:
+            username (str): username to be used
+            password (str): password to be used
+
+        Retuns:
+            dict
+        """
         if username and password:
             return {
                 "grant_type": GrantTypes.password,
@@ -51,7 +65,9 @@ class AuthorizationMixin:
         >>> kc = Client()
         >>>
         >>> kc.pat()
-        {'access_token': 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHYkdydV9sa05wN29hdjg1MUx4LXRQT1c3LWdCeWRKRWZIYmUxRHp1Zm1NIn0.eyJqdGkiOiJmNDcyYTRlNC1iMTExLTQzYTgtOWU0OC04ZmZmMzAwYTFkZTciLCJleHAiOjE1NzIyNDQ5NDksIm5iZiI6MCwiaWF0IjoxNTcyMjQ0ODg5LCJpc3MiOiJodHRwczovL2tleWNsb2FrLmFraGlscHV0aGlyeS5kZXYvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjpbInB5dGhvbi1jbGllbnQiLCJhY2NvdW50Il0sInN1YiI6ImUxZmJkN2Q2LWFkMmItNDA3Zi04OWNmLTZjMmIwMDRkNzhiYiIsInR5cCI6IkJlYXJlciIsImF6cCI6InB5dGhvbi1jbGllbnQiLCJhdXRoX3RpbWUiOjAsInNlc3Npb25fc3RhdGUiOiJjYzJjMTQ1ZC0zNTc3LTRmNjItYTY1Zi02MTY3ZDk1ZDcxZGMiLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJweXRob24tY2xpZW50Ijp7InJvbGVzIjpbInVtYV9wcm90ZWN0aW9uIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6ImVtYWlsIHByb2ZpbGUiLCJjbGllbnRIb3N0IjoiMTgwLjE1MS4xMzcuMTQwIiwiY2xpZW50SWQiOiJweXRob24tY2xpZW50IiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJzZXJ2aWNlLWFjY291bnQtcHl0aG9uLWNsaWVudCIsImNsaWVudEFkZHJlc3MiOiIxODAuMTUxLjEzNy4xNDAiLCJlbWFpbCI6InNlcnZpY2UtYWNjb3VudC1weXRob24tY2xpZW50QHBsYWNlaG9sZGVyLm9yZyJ9.HilAGapGB8VeLN3hu2rdsUx-kJukfP9catlCshdaiS_L_FBKeJW-IKWHKNMNhPyT7xD9x5ToWW43rHY3pmVnHZwYrsr7_W31ee1qpSoHXR70RUcJ6w_JGw3Ce84oTjtpTDG2n2fzsOTT6hgym4NTT77Bj0asgiT2rHVWIgy2HZzMuonWQ44veT4yyae5QMvv0HxZkDOXExlFuLmK2rni2WpkVDUgzknMzUvrMTEhKRB5v7HUCHscPWfsMKo67eH9azF_hYW18ORiGQhJ92NDAiNK7-CeCH1dq5Cp9LkEfSlNnBNEiyrFZ9nsQbnbABoiun2iE_JJszsAnFjI95VOMg', 'expires_in': 60, 'refresh_expires_in': 1800, 'refresh_token': 'eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIxOGQ1NzdiYy03MmY2LTRiMTUtYjc2Mi1hOGIzOWRjNzE2MjkifQ.eyJqdGkiOiIwMzA3NjliYi0yYTExLTRjM2UtODRhZi1kMjFiNmRiMmQ3NWQiLCJleHAiOjE1NzIyNDY2ODksIm5iZiI6MCwiaWF0IjoxNTcyMjQ0ODg5LCJpc3MiOiJodHRwczovL2tleWNsb2FrLmFraGlscHV0aGlyeS5kZXYvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiaHR0cHM6Ly9rZXljbG9hay5ha2hpbHB1dGhpcnkuZGV2L2F1dGgvcmVhbG1zL21hc3RlciIsInN1YiI6ImUxZmJkN2Q2LWFkMmItNDA3Zi04OWNmLTZjMmIwMDRkNzhiYiIsInR5cCI6IlJlZnJlc2giLCJhenAiOiJweXRob24tY2xpZW50IiwiYXV0aF90aW1lIjowLCJzZXNzaW9uX3N0YXRlIjoiY2MyYzE0NWQtMzU3Ny00ZjYyLWE2NWYtNjE2N2Q5NWQ3MWRjIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJweXRob24tY2xpZW50Ijp7InJvbGVzIjpbInVtYV9wcm90ZWN0aW9uIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6ImVtYWlsIHByb2ZpbGUifQ.05pcfYObCCKLUCLrEcAsy-bXAdSLs8W-Toc3oETc65c', 'token_type': 'bearer', 'not-before-policy': 0, 'session_state': 'cc2c145d-3577-4f62-a65f-6167d95d71dc', 'scope': 'email profile'}
+        2020-03-14 16:59:07,757 [DEBUG] Retrieving PAT from server
+        {'access_token': 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJmMTNTUndXVGxRQnFmNmNoamM4SHRtY09sN3NpaTNpaGVXaFNLX0hla280In0.eyJqdGkiOiIzNDliZmQ1ZC1jZDZjLTRjZDAtOTM3Mi1lNzE2N2Y5NGEyMDkiLCJleHAiOjE1ODQxODU0MDcsIm5iZiI6MCwiaWF0IjoxNTg0MTg1MzQ3LCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjpbImtleWNsb2FrLWNsaWVudCIsImFjY291bnQiXSwic3ViIjoiNGM5YzI0MzAtYjJlNy00ZjBiLTkzMjUtYWE4MWRmZmUwNDYzIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoia2V5Y2xvYWstY2xpZW50IiwiYXV0aF90aW1lIjowLCJzZXNzaW9uX3N0YXRlIjoiYWY3N2JmOTEtNTQ2ZC00M2E1LTgwZmYtYzQ0MDg2MDVhNTlmIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsia2V5Y2xvYWstY2xpZW50Ijp7InJvbGVzIjpbInVtYV9wcm90ZWN0aW9uIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6ImVtYWlsIHByb2ZpbGUiLCJjbGllbnRJZCI6ImtleWNsb2FrLWNsaWVudCIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiY2xpZW50SG9zdCI6IjE3Mi4xNy4wLjEiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJzZXJ2aWNlLWFjY291bnQta2V5Y2xvYWstY2xpZW50IiwiY2xpZW50QWRkcmVzcyI6IjE3Mi4xNy4wLjEifQ.PUq6-N-9Hn57kSrK0-6reC8AYT08EV4DZsBqxQ7D0cyp4hHTSP5ax9zQwn0Q05bCZ3c_L_prwMa8VOEFF5Nv-ch2otVg7lIqTc4xeLORSRmIxhjFSxLbiXwBhl4mmfOOHwSL0yBRVHhPzdRkHyVmLlq1WrPfiNe6NRuhDiQIIaFTA0-jSfyqtXNcYjcidsTwjL0q9_Cxt0BrsjTQZLO2b9NKnh5rKbBewvwwIWvZqY5j8QiT3LL652RAED_q7RbG-jFqtLleEklKTtS3bFlJIMCzvdOmfTxZT-FY2zbx_0NJil8bQTJorwveF6Vjb11vAuTI9ccjaOg54SFQT3tSGQ', 'expires_in': 60, 'refresh_expires_in': 1800, 'refresh_token': 'eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI5MmE5NTI2NC0wNTAyLTQzN2ItYWE3ZS01ZGIwNjFlYzMwOWYifQ.eyJqdGkiOiJhYjU2NTg1OS1hODJkLTQzMzYtOTFmNS1kNTU0OWU2ZTU0YTkiLCJleHAiOjE1ODQxODcxNDcsIm5iZiI6MCwiaWF0IjoxNTg0MTg1MzQ3LCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL2F1dGgvcmVhbG1zL21hc3RlciIsInN1YiI6IjRjOWMyNDMwLWIyZTctNGYwYi05MzI1LWFhODFkZmZlMDQ2MyIsInR5cCI6IlJlZnJlc2giLCJhenAiOiJrZXljbG9hay1jbGllbnQiLCJhdXRoX3RpbWUiOjAsInNlc3Npb25fc3RhdGUiOiJhZjc3YmY5MS01NDZkLTQzYTUtODBmZi1jNDQwODYwNWE1OWYiLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImtleWNsb2FrLWNsaWVudCI6eyJyb2xlcyI6WyJ1bWFfcHJvdGVjdGlvbiJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIn0.vdL4dCB8GLa-045EO3_UNUfDWMTOvoDnFs9giRjrvQM', 'token_type': 'bearer', 'not-before-policy': 0, 'session_state': 'af77bf91-546d-43a5-80ff-c4408605a59f', 'scope': 'email profile'}
+        >>>
 
         Args:
             username (str): username to be used
@@ -74,6 +90,12 @@ class AuthorizationMixin:
 
     @property
     def ticket(self) -> Dict:
+        """
+        permission ticket retrieved from server
+
+        Returns:
+            dict
+        """
         if not self._ticket:
             self._ticket = self.fetch_ticket(
                 self.resources, self.access_token  # type: ignore
@@ -86,13 +108,24 @@ class AuthorizationMixin:
         Method to retrieve permission ticket.
         For details see https://www.keycloak.org/docs/7.0/authorization_services/#_service_protection_permission_api_papi
 
-        >>> form keycloak import Client, Resource
+        >>>
+        >>> from keycloak import Client
         >>>
         >>> kc = Client()
         >>>
-        >>> kc.find_ticket(kc.resources)
-        {'ticket': 'eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIxOGQ1NzdiYy03MmY2LTRiMTUtYjc2Mi1hOGIzOWRjNzE2MjkifQ.eyJwZXJtaXNzaW9ucyI6W3sicnNpZCI6ImJiNmE3NzdmLWExN2ItNDU1NS1iMDM1LWE2Y2UxMmExZmQyMSJ9XSwianRpIjoiODgyY2JiZDgtMTc5MS00NGFjLTk1YzgtMWI2NTExYjIwNmJkLTE1NzIyNDYwNTI0NTQiLCJleHAiOjE1NzIyNDYwOTUsIm5iZiI6MCwiaWF0IjoxNTcyMjQ2MDM1LCJhdWQiOiJodHRwczovL2tleWNsb2FrLmFraGlscHV0aGlyeS5kZXYvYXV0aC9yZWFsbXMvbWFzdGVyIiwic3ViIjoiZTFmYmQ3ZDYtYWQyYi00MDdmLTg5Y2YtNmMyYjAwNGQ3OGJiIiwiYXpwIjoicHl0aG9uLWNsaWVudCJ9.rS0ACmDH8WymeIEIJa-3CfVgheeZ2kqUvBNYJWIrRZc'}
-
+        >>> kc.fetch_ticket(kc.resources)
+        2020-03-14 16:58:15,125 [DEBUG] Loading client config from the settings file
+        2020-03-14 16:58:15,126 [DEBUG] Lookup settings file in the env vars
+        2020-03-14 16:58:15,127 [DEBUG] Retrieving PAT from server
+        2020-03-14 16:58:15,127 [DEBUG] Loading uma2 config using well-known endpoint
+        2020-03-14 16:58:15,168 [DEBUG] Retrieving resources from keycloak
+        2020-03-14 16:58:15,184 [DEBUG] Resources retrieved successfully
+        2020-03-14 16:58:15,184 [DEBUG] Retrieving resource from keycloak
+        2020-03-14 16:58:15,193 [DEBUG] Resource retrieved successfully
+        2020-03-14 16:58:15,194 [DEBUG] Retrieving permission ticket from keycloak
+        2020-03-14 16:58:15,220 [DEBUG] Permission ticket retrieved successfully
+        {'ticket': 'eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI5MmE5NTI2NC0wNTAyLTQzN2ItYWE3ZS01ZGIwNjFlYzMwOWYifQ.eyJwZXJtaXNzaW9ucyI6W3sicnNpZCI6IjQ4MTUyMTI2LWFhOTEtNGE0Zi04ZWU4LTczOTI4ZjViNmMwMCJ9XSwianRpIjoiNDhlZmVmZDQtMDg5NC00NjA2LTk0YjUtMDhlNjZiNTE4YWM2LTE1ODQxODUyOTUyMzkiLCJleHAiOjE1ODQxODUzNTUsIm5iZiI6MCwiaWF0IjoxNTg0MTg1Mjk1LCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvYXV0aC9yZWFsbXMvbWFzdGVyIiwic3ViIjoiNGM5YzI0MzAtYjJlNy00ZjBiLTkzMjUtYWE4MWRmZmUwNDYzIiwiYXpwIjoia2V5Y2xvYWstY2xpZW50In0.Or_6wzK9wlQMBPpi8bWIioWCeO6QuolKjr4mKC4YWpA'}
+        >>>
 
         Args:
             resources (list): list of resources
@@ -118,6 +151,12 @@ class AuthorizationMixin:
 
     @property
     def rpt(self) -> Dict:
+        """
+        request party token retrieved from server
+
+        Returns:
+            dict
+        """
         if not self._rpt:
             self._rpt = self.fetch_rpt(self.ticket, self.access_token)  # type: ignore
         return self._rpt
