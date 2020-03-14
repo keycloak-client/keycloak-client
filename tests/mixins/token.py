@@ -11,15 +11,15 @@ from keycloak.utils import basic_auth
 @patch("keycloak.mixins.token.requests.get")
 def test_keys(mock_get, kc_client, kc_config, monkeypatch):
     """ Test case for keys """
-    monkeypatch.setattr(kc_client, "_certs", [])
+    monkeypatch.setattr(kc_client, "_jwks", [])
     mock_get.return_value.json = MagicMock()
-    kc_client._keys
+    kc_client.jwks
     mock_get.assert_called_once_with(kc_config.uma2.jwks_uri)
     mock_get.return_value.json.assert_called_once()
 
 
 def test_jwk(kc_client):
-    key = kc_client._jwk("jVasr6OGL5k0VFBsubKuc3Xgeac-AfpqoXVGkmAan4Q")
+    key = kc_client.find_jwk("jVasr6OGL5k0VFBsubKuc3Xgeac-AfpqoXVGkmAan4Q")
     assert key == json.dumps(
         {
             "kid": "jVasr6OGL5k0VFBsubKuc3Xgeac-AfpqoXVGkmAan4Q",
@@ -42,12 +42,12 @@ def test_parse_key_and_alg(mock_b64decode, kc_client):
         "alg": "RS256",
     }
     mock_b64decode.return_value = header_decoded
-    kc_client._parse_key_and_alg(header_encoded)
+    kc_client.parse_key_and_alg(header_encoded)
     mock_b64decode.assert_called_once_with(header_encoded, deserialize=True)
 
 
 @patch("keycloak.mixins.token.jwt.decode")
-@patch("keycloak.mixins.token.TokenMixin._parse_key_and_alg")
+@patch("keycloak.mixins.token.TokenMixin.parse_key_and_alg")
 def test_decode(mock_parse_key_and_alg, mock_decode, kc_client, kc_config):
     """ Test case for decode_jwt """
     token = "header.payload.signature"
@@ -63,25 +63,15 @@ def test_decode(mock_parse_key_and_alg, mock_decode, kc_client, kc_config):
     )
 
 
-def test_unsupported_key(kc_client):
+def test_construct_key_failure(kc_client):
     with pytest.raises(AlgorithmNotSupported) as ex:
-        kc_client._key("unknown", "unknown")
+        kc_client.construct_key("unknown", "unknown")
     assert ex.type == AlgorithmNotSupported
 
 
 def test_tokens_setter(kc_client):
     kc_client.tokens = {"name": "akhil"}
     assert kc_client._tokens == {"name": "akhil"}
-
-
-def test_expires_in(kc_client):
-    kc_client.tokens = {"expires_in": "30"}
-    assert kc_client.expires_in == 30
-
-
-@pytest.mark.freeze_time("1991-07-10")
-def test_expired(kc_client):
-    assert kc_client.expired == True
 
 
 def test_access_token(kc_client):
@@ -98,21 +88,14 @@ def test_tokens_valid(mock_pat, kc_client):
     mock_pat.assert_called_once_with(None, None)
 
 
-@patch("keycloak.mixins.token.TokenMixin._renew")
-def test_tokens_expired(mock_renew, kc_client):
-    kc_client._tokens = {"token": "token0123456789", "expires_in": "0"}
-    kc_client.tokens
-    mock_renew.assert_called_once_with()
-
-
-@patch("keycloak.mixins.token.log.info")
+@patch("keycloak.mixins.token.log.debug")
 @patch("keycloak.mixins.token.requests.post")
 @patch("keycloak.mixins.token.basic_auth")
-def test_renew_success(mock_auth, mock_post, mock_info, kc_client, kc_config):
+def test_refresh_tokens_success(mock_auth, mock_post, mock_debug, kc_client, kc_config):
     headers = basic_auth(kc_config.client.client_id, kc_config.client.client_secret)
     mock_auth.return_value = headers
     kc_client.tokens = {"refresh_token": "token0123456789"}
-    kc_client._renew()
+    kc_client.refresh_tokens()
     payload = {
         "client_id": kc_config.client.client_id,
         "grant_type": "refresh_token",
@@ -124,20 +107,22 @@ def test_renew_success(mock_auth, mock_post, mock_info, kc_client, kc_config):
     mock_post.assert_called_once_with(
         kc_config.uma2.token_endpoint, data=payload, headers=headers
     )
-    mock_info.assert_called_once_with("Renewing tokens")
+    assert mock_debug.call_count == 2
 
 
 @patch("keycloak.mixins.token.log.exception")
 @patch("keycloak.mixins.token.requests.post")
 @patch("keycloak.mixins.token.basic_auth")
-def test_renew_failure(mock_auth, mock_post, mock_exception, kc_client, kc_config):
+def test_refresh_tokens_failure(
+    mock_auth, mock_post, mock_exception, kc_client, kc_config
+):
     headers = basic_auth(kc_config.client.client_id, kc_config.client.client_secret)
     mock_auth.return_value = headers
     mock_post.return_value.content = "server error"
     mock_post.return_value.raise_for_status = MagicMock(side_effect=HTTPError)
     kc_client.tokens = {"refresh_token": "token0123456789"}
     with pytest.raises(HTTPError) as ex:
-        kc_client._renew()
+        kc_client.refresh_tokens()
     payload = {
         "client_id": kc_config.client.client_id,
         "grant_type": "refresh_token",
@@ -148,7 +133,4 @@ def test_renew_failure(mock_auth, mock_post, mock_exception, kc_client, kc_confi
     )
     mock_post.assert_called_once_with(
         kc_config.uma2.token_endpoint, data=payload, headers=headers
-    )
-    mock_exception.assert_called_once_with(
-        "Failed to renew tokens\n %s", "server error"
     )

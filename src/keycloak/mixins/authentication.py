@@ -8,7 +8,7 @@ import requests
 
 from ..config import config
 from ..constants import GrantTypes, Logger, ResponseTypes
-from ..utils import auth_header
+from ..utils import auth_header, handle_exceptions
 
 
 log = logging.getLogger(Logger.name)
@@ -52,7 +52,6 @@ class AuthenticationMixin:
         Returns:
             tuple
         """
-        log.info("Constructing authentication url")
         state = uuid4().hex
         arguments = urlencode(
             {
@@ -65,6 +64,7 @@ class AuthenticationMixin:
         )
         return f"{config.openid.authorization_endpoint}?{arguments}", state
 
+    @handle_exceptions
     def callback(self, code: str) -> Dict:
         """
         openid login callback handler
@@ -105,8 +105,6 @@ class AuthenticationMixin:
         Returns:
             dict
         """
-
-        # prepare request payload
         payload = {
             "code": code,
             "grant_type": GrantTypes.authorization_code,
@@ -114,20 +112,13 @@ class AuthenticationMixin:
             "client_id": config.client.client_id,
             "client_secret": config.client.client_secret,
         }
-
-        # retrieve tokens from keycloak server
-        log.info("Retrieving user tokens from keycloak server")
+        log.debug("Retrieving user tokens from server")
         response = requests.post(config.openid.token_endpoint, data=payload)
-        try:
-            response.raise_for_status()
-        except Exception as ex:
-            log.exception(
-                "Failed to retrieve AAT from keycloak server\n %s", response.content
-            )
-            raise ex
-
+        response.raise_for_status()
+        log.debug("User tokens retrieved successfully")
         return response.json()
 
+    @handle_exceptions
     def fetch_userinfo(self, access_token: str = None) -> Dict:
         """
         method to retrieve userinfo from the keycloak server
@@ -145,27 +136,12 @@ class AuthenticationMixin:
         Returns:
             dict
         """
-
-        # populate access_token
-        access_token = (
-            access_token if access_token else self.access_token  # type: ignore
-        )
-
-        # prepare headers
+        access_token = access_token or self.access_token  # type: ignore
         headers = auth_header(access_token)
-
-        # retrieve user info
-        log.info("Retrieving user info from keycloak server")
+        log.debug("Retrieving user info from server")
         response = requests.post(config.openid.userinfo_endpoint, headers=headers)
-        try:
-            response.raise_for_status()
-        except Exception as ex:
-            log.exception(
-                "Failed to retrieve user info from keycloak server\n %s",
-                response.content,
-            )
-            raise ex
-
+        response.raise_for_status()
+        log.debug("User info retrieved successfully")
         return response.json()
 
     @property

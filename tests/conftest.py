@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
 import json
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 import pytest
+import requests
 
 from keycloak import Client as KeycloakClient
 from keycloak.config import config, Client, OpenId, Uma2
@@ -22,7 +23,7 @@ def read_json(file, cls=None):
 client = read_json("client.json", Client)
 openid = read_json("openid.json", OpenId)
 uma2 = read_json("uma2.json", Uma2)
-certs = read_json("certs.json")
+jwks = read_json("jwks.json")
 
 
 @pytest.fixture(autouse=True)
@@ -30,7 +31,7 @@ def configs(monkeypatch):
     monkeypatch.setattr("keycloak.config.Config.client", client)
     monkeypatch.setattr("keycloak.config.Config.openid", openid)
     monkeypatch.setattr("keycloak.config.Config.uma2", uma2)
-    monkeypatch.setattr("keycloak.mixins.token.TokenMixin._certs", certs)
+    monkeypatch.setattr("keycloak.mixins.token.TokenMixin._jwks", jwks)
 
 
 @pytest.fixture()

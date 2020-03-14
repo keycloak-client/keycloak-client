@@ -5,7 +5,6 @@ import pytest
 from requests.exceptions import HTTPError
 from keycloak.constants import GrantTypes, TokenType, TokenTypeHints
 from keycloak.mixins.authorization import AuthorizationMixin
-from keycloak.representations.resource import Resource
 
 
 def test_payload_for_client(kc_client):
@@ -56,7 +55,6 @@ def test_pat(
     )
 
 
-@patch("keycloak.mixins.authorization.log.exception")
 @patch("keycloak.mixins.authorization.requests.post")
 @patch("keycloak.mixins.authorization.AuthorizationMixin.payload_for_client")
 @patch("keycloak.mixins.authorization.AuthorizationMixin.payload_for_user")
@@ -66,7 +64,6 @@ def test_pat_failure(
     mock_payload_user,
     mock_payload_client,
     mock_post,
-    mock_log,
     kc_client,
     kc_config,
 ):
@@ -82,10 +79,6 @@ def test_pat_failure(
     with pytest.raises(HTTPError) as ex:
         kc_client.pat()
     assert ex.type == HTTPError
-    mock_log.assert_called_once_with(
-        "Failed to retrieve protection api token from keycloak server\n %s",
-        "server error",
-    )
     mock_auth_header.assert_called_once_with(
         kc_config.client.client_id, kc_config.client.client_secret
     )
@@ -101,37 +94,32 @@ def test_pat_failure(
 def test_ticket(mock_auth_header, mock_post, kc_client, kc_config):
     token = "token123456789"
     header = {"Authorization": token}
-    resources = [Resource("id123456789", ["create", "read"])]
-    payload = [{"resource_id": "id123456789", "resource_scopes": ["create", "read"]}]
+    resources = [{"_id": "id123456789", "resource_scopes": ["create", "read"]}]
+    payload = [{"_id": "id123456789", "resource_scopes": ["create", "read"]}]
     mock_auth_header.return_value = header
-    kc_client.ticket(resources, token)
+    kc_client.fetch_ticket(resources, token)
     mock_auth_header.assert_called_once_with(token, TokenType.bearer)
     mock_post.assert_called_once_with(
         kc_config.uma2.permission_endpoint, json=payload, headers=header
     )
 
 
-@patch("keycloak.mixins.authorization.log.exception")
 @patch("keycloak.mixins.authorization.requests.post")
 @patch("keycloak.mixins.authorization.auth_header")
-def test_ticket_failure(mock_auth_header, mock_post, mock_log, kc_client, kc_config):
+def test_ticket_failure(mock_auth_header, mock_post, kc_client, kc_config):
     mock_post.return_value = MagicMock()
     mock_post.return_value.content = "server error"
     mock_post.return_value.raise_for_status = MagicMock(side_effect=HTTPError)
     token = "token123456789"
     header = {"Authorization": token}
-    resources = [Resource("id123456789", ["create", "read"])]
-    payload = [{"resource_id": "id123456789", "resource_scopes": ["create", "read"]}]
+    resources = [{"_id": "id123456789", "resource_scopes": ["create", "read"]}]
     mock_auth_header.return_value = header
     with pytest.raises(HTTPError) as ex:
-        kc_client.ticket(resources, token)
+        kc_client.fetch_ticket(resources, token)
     assert ex.type == HTTPError
-    mock_log.assert_called_once_with(
-        "Failed to retrieve the permission ticket\n %s", "server error"
-    )
     mock_auth_header.assert_called_once_with(token, TokenType.bearer)
     mock_post.assert_called_once_with(
-        kc_config.uma2.permission_endpoint, json=payload, headers=header
+        kc_config.uma2.permission_endpoint, json=resources, headers=header
     )
 
 
@@ -143,17 +131,16 @@ def test_rpt(mock_auth_header, mock_post, kc_client, kc_config):
     header = {"Authorization": token}
     payload = {"grant_type": GrantTypes.uma_ticket, "ticket": ticket}
     mock_auth_header.return_value = header
-    kc_client.rpt(ticket, token)
+    kc_client.fetch_rpt(ticket, token)
     mock_auth_header.assert_called_once_with(token, TokenType.bearer)
     mock_post.assert_called_once_with(
         kc_config.uma2.token_endpoint, data=payload, headers=header
     )
 
 
-@patch("keycloak.mixins.authorization.log.exception")
 @patch("keycloak.mixins.authorization.requests.post")
 @patch("keycloak.mixins.authorization.auth_header")
-def test_rpt_failure(mock_auth_header, mock_post, mock_log, kc_client, kc_config):
+def test_rpt_failure(mock_auth_header, mock_post, kc_client, kc_config):
     mock_post.return_value = MagicMock()
     mock_post.return_value.content = "server error"
     mock_post.return_value.raise_for_status = MagicMock(side_effect=HTTPError)
@@ -163,11 +150,8 @@ def test_rpt_failure(mock_auth_header, mock_post, mock_log, kc_client, kc_config
     payload = {"grant_type": GrantTypes.uma_ticket, "ticket": ticket}
     mock_auth_header.return_value = header
     with pytest.raises(HTTPError) as ex:
-        kc_client.rpt(ticket, token)
+        kc_client.fetch_rpt(ticket, token)
     assert ex.type == HTTPError
-    mock_log.assert_called_once_with(
-        "Failed to retrieve RPT from keycloak server\n %s", "server error"
-    )
     mock_auth_header.assert_called_once_with(token, TokenType.bearer)
     mock_post.assert_called_once_with(
         kc_config.uma2.token_endpoint, data=payload, headers=header
@@ -191,10 +175,9 @@ def test_introspect(mock_basic_auth, mock_post, kc_client, kc_config):
     )
 
 
-@patch("keycloak.mixins.authorization.log.exception")
 @patch("keycloak.mixins.authorization.requests.post")
 @patch("keycloak.mixins.authorization.basic_auth")
-def test_introspect_failure(mock_basic_auth, mock_post, mock_log, kc_client, kc_config):
+def test_introspect_failure(mock_basic_auth, mock_post, kc_client, kc_config):
     mock_post.return_value = MagicMock()
     mock_post.return_value.content = "server error"
     mock_post.return_value.raise_for_status = MagicMock(side_effect=HTTPError)
@@ -206,9 +189,6 @@ def test_introspect_failure(mock_basic_auth, mock_post, mock_log, kc_client, kc_
     with pytest.raises(HTTPError) as ex:
         kc_client.introspect(rpt)
     assert ex.type == HTTPError
-    mock_log.assert_called_once_with(
-        "Failed to validate RPT from keycloak server\n %s", "server error"
-    )
     mock_basic_auth.assert_called_once_with(
         kc_config.client.client_id, kc_config.client.client_secret
     )
