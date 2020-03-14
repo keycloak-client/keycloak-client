@@ -19,7 +19,7 @@ class AuthorizationMixin:
     For details see https://www.keycloak.org/docs/5.0/authorization_services/index.html
     """
 
-    _ticket: str = None  # type: ignore
+    _ticket: Dict = None  # type: ignore
     _rpt: Dict = {}
 
     @staticmethod
@@ -73,9 +73,11 @@ class AuthorizationMixin:
         return response.json()
 
     @property
-    def ticket(self):
+    def ticket(self) -> Dict:
         if not self._ticket:
-            self._ticket = self.fetch_ticket(self.resources, self.access_token)
+            self._ticket = self.fetch_ticket(
+                self.resources, self.access_token  # type: ignore
+            )
         return self._ticket
 
     @handle_exceptions
@@ -115,9 +117,9 @@ class AuthorizationMixin:
         return response.json()
 
     @property
-    def rpt(self):
+    def rpt(self) -> Dict:
         if not self._rpt:
-            self._rpt = self.fetch_rpt(self.ticket, self.access_token)
+            self._rpt = self.fetch_rpt(self.ticket, self.access_token)  # type: ignore
         return self._rpt
 
     @handle_exceptions
