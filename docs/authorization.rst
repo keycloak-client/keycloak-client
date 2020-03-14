@@ -46,4 +46,4 @@ See `this <https://www.keycloak.org/docs/4.8/authorization_services/#_overview_t
              "resource_scopes": ["create", "read", "update", "delete]
         }
    ]
-   ticket = kc.ticket(resources, pat["access_token"]
+   ticket = kc.find_ticket(resources, pat["access_token"]

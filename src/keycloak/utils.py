@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
 import base64
 import json
-from typing import Tuple, Dict, Union, Any
+import logging
+from typing import Tuple, Dict, Union, Any, Callable
 
-from .constants import Headers, TokenType
+from requests.exceptions import HTTPError
+
+from .constants import Headers, TokenType, Logger
+
+
+log = logging.getLogger(Logger.name)
 
 
 def b64encode(data: Any, serialize: bool = False) -> str:
@@ -36,6 +42,23 @@ def fix_padding(encoded_string: str) -> str:
     """ method to correct padding for base64 encoding """
     required_padding = len(encoded_string) % 4
     return encoded_string + ("=" * required_padding)
+
+
+def handle_exceptions(func: Callable) -> Any:
+    """ decorator to take care of HTTPError """
+
+    def _inner(*args: Tuple, **kwargs: Dict) -> Any:
+        try:
+            return func(*args, **kwargs)
+        except HTTPError as ex:
+            if hasattr(ex.response, "content"):
+                log.exception(ex.response.content)
+            raise ex
+        except Exception as ex:
+            log.exception("Error occurred:")
+            raise ex
+
+    return _inner
 
 
 class Singleton(type):

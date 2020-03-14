@@ -35,7 +35,7 @@ class AuthenticationMiddleware:
 
         # fetch user info
         access_token = tokens["access_token"]
-        user = self.kc.userinfo(access_token)
+        user = self.kc.fetch_userinfo(access_token)
         request.session["user"] = json.dumps(user)
 
         return HttpResponseRedirect(self.redirect_uri)

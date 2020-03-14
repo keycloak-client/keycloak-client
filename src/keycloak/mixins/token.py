@@ -11,7 +11,7 @@ from jwt import algorithms
 from ..config import config
 from ..constants import Logger, Algorithms
 from ..exceptions import AlgorithmNotSupported
-from ..utils import b64decode, basic_auth
+from ..utils import b64decode, basic_auth, handle_exceptions
 
 
 log = logging.getLogger(Logger.name)
@@ -26,11 +26,8 @@ class TokenMixin:
     @property
     def tokens(self) -> Dict:
         """ getter for tokens """
-
-        # retrieve tokens if not available
         if not self._tokens:
             self._tokens = self.pat(self.username, self.password)  # type: ignore
-
         return self._tokens
 
     @tokens.setter
@@ -46,36 +43,37 @@ class TokenMixin:
     def refresh_token(self) -> str:
         return self.tokens["refresh_token"]
 
-    def refresh_access_token(self) -> Dict:
-        """ refresh access token using the refresh token """
+    @property
+    def scope(self) -> str:
+        return self.tokens["scope"].split(" ")
 
-        # prepare headers
+    @property
+    def token_type(self) -> str:
+        return self.tokens["token_type"]
+
+    @handle_exceptions
+    def refresh_tokens(self) -> None:
+        """ refresh tokens """
         headers = basic_auth(config.client.client_id, config.client.client_secret)
-
-        # prepare payload
         payload = {
             "client_id": config.client.client_id,
             "grant_type": "refresh_token",
             "refresh_token": self._tokens["refresh_token"],
         }
-
-        # refresh access token
-        log.info("Refreshing access token")
+        log.debug("Refreshing tokens")
         response = requests.post(
             config.uma2.token_endpoint, data=payload, headers=headers
         )
-        try:
-            response.raise_for_status()
-        except requests.exceptions.HTTPError as ex:
-            log.exception("Failed to refresh access token\n %s", response.content)
-            raise ex
+        response.raise_for_status()
+        log.debug("Tokens refreshed successfully")
+        self._tokens = response.json()
 
-        return response.json()
-
+    @handle_exceptions
     def load_jwks(self) -> List:
-        log.info("Retrieving JWT signing keys from keycloak server")
+        log.debug("Retrieving JWKs from keycloak server")
         response = requests.get(config.uma2.jwks_uri)
         response.raise_for_status()
+        log.debug("JWKs retrieved successfully")
         return response.json().get("keys", [])
 
     @property
@@ -105,18 +103,11 @@ class TokenMixin:
 
     def parse_key_and_alg(self, header: str) -> Tuple[bytes, str]:
         """ retrieve signing key and algorithm from given jwt header """
-
-        # decode header
         decoded_header: Dict = b64decode(header, deserialize=True)  # type: ignore
-
-        # find jwk
         kid = decoded_header["kid"]
         jwk = self.find_jwk(kid)
-
-        # construct key from jwk
         alg = decoded_header["alg"]
         key = self.construct_key(alg, jwk)
-
         return key, alg
 
     def decode(self, token: str) -> Dict:
