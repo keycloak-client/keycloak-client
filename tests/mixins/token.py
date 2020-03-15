@@ -19,7 +19,7 @@ def test_keys(mock_get, kc_client, kc_config, monkeypatch):
 
 
 def test_jwk(kc_client):
-    key = kc_client.find_jwk("jVasr6OGL5k0VFBsubKuc3Xgeac-AfpqoXVGkmAan4Q")
+    key = kc_client.fetch_jwk("jVasr6OGL5k0VFBsubKuc3Xgeac-AfpqoXVGkmAan4Q")
     assert key == json.dumps(
         {
             "kid": "jVasr6OGL5k0VFBsubKuc3Xgeac-AfpqoXVGkmAan4Q",
