@@ -3,6 +3,7 @@ import base64
 import json
 import logging
 from typing import Tuple, Dict, Union, Any, Callable
+from functools import wraps
 
 from requests.exceptions import HTTPError
 
@@ -47,7 +48,8 @@ def fix_padding(encoded_string: str) -> str:
 def handle_exceptions(func: Callable) -> Any:
     """ decorator to take care of HTTPError """
 
-    def _inner(*args: Tuple, **kwargs: Dict) -> Any:
+    @wraps(func)
+    def wrapper(*args: Tuple, **kwargs: Dict) -> Any:
         try:
             return func(*args, **kwargs)
         except HTTPError as ex:
@@ -58,7 +60,7 @@ def handle_exceptions(func: Callable) -> Any:
             log.exception("Error occurred:")
             raise ex
 
-    return _inner
+    return wrapper
 
 
 class Singleton(type):

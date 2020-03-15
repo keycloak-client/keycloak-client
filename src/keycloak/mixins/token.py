@@ -25,7 +25,16 @@ class TokenMixin:
 
     @property
     def tokens(self) -> Dict:
-        """ getter for tokens """
+        """
+        access and refresh tokens associated with the client/user
+
+        >>> from keycloak import Client
+        >>> kc = Client()
+        >>> kc.tokens
+        >>>
+
+        :returns: dictionary
+        """
         if not self._tokens:
             self._tokens = self.pat(self.username, self.password)  # type: ignore
         return self._tokens
@@ -37,23 +46,70 @@ class TokenMixin:
 
     @property
     def access_token(self) -> str:
+        """
+        access token associated with the client/user
+
+        >>> from keycloak import Client
+        >>> kc = Client()
+        >>> kc.access_token
+        >>>
+
+        :returns: string
+        """
         return self.tokens["access_token"]
 
     @property
     def refresh_token(self) -> str:
+        """
+        refresh token associated with the client/user
+
+        >>> from keycloak import Client
+        >>> kc = Client()
+        >>> kc.refresh_token
+        >>>
+
+        :returns: string
+        """
         return self.tokens["refresh_token"]
 
     @property
     def scope(self) -> str:
+        """
+        scopes available
+
+        >>> from keycloak import Client
+        >>> kc = Client()
+        >>> kc.scope
+        >>>
+
+        :returns: list
+        """
         return self.tokens["scope"].split(" ")
 
     @property
     def token_type(self) -> str:
+        """
+        type of token
+
+        >>> from keycloak import Client
+        >>> kc = Client()
+        >>> kc.token_type
+        >>>
+
+        :returns: string
+        """
         return self.tokens["token_type"]
 
     @handle_exceptions
     def refresh_tokens(self) -> None:
-        """ refresh tokens """
+        """
+        method to refresh expired access token using refresh token
+
+        >>> from keycloak import Client
+        >>> kc = Client()
+        >>> kc.refresh_tokens()
+        >>>
+        """
         headers = basic_auth(config.client.client_id, config.client.client_secret)
         payload = {
             "client_id": config.client.client_id,
@@ -70,6 +126,16 @@ class TokenMixin:
 
     @handle_exceptions
     def load_jwks(self) -> List:
+        """
+        retrieve signing keys/JWK from the keycloak server
+
+        >>> from keycloak import Client
+        >>> kc = Client()
+        >>> kc.load_jwks()
+        >>>
+
+        :returns: list
+        """
         log.debug("Retrieving JWKs from keycloak server")
         response = requests.get(config.uma2.jwks_uri)
         response.raise_for_status()
@@ -78,12 +144,31 @@ class TokenMixin:
 
     @property
     def jwks(self) -> List:
+        """
+        list of signing keys/JWKs used by the keycloak server
+
+        >>> from keycloak import Client
+        >>> kc = Client()
+        >>> kc.jwks
+        >>>
+
+        :returns: list
+        """
         if not self._jwks:
             self._jwks = self.load_jwks()
         return self._jwks
 
     def find_jwk(self, kid: str) -> str:
-        """ find jwk with given id from self.jwks """
+        """
+        find jwk with given id from self.jwks
+
+        >>> from keycloak import Client
+        >>> kc = Client()
+        >>> kc.find_jwk()
+        >>>
+
+        :returns: string
+        """
         for item in self.jwks:
             if item["kid"] == kid:
                 break
