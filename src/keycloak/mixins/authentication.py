@@ -24,7 +24,7 @@ class AuthenticationMixin:
 
     def login(self, scopes: Tuple = ("openid",)) -> Tuple:
         """
-        methot to generate openid login url and state
+        method to generate openid login url and state
 
         >>> from keycloak import Client
         >>> from flask import Flask, request, session, redirect
@@ -46,11 +46,9 @@ class AuthenticationMixin:
         >>> if __name__ == "__main__":
         >>>     app.run()
 
-        Args:
-            scopes (tuple): scopes to be requested eg: openid, email, profile etc
+        :param scopes: scopes to be requested eg: openid, email, profile etc
 
-        Returns:
-            tuple
+        :returns: endpoint url and state
         """
         state = uuid4().hex
         arguments = urlencode(
@@ -99,11 +97,8 @@ class AuthenticationMixin:
         >>> if __name__ == "__main__":
         >>>     app.run()
 
-        Args:
-            code (str): code send by the keycloak server
-
-        Returns:
-            dict
+        :param code: code send by the keycloak server
+        :returns: dictionary
         """
         payload = {
             "code": code,
@@ -125,25 +120,13 @@ class AuthenticationMixin:
 
         >>>
         >>> from keycloak import Client
-        >>>
         >>> kc = Client()
-        >>>
         >>> kc.fetch_userinfo()
-        2020-03-14 16:56:41,645 [DEBUG] Loading client config from the settings file
-        2020-03-14 16:56:41,645 [DEBUG] Lookup settings file in the env vars
-        2020-03-14 16:56:41,647 [DEBUG] Retrieving PAT from server
-        2020-03-14 16:56:41,647 [DEBUG] Loading uma2 config using well-known endpoint
-        2020-03-14 16:56:41,692 [DEBUG] Retrieving user info from server
-        2020-03-14 16:56:41,692 [DEBUG] Loading openid config using well-known endpoint
-        2020-03-14 16:56:41,710 [DEBUG] User info retrieved successfully
         {'sub': '4c9c2430-b2e7-4f0b-9325-aa81dffe0463', 'email_verified': False, 'preferred_username': 'service-account-keycloak-client'}
         >>>
 
-        Args:
-            access_token (str): access token of the client or user
-
-        Returns:
-            dict
+        :param access_token: access token of the client or user
+        :returns: dicttionary
         """
         access_token = access_token or self.access_token  # type: ignore
         headers = auth_header(access_token)
@@ -160,22 +143,12 @@ class AuthenticationMixin:
 
         >>>
         >>> from keycloak import Client
-        >>>
         >>> kc = Client()
-        >>>
         >>> kc.userinfo
-        2020-03-14 16:51:24,115 [DEBUG] Loading client config from the settings file
-        2020-03-14 16:51:24,115 [DEBUG] Lookup settings file in the env vars
-        2020-03-14 16:51:24,118 [DEBUG] Retrieving PAT from server
-        2020-03-14 16:51:24,118 [DEBUG] Loading uma2 config using well-known endpoint
-        2020-03-14 16:51:24,164 [DEBUG] Retrieving user info from server
-        2020-03-14 16:51:24,164 [DEBUG] Loading openid config using well-known endpoint
-        2020-03-14 16:51:24,193 [DEBUG] User info retrieved successfully
         {'sub': '4c9c2430-b2e7-4f0b-9325-aa81dffe0463', 'email_verified': False, 'preferred_username': 'service-account-keycloak-client'}
         >>>
 
-        Returns:
-            dict
+        :returns: dictionary
         """
         if not self._userinfo:
             self._userinfo = self.fetch_userinfo()
