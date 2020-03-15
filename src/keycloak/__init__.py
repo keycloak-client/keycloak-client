@@ -18,6 +18,10 @@ class Client(
     ResourceMixin,
     metaclass=Singleton,
 ):
+    """
+    Python client to interact with the rest APIs provided by the keycloak server
+    """
+
     def __init__(
         self,
         callback_uri: str = "http://localhost/kc/callback",
