@@ -13,6 +13,8 @@ jobs:
         uses: actions/checkout@v2
       - name: list files in workspace
         run: ls -al
+      - name: clean workspace
+        run: make clean
       - name: install dependencies
         run: make install
       - name: run test cases
