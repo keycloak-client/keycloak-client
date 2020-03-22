@@ -9,7 +9,9 @@ jobs:
     name: execute test cases
     runs-on: ubuntu-latest
     steps:
-      - name: list files
+      - name: clone repository
+        uses: actions/checkout@v2
+      - name: list files in workspace
         run: ls -al
       - name: install dependencies
         run: make install
