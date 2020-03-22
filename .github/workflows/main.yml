@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 5
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: configure python ${{ matrix.python-version }}
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
