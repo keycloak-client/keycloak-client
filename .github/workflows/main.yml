@@ -8,15 +8,18 @@ jobs:
   test:
     name: execute test cases
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.5, 3.6, 3.7, 3.8]
     steps:
       - name: clone repository
         uses: actions/checkout@v2
         with:
           fetch-depth: 5
-      - name: list files in workspace
-        run: ls -al
-      - name: clean workspace
-        run: make clean
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: install dependencies
         run: make install
       - name: run test cases
