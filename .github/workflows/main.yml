@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: clone repository
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 5
       - name: list files in workspace
         run: ls -al
       - name: clean workspace
