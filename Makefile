@@ -13,7 +13,7 @@ clean:
 
 install:
 	pip install -e .[complete]
-	pip install pre-commit mypy black
+	pip install pre-commit mypy black gitchangelog
 	pre-commit install
 
 pytest:
@@ -34,3 +34,6 @@ all: clean install test build
 
 keycloak:
 	docker run --detach --name keycloak --env KEYCLOAK_USER=admin --env KEYCLOAK_PASSWORD=admin --publish 8080:8080 --publish 8081:8081 jboss/keycloak
+
+changelog:
+	gitchangelog > CHANGES.md
