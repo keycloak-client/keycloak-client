@@ -1,0 +1,15 @@
+name: CI
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+jobs:
+  test:
+    name: execute test cases
+    runs-on: ubuntu-latest
+    steps:
+      - name: install dependencies
+        run: make install
+      - name: run test cases
+        run: make test
