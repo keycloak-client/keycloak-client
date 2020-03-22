@@ -9,6 +9,8 @@ jobs:
     name: execute test cases
     runs-on: ubuntu-latest
     steps:
+      - name: list files
+        run: ls -al
       - name: install dependencies
         run: make install
       - name: run test cases
