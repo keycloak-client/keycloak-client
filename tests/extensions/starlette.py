@@ -13,7 +13,7 @@ from keycloak.utils import auth_header
 
 app = Starlette()
 app.add_middleware(
-    AuthenticationMiddleware, callback_uri="http://localhost/kc/callback"
+    AuthenticationMiddleware, callback_url="http://localhost/kc/callback"
 )
 app.add_middleware(SessionMiddleware, secret_key="key0123456789")
 

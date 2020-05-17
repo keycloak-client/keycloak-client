@@ -15,7 +15,7 @@ def get_app():
         app.wsgi_app,
         app.config,
         app.session_interface,
-        callback_uri="http://localhost/kc/callback",
+        callback_url="http://localhost/kc/callback",
     )
 
     @app.route("/howdy")

@@ -49,7 +49,7 @@ class AuthenticationMiddleware:
     def __call__(self, request: HttpRequest) -> HttpResponse:
 
         # handle callback requests
-        if request.path == "/kc/callback":
+        if request.path == self.callback_uri:
             return self.callback(request)
 
         # handle unauthorized requests

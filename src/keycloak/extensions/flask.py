@@ -35,15 +35,15 @@ class AuthenticationMiddleware:
         app: Flask,
         config: Config,
         session_interface: SessionInterface,
-        callback_uri: str,
-        redirect_uri: str = "/",
+        callback_url: str = "/kc/callback",
+        redirect_url: str = "/",
     ) -> None:
         self.app = app
         self.config = config
         self.session_interface = session_interface
-        self.callback_uri = callback_uri
-        self.redirect_uri = redirect_uri
-        self.kc = Client(callback_uri)
+        self.callback_url = callback_url
+        self.redirect_url = redirect_url
+        self.kc = Client(callback_url)
         self.proxy_app = ProxyApp(config)
 
     def __call__(self, environ: Dict, start_response: Callable) -> Callable:
@@ -54,11 +54,11 @@ class AuthenticationMiddleware:
         )
 
         # handle callback request
-        if request.path == "/kc/callback":
+        if request.base_url == self.callback_url:
             response = self.callback(session, request)
 
         # handle unauthorized requests
-        if "/kc/callback" not in request.path and "user" not in session:
+        if (request.base_url != self.callback_url) and ("user" not in session):
             response = self.login(session)
 
         if response:
@@ -93,4 +93,4 @@ class AuthenticationMiddleware:
         user = self.kc.fetch_userinfo(access_token)
         session["user"] = json.dumps(user)
 
-        return redirect(self.redirect_uri)
+        return redirect(self.redirect_url)

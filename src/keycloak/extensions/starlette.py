@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 from typing import Any
+from urllib.parse import urlparse
 
 from starlette.types import ASGIApp, Receive, Scope, Send
 from starlette.requests import Request
@@ -13,7 +14,7 @@ from .. import Client
 class EndpointHandler(HTTPEndpoint):
     def __init__(self, *args: Any, **kwargs: Any):
         self.kc = kwargs.pop("kc")
-        self.redirect_uri = kwargs.pop("redirect_uri", "/")
+        self.redirect_url = kwargs.pop("redirect_url", "/")
         super().__init__(*args, **kwargs)
 
 
@@ -26,6 +27,7 @@ class Login(EndpointHandler):
 
 class Callback(EndpointHandler):
     async def get(self, request: Request) -> Response:
+
         # validate state
         state = request.query_params["state"]
         _state = request.session.pop("state", "unknown")
@@ -41,17 +43,21 @@ class Callback(EndpointHandler):
         user = self.kc.fetch_userinfo(access_token)
         request.session["user"] = json.dumps(user)
 
-        return RedirectResponse(self.redirect_uri)
+        return RedirectResponse(self.redirect_url)
 
 
 class AuthenticationMiddleware:
     def __init__(
-        self, app: ASGIApp, callback_uri: str, redirect_uri: str = "/"
+        self, app: ASGIApp, callback_url: str = "/kc/callback", redirect_url: str = "/"
     ) -> None:
         self.app = app
-        self.callback_uri = callback_uri
-        self.redirect_uri = redirect_uri
-        self.kc = Client(callback_uri)
+        self.callback_url = callback_url
+        self.redirect_url = redirect_url
+        self.kc = Client(callback_url)
+
+    @property
+    def callback_uri(self) -> str:
+        return urlparse(self.callback_url).path
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
 
@@ -60,11 +66,13 @@ class AuthenticationMiddleware:
             request = Request(scope, receive)
 
             # handle callback request
-            if request.url.path == "/kc/callback":
-                await Callback(scope, receive, send, kc=self.kc)
+            if request.url.path == self.callback_uri:
+                await Callback(
+                    scope, receive, send, kc=self.kc, redirect_url=self.redirect_url
+                )
 
             # handle unauthorized requests
-            elif ("/kc/callback" not in request.url.path) and (
+            elif (request.url.path != self.callback_uri) and (
                 "user" not in request.session
             ):
                 await Login(scope, receive, send, kc=self.kc)
