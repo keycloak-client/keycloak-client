@@ -17,7 +17,7 @@ Using Flask Extension
         app.wsgi,
         app.config,
         app.session_interface,
-        callback_uri="http://localhost:5000/kc/callback",
+        callback_uri="http://testserver:5000/kc/callback",
         redirect_uri="/howdy"
     )
 

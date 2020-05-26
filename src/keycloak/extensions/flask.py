@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
-from typing import Dict, Callable
+from typing import Dict, Callable, Any
 
 from flask import Flask, Config, Request, redirect
 from flask.sessions import SessionInterface
@@ -35,16 +35,24 @@ class AuthenticationMiddleware:
         app: Flask,
         config: Config,
         session_interface: SessionInterface,
-        callback_url: str = "/kc/callback",
-        redirect_url: str = "/",
+        callback_url: str = "http://localhost:5000/kc/callback",
+        redirect_uri: str = "/",
+        logout_uri: str = "/kc/logout",
     ) -> None:
         self.app = app
         self.config = config
         self.session_interface = session_interface
         self.callback_url = callback_url
-        self.redirect_url = redirect_url
+        self.redirect_uri = redirect_uri
+        self.logout_uri = logout_uri
         self.kc = Client(callback_url)
         self.proxy_app = ProxyApp(config)
+
+    def _response(
+        self, environ: Dict, start_response: Callable, session: Any, response: Callable
+    ) -> Callable:
+        self.session_interface.save_session(self.proxy_app, session, response)
+        return response(environ, start_response)
 
     def __call__(self, environ: Dict, start_response: Callable) -> Callable:
         response = None
@@ -53,20 +61,24 @@ class AuthenticationMiddleware:
             self.proxy_app, request
         )
 
-        # handle callback request
+        # callback request
         if request.base_url == self.callback_url:
             response = self.callback(session, request)
+            return self._response(environ, start_response, session, response)
 
-        # handle unauthorized requests
-        if (request.base_url != self.callback_url) and ("user" not in session):
+        # logout request
+        elif request.path == self.logout_uri:
+            self.logout(session)
+            return self.app(environ, start_response)
+
+        # unauthorized request
+        elif "user" not in session:
             response = self.login(session)
+            return self._response(environ, start_response, session, response)
 
-        if response:
-            self.session_interface.save_session(self.proxy_app, session, response)
-            return response(environ, start_response)
-
-        # handle authorized requests
-        return self.app(environ, start_response)
+        # authorized request
+        else:
+            return self.app(environ, start_response)
 
     def login(self, session: Dict) -> Response:
         """ Initiate authentication """
@@ -93,4 +105,12 @@ class AuthenticationMiddleware:
         user = self.kc.fetch_userinfo(access_token)
         session["user"] = json.dumps(user)
 
-        return redirect(self.redirect_url)
+        return redirect(self.redirect_uri)
+
+    def logout(self, session: Dict) -> None:
+        tokens = json.loads(session["tokens"])
+        access_token = tokens["access_token"]
+        refresh_token = tokens["refresh_token"]
+        self.kc.logout(access_token, refresh_token)
+        del session["tokens"]
+        del session["user"]

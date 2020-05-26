@@ -15,12 +15,18 @@ def get_app():
         app.wsgi_app,
         app.config,
         app.session_interface,
-        callback_url="http://localhost/kc/callback",
+        callback_url="http://testserver/kc/callback",
+        redirect_uri="/howdy",
+        logout_uri="/logout",
     )
 
     @app.route("/howdy")
     def howdy():
         return "Howdy!"
+
+    @app.route("/logout")
+    def logout():
+        return "Logged out!"
 
     return app
 
@@ -49,7 +55,7 @@ def test_callback(mock_session_interface, mock_uuid4, mock_post, kc_config):
         "code": "code123",
         "grant_type": GrantTypes.authorization_code,
         "client_id": kc_config.client.client_id,
-        "redirect_uri": "http://localhost/kc/callback",
+        "redirect_uri": "http://testserver/kc/callback",
         "client_secret": kc_config.client.client_secret,
     }
     userinfo_endpoint_header = auth_header("token123")
@@ -63,7 +69,7 @@ def test_callback(mock_session_interface, mock_uuid4, mock_post, kc_config):
     ]
     app = get_app()
     client = app.test_client()
-    response = client.get("/kc/callback?state=state123&code=code123")
+    response = client.get("http://testserver/kc/callback?state=state123&code=code123")
     assert response.status_code == 302
     mock_post.assert_has_calls(expected_calls)
 
@@ -74,7 +80,7 @@ def test_invalid_callback(mock_session_interface):
     mock_session_interface.return_value.open_session.return_value = {"state": "unknown"}
     app = get_app()
     client = app.test_client()
-    response = client.get("/kc/callback?state=state123&code=code123")
+    response = client.get("http://testserver/kc/callback?state=state123&code=code123")
     assert response.status_code == 403
     assert response.data == b"Invalid state"
 
