@@ -13,7 +13,10 @@ from keycloak.utils import auth_header
 
 app = Starlette()
 app.add_middleware(
-    AuthenticationMiddleware, callback_url="http://localhost/kc/callback"
+    AuthenticationMiddleware,
+    callback_url="http://testserver/kc/callback",
+    redirect_uri="/howdy",
+    logout_uri="/logout",
 )
 app.add_middleware(SessionMiddleware, secret_key="key0123456789")
 
@@ -21,6 +24,11 @@ app.add_middleware(SessionMiddleware, secret_key="key0123456789")
 @app.route("/howdy")
 def howdy(request):
     return PlainTextResponse("Howdy!")
+
+
+@app.route("/logout")
+def logout(request):
+    return PlainTextResponse("Logged out!")
 
 
 def test_no_login():
@@ -56,7 +64,7 @@ def test_kc_callback(mock_request, mock_post, kc_config):
         "grant_type": GrantTypes.authorization_code,
         "client_id": kc_config.client.client_id,
         "client_secret": kc_config.client.client_secret,
-        "redirect_uri": "http://localhost/kc/callback",
+        "redirect_uri": "http://testserver/kc/callback",
     }
     headers = auth_header("token12345")
     expected_calls = [
@@ -72,7 +80,6 @@ def test_kc_callback(mock_request, mock_post, kc_config):
             "/kc/callback?state=state123&code=code123", allow_redirects=False
         )
         assert response.status_code == 307
-        assert response.headers["Location"] == "/"
         mock_post.assert_has_calls(expected_calls)
 
 

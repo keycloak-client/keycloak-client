@@ -153,3 +153,19 @@ class AuthenticationMixin:
         if not self._userinfo:
             self._userinfo = self.fetch_userinfo()
         return self._userinfo
+
+    def logout(self, access_token: str = None, refresh_token: str = None) -> None:
+        access_token = access_token or self.access_token  # type: ignore
+        refresh_token = refresh_token or self.refresh_token  # type: ignore
+        payload = {
+            "client_id": config.client.client_id,
+            "client_secret": config.client.client_secret,
+            "refresh_token": refresh_token,
+        }
+        headers = auth_header(access_token)
+        log.debug("Logging out user from server")
+        response = requests.post(
+            config.openid.end_session_endpoint, data=payload, headers=headers
+        )
+        response.raise_for_status()
+        log.debug("User logged out successfully")

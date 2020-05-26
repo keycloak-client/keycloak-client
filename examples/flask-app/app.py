@@ -9,15 +9,21 @@ app.wsgi_app = AuthenticationMiddleware(
     app.wsgi_app,
     app.config,
     app.session_interface,
-    callback_url="http://localhost:5000/kc/callback",
-    redirect_url="/howdy",
+    callback_url="http://testserver:5000/kc/callback",
+    redirect_uri="/",
+    logout_uri="/logout",
 )
 
 
-@app.route("/howdy")
+@app.route("/")
 def howdy():
     user = session["user"]
     return f"Howdy {user}"
+
+
+@app.route("/logout")
+def logout():
+    return "User logged out successfully"
 
 
 if __name__ == "__main__":

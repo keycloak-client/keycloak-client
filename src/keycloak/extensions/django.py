@@ -10,15 +10,19 @@ from keycloak import Client
 class AuthenticationMiddleware:
     def __init__(self, get_response: Callable):
         self.get_response = get_response
-        self.kc = Client(self.callback_uri)
+        self.kc = Client(self.callback_url)
 
     @property
     def redirect_uri(self) -> str:
         return settings.KEYCLOAK_REDIRECT_URI
 
     @property
-    def callback_uri(self) -> str:
-        return settings.KEYCLOAK_CALLBACK_URI
+    def logout_uri(self) -> str:
+        return settings.KEYCLOAK_LOGOUT_URI
+
+    @property
+    def callback_url(self) -> str:
+        return settings.KEYCLOAK_CALLBACK_URL
 
     def callback(self, request: HttpRequest) -> HttpResponse:
 
@@ -46,15 +50,29 @@ class AuthenticationMiddleware:
         request.session["state"] = state
         return HttpResponseRedirect(url)
 
+    def logout(self, request: HttpRequest) -> None:
+        tokens = json.loads(request.session["tokens"])
+        access_token = tokens["access_token"]
+        refresh_token = tokens["refresh_token"]
+        self.kc.logout(access_token, refresh_token)
+        del request.session["tokens"]
+        del request.session["user"]
+
     def __call__(self, request: HttpRequest) -> HttpResponse:
 
-        # handle callback requests
-        if request.path == self.callback_uri:
+        # callback request
+        if request.build_absolute_uri(request.path) == self.callback_url:
             return self.callback(request)
 
-        # handle unauthorized requests
-        if "user" not in request.session:
+        # logout request
+        elif request.path == self.logout_uri:
+            self.logout(request)
+            return self.get_response(request)
+
+        # unauthorized request
+        elif "user" not in request.session:
             return self.login(request)
 
-        # handle authorized requests
-        return self.get_response(request)
+        # authorized request
+        else:
+            return self.get_response(request)
