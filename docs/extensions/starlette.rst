@@ -16,13 +16,18 @@ Using Starlette Extension
 
     app = Starlette()
     app.debug = True
-    app.add_middleware(AuthenticationMiddleware, callback_uri="http://testserver:8000/kc/callback", redirect_uri="/howdy")
+    app.add_middleware(AuthenticationMiddleware, callback_url="http://localhost:8000/kc/callback", redirect_uri="/howdy", logout_uri="/logout")
     app.add_middleware(SessionMiddleware, secret_key="secret0123456789")
 
 
     @app.route("/howdy")
     def howdy(request):
         return PlainTextResponse("Howdy!")
+
+
+    @app.route("/logout")
+    def logout(request):
+        return PlainTextResponse("User logged out!")
 
 
     if __name__ == "__main__":
