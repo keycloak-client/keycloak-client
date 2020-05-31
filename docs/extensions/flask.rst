@@ -17,14 +17,19 @@ Using Flask Extension
         app.wsgi,
         app.config,
         app.session_interface,
-        callback_uri="http://testserver:5000/kc/callback",
-        redirect_uri="/howdy"
+        callback_url="http://localhost:5000/kc/callback",
+        redirect_uri="/howdy",
+        logout_uri="/logout"
     )
 
 
     @app.route("/howdy")
     def howdy():
         return "Howdy!"
+
+    @app.route("/logout")
+    def logout():
+        return "User logged out!"
 
 
     if __name__ == "__main__":
