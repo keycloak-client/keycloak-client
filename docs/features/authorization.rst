@@ -1,10 +1,10 @@
+**************
 Authorization
-=============
+**************
 
 Authorization is performed with the help of `UMA (User Managed Access)`
 
 
-**************
 Generating PAT
 **************
 
@@ -20,7 +20,7 @@ Keycloak provides a method called `pat` using with you can retrieve the PAT toke
    kc = Client()
    kc.pat()
 
-****************************
+
 Generating Permission Ticket
 ****************************
 

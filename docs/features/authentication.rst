@@ -1,5 +1,6 @@
+**************
 Authentication
-==============
+**************
 
 Keycloak client provides two methods called `login` and `callback`,
 using which you can connect to the authentication endpoints of keycloak server
