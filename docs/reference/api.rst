@@ -1,5 +1,5 @@
-Keycloak
-========
+API Reference
+=============
 
 .. automodule:: keycloak
    :members:
