@@ -97,7 +97,7 @@ def test_ticket(mock_auth_header, mock_post, kc_client, kc_config):
     resources = [{"_id": "id123456789", "resource_scopes": ["create", "read"]}]
     payload = [{"resource_id": "id123456789", "resource_scopes": ["create", "read"]}]
     mock_auth_header.return_value = header
-    kc_client.fetch_ticket(resources, token)
+    kc_client.ticket(resources, token)
     mock_auth_header.assert_called_once_with(token, TokenType.bearer)
     mock_post.assert_called_once_with(
         kc_config.uma2.permission_endpoint, json=payload, headers=header
@@ -116,7 +116,7 @@ def test_ticket_failure(mock_auth_header, mock_post, kc_client, kc_config):
     payload = [{"resource_id": "id123456789", "resource_scopes": ["create", "read"]}]
     mock_auth_header.return_value = header
     with pytest.raises(HTTPError) as ex:
-        kc_client.fetch_ticket(resources, token)
+        kc_client.ticket(resources, token)
     assert ex.type == HTTPError
     mock_auth_header.assert_called_once_with(token, TokenType.bearer)
     mock_post.assert_called_once_with(
@@ -127,12 +127,14 @@ def test_ticket_failure(mock_auth_header, mock_post, kc_client, kc_config):
 @patch("keycloak.mixins.authorization.requests.post")
 @patch("keycloak.mixins.authorization.auth_header")
 def test_rpt(mock_auth_header, mock_post, kc_client, kc_config):
-    ticket = "ticket123456789"
     token = "token123456789"
     header = {"Authorization": token}
-    payload = {"grant_type": GrantTypes.uma_ticket, "ticket": ticket}
+    payload = {
+        "grant_type": GrantTypes.uma_ticket,
+        "audience": kc_config.client.client_id,
+    }
     mock_auth_header.return_value = header
-    kc_client.fetch_rpt(ticket, token)
+    kc_client.rpt(token)
     mock_auth_header.assert_called_once_with(token, TokenType.bearer)
     mock_post.assert_called_once_with(
         kc_config.uma2.token_endpoint, data=payload, headers=header
@@ -145,13 +147,15 @@ def test_rpt_failure(mock_auth_header, mock_post, kc_client, kc_config):
     mock_post.return_value = MagicMock()
     mock_post.return_value.content = "server error"
     mock_post.return_value.raise_for_status = MagicMock(side_effect=HTTPError)
-    ticket = "ticket123456789"
     token = "token123456789"
     header = {"Authorization": token}
-    payload = {"grant_type": GrantTypes.uma_ticket, "ticket": ticket}
+    payload = {
+        "grant_type": GrantTypes.uma_ticket,
+        "audience": kc_config.client.client_id,
+    }
     mock_auth_header.return_value = header
     with pytest.raises(HTTPError) as ex:
-        kc_client.fetch_rpt(ticket, token)
+        kc_client.rpt(token)
     assert ex.type == HTTPError
     mock_auth_header.assert_called_once_with(token, TokenType.bearer)
     mock_post.assert_called_once_with(
