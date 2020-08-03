@@ -81,21 +81,8 @@ class AuthorizationMixin:
         response.raise_for_status()
         return response.json()
 
-    @property
-    def ticket(self) -> Dict:
-        """
-        permission ticket retrieved from server
-
-        :returns: dictionary
-        """
-        if not self._ticket:
-            self._ticket = self.fetch_ticket(
-                self.resources, self.access_token  # type: ignore
-            )
-        return self._ticket
-
     @handle_exceptions
-    def fetch_ticket(self, resources: List = [], access_token: str = None) -> Dict:
+    def ticket(self, resources: List = [], access_token: str = None) -> Dict:
         """
         retrieve permission ticket from keycloak server
         see `docs <https://www.keycloak.org/docs/latest/authorization_services/#_overview_terminology_permission_ticket>`__ for more details
@@ -103,7 +90,7 @@ class AuthorizationMixin:
         >>>
         >>> from keycloak import Client
         >>> kc = Client()
-        >>> kc.fetch_ticket(kc.resources)
+        >>> kc.ticket(kc.resources)
         {'ticket': 'eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI5MmE5NTI2NC0wNTAyLTQzN2ItYWE3ZS01ZGIwNjFlYzMwOWYifQ.eyJwZXJtaXNzaW9ucyI6W3sicnNpZCI6IjQ4MTUyMTI2LWFhOTEtNGE0Zi04ZWU4LTczOTI4ZjViNmMwMCJ9XSwianRpIjoiNDhlZmVmZDQtMDg5NC00NjA2LTk0YjUtMDhlNjZiNTE4YWM2LTE1ODQxODUyOTUyMzkiLCJleHAiOjE1ODQxODUzNTUsIm5iZiI6MCwiaWF0IjoxNTg0MTg1Mjk1LCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvYXV0aC9yZWFsbXMvbWFzdGVyIiwic3ViIjoiNGM5YzI0MzAtYjJlNy00ZjBiLTkzMjUtYWE4MWRmZmUwNDYzIiwiYXpwIjoia2V5Y2xvYWstY2xpZW50In0.Or_6wzK9wlQMBPpi8bWIioWCeO6QuolKjr4mKC4YWpA'}
         >>>
 
@@ -127,39 +114,31 @@ class AuthorizationMixin:
         log.debug("Permission ticket retrieved successfully")
         return response.json()
 
-    @property
-    def rpt(self) -> Dict:
-        """
-        request party token retrieved from server
-
-        :returns: dictionary
-        """
-        if not self._rpt:
-            self._rpt = self.fetch_rpt(self.ticket, self.access_token)  # type: ignore
-        return self._rpt
-
     @handle_exceptions
-    def fetch_rpt(self, ticket: str = None, access_token: str = None) -> Dict:
+    def rpt(self, access_token: str) -> Dict:
         """
         retrieve request party token (RPT)
         see `docs <https://www.keycloak.org/docs/latest/authorization_services/#_service_rpt_overview>`__ for more details
 
         >>>
-        >>> form keycloak import Client, Resource
-        >>> kc = Client()
-        >>> ticket = kc.find_ticket(kc.resources)
-        >>> kc.rpt(ticket["ticket"])
-        {'upgraded': False, 'access_token': 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHYkdydV9sa05wN29hdjg1MUx4LXRQT1c3LWdCeWRKRWZIYmUxRHp1Zm1NIn0.eyJqdGkiOiIzZTg3OGNkNy1iNjZkLTQyOGItYjQ0ZS05YTRkNjE4NzA2NTAiLCJleHAiOjE1NzIyNDY1NTcsIm5iZiI6MCwiaWF0IjoxNTcyMjQ2NDk3LCJpc3MiOiJodHRwczovL2tleWNsb2FrLmFraGlscHV0aGlyeS5kZXYvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjpbInB5dGhvbi1jbGllbnQiLCJhY2NvdW50Il0sInN1YiI6ImUxZmJkN2Q2LWFkMmItNDA3Zi04OWNmLTZjMmIwMDRkNzhiYiIsInR5cCI6IkJlYXJlciIsImF6cCI6InB5dGhvbi1jbGllbnQiLCJhdXRoX3RpbWUiOjAsInNlc3Npb25fc3RhdGUiOiJiZWM3NGI4MC02MDJlLTQzZTktYjBlMS1jYTQ5YzA1YWI0OGUiLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJweXRob24tY2xpZW50Ijp7InJvbGVzIjpbInVtYV9wcm90ZWN0aW9uIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJhdXRob3JpemF0aW9uIjp7InBlcm1pc3Npb25zIjpbeyJyc2lkIjoiYmI2YTc3N2YtYTE3Yi00NTU1LWIwMzUtYTZjZTEyYTFmZDIxIiwicnNuYW1lIjoiRGVmYXVsdCBSZXNvdXJjZSJ9XX0sInNjb3BlIjoiZW1haWwgcHJvZmlsZSIsImNsaWVudEhvc3QiOiIxODAuMTUxLjEzNy4xNDAiLCJjbGllbnRJZCI6InB5dGhvbi1jbGllbnQiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6InNlcnZpY2UtYWNjb3VudC1weXRob24tY2xpZW50IiwiY2xpZW50QWRkcmVzcyI6IjE4MC4xNTEuMTM3LjE0MCIsImVtYWlsIjoic2VydmljZS1hY2NvdW50LXB5dGhvbi1jbGllbnRAcGxhY2Vob2xkZXIub3JnIn0.UmMaTi-x-tX71iWovQ8gupFdzpJ7YLOSQsAPPLlhaKLbHFDci0w1C99IXAcVkDyKzTgGfs-2SQzPsS5hYQzy_hZP5d-jqWxOvq_iBx5Nem1ccKrfUmkpHDsNDB7BV-me6g8jp0uPOMq4pPTR5elJ8YEho_TS_QKqsD-N3yNLhQgxVtELWGovgjmnbuLmglKoNLktBYoJTukoWkwpNCXFuJSbbujUrHcsQ1bb14LXZrDJ15_EreO3JpWMtt-lR9H-6MH56StKQ7OKhp3CK7zIOreNW8kZfGCoqGzWMotDGQXDYZsL4DjtIzuSgkeI63culrN70ZIA0M89klrqX9ZpFw', 'expires_in': 60, 'refresh_expires_in': 1800, 'refresh_token': 'eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIxOGQ1NzdiYy03MmY2LTRiMTUtYjc2Mi1hOGIzOWRjNzE2MjkifQ.eyJqdGkiOiI3YWFkOTZjNy1jYmI0LTQyNzUtODkyMi01MjNhN2M1MDBlYzQiLCJleHAiOjE1NzIyNDgyOTcsIm5iZiI6MCwiaWF0IjoxNTcyMjQ2NDk3LCJpc3MiOiJodHRwczovL2tleWNsb2FrLmFraGlscHV0aGlyeS5kZXYvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiaHR0cHM6Ly9rZXljbG9hay5ha2hpbHB1dGhpcnkuZGV2L2F1dGgvcmVhbG1zL21hc3RlciIsInN1YiI6ImUxZmJkN2Q2LWFkMmItNDA3Zi04OWNmLTZjMmIwMDRkNzhiYiIsInR5cCI6IlJlZnJlc2giLCJhenAiOiJweXRob24tY2xpZW50IiwiYXV0aF90aW1lIjowLCJzZXNzaW9uX3N0YXRlIjoiYmVjNzRiODAtNjAyZS00M2U5LWIwZTEtY2E0OWMwNWFiNDhlIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJweXRob24tY2xpZW50Ijp7InJvbGVzIjpbInVtYV9wcm90ZWN0aW9uIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJhdXRob3JpemF0aW9uIjp7InBlcm1pc3Npb25zIjpbeyJyc2lkIjoiYmI2YTc3N2YtYTE3Yi00NTU1LWIwMzUtYTZjZTEyYTFmZDIxIiwicnNuYW1lIjoiRGVmYXVsdCBSZXNvdXJjZSJ9XX0sInNjb3BlIjoiZW1haWwgcHJvZmlsZSJ9.woXfkz49D13Fzxqaii9Gh3dr2ZiGHNA2grq2z9nYNqc', 'token_type': 'Bearer', 'not-before-policy': 0}
+        >>> form keycloak import Client
+        >>> kc = Client(username='myuser', password='*****')
+        >>> kc.rpt(kc.access_token)
+        2020-08-03 11:47:54,568 [DEBUG] Retrieving RPT from keycloak
+        2020-08-03 11:47:54,581 [DEBUG] RPT retrieved successfully
+        2020-08-03 11:47:54,581 [DEBUG] Retrieving JWKs from keycloak server
+        2020-08-03 11:47:54,587 [DEBUG] JWKs retrieved successfully
+        {'exp': 1596435534, 'iat': 1596435474, 'jti': '822c7f6f-cd0a-4b9d-b55c-72803755ca7c', 'iss': 'http://localhost:8080/auth/realms/master', 'aud': ['kc', 'account'], 'sub': 'fce7f440-2e40-4161-90b4-61a1913c4b28', 'typ': 'Bearer', 'azp': 'kc', 'session_state': 'b3498962-3973-4f2d-9150-b1338e974d08', 'acr': '1', 'realm_access': {'roles': ['offline_access', 'uma_authorization']}, 'resource_access': {'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}}, 'authorization': {'permissions': [{'rsid': '992dfa45-6098-45ac-b62e-da4d2787377f', 'rsname': 'Default Resource'}]}, 'scope': 'profile email', 'email_verified': True, 'preferred_username': 'akhilputhiry'}
         >>>
 
-        :param ticket: permission ticket
         :param access_token: access token to be used
 
         :returns: dictionary
         """
-        ticket = ticket or self.fetch_ticket()["ticket"]
-        access_token = access_token or self.access_token  # type: ignore
-        payload = {"grant_type": GrantTypes.uma_ticket, "ticket": ticket}
+        payload = {
+            "grant_type": GrantTypes.uma_ticket,
+            "audience": config.client.client_id,
+        }
         headers = auth_header(access_token, TokenType.bearer)
         log.debug("Retrieving RPT from keycloak")
         response = requests.post(
@@ -177,12 +156,13 @@ class AuthorizationMixin:
         see `docs <https://www.keycloak.org/docs/latest/authorization_services/#_service_protection_token_introspection>`__ for more details
 
         >>>
-        >>> form keycloak import Client, Resource
-        >>> kc = Client()
-        >>> ticket = kc.find_ticket(resources)
-        >>> rpt = kc.rpt(ticket["ticket"])
-        >>> kc.introspect(rpt["access_token"])
-        {'jti': '5a948d88-d8ef-4730-ad4f-a7f82604c196', 'exp': 1572246750, 'nbf': 0, 'iat': 1572246690, 'aud': ['python-client', 'account'], 'typ': 'Bearer', 'auth_time': 0, 'acr': '1', 'permissions': [{'rsid': 'bb6a777f-a17b-4555-b035-a6ce12a1fd21', 'rsname': 'Default Resource', 'resource_id': 'bb6a777f-a17b-4555-b035-a6ce12a1fd21', 'resource_scopes': []}], 'active': True}
+         >>> form keycloak import Client
+        >>> kc = Client(username='myuser', password='*****')
+        >>> rpt = kc.rpt(kc.access_token)
+        >>> kc.introspect(rpt['access_token'])
+        2020-08-03 11:47:54,628 [DEBUG] Introspecting RPT token
+        2020-08-03 11:47:54,635 [DEBUG] RPT introspected successfully
+        {'exp': 1596435534, 'nbf': 0, 'iat': 1596435474, 'jti': '822c7f6f-cd0a-4b9d-b55c-72803755ca7c', 'aud': ['kc', 'account'], 'typ': 'Bearer', 'acr': '1', 'permissions': [{'rsid': '992dfa45-6098-45ac-b62e-da4d2787377f', 'rsname': 'Default Resource', 'resource_id': '992dfa45-6098-45ac-b62e-da4d2787377f', 'resource_scopes': []}], 'active': True}
         >>>
 
         :param rpt: rpt token
