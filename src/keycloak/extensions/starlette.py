@@ -27,12 +27,14 @@ class Login(EndpointHandler):
 
 class Logout(EndpointHandler):
     async def get(self, request: Request) -> Response:
-        # tokens = json.loads(request.session["tokens"])
+        # _tokens = request.session["tokens"]
+        # tokens = json.loads(_tokens)
         # access_token = tokens["access_token"]
         # refresh_token = tokens["refresh_token"]
         # self.kc.logout(access_token, refresh_token)
+        # del request.session["tokens"]
         del request.session["user"]
-        return Response("User logged out successfully", status_code=204)
+        return Response("User logged out successfully", status_code=200)
 
 
 class Callback(EndpointHandler):
@@ -84,7 +86,6 @@ class AuthenticationMiddleware:
         # handle http requests
         if self.is_http(scope):
             request = Request(scope, receive)
-            print("===>", self.get_url(request))
 
             # handle callback request
             if self.get_url(request) == self.callback_url:

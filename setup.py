@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 # extras
 docs = ["sphinx", "sphinx_rtd_theme"]
-extensions = ["flask", "starlette", "django"]
+extensions = ["flask", "starlette", "django", "uvicorn"]
 complete = docs + extensions
 
 

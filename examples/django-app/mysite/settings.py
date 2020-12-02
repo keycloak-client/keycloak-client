@@ -118,7 +118,7 @@ STATIC_URL = "/static/"
 
 # Keycloak client
 
-KEYCLOAK_CALLBACK_URL = "http://testserver:8000/kc/callback"
+KEYCLOAK_CALLBACK_URL = "http://localhost:8000/kc/callback"
 
 KEYCLOAK_REDIRECT_URI = "/"
 
