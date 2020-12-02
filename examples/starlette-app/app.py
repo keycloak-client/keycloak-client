@@ -9,7 +9,7 @@ from keycloak.extensions.starlette import AuthenticationMiddleware
 app = Starlette()
 app.add_middleware(
     AuthenticationMiddleware,
-    callback_url="http://testserver:8000/kc/callback",
+    callback_url="http://localhost:8000/kc/callback",
     logout_uri="/logout",
 )
 app.add_middleware(SessionMiddleware, secret_key="key0123456789")
