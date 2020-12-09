@@ -45,7 +45,7 @@ The following snippet is an example written in `Flask <http://flask.pocoo.org/>`
 
        # retrieve userinfo
        access_token = tokens["access_token"]
-       userinfo = kc.userinfo(access_token)
+       userinfo = kc.fetch_userinfo(access_token)
        session["user"] = userinfo
 
        # send userinfo to user
