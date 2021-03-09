@@ -237,7 +237,7 @@ class TokenMixin:
         key, algorithm = self.parse_key_and_alg(header)
         return jwt.decode(
             token,
-            key,
+            key,  # type: ignore
             algorithms=[algorithm],
             issuer=config.uma2.issuer,
             audience=config.client.client_id,
