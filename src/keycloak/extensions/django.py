@@ -51,7 +51,7 @@ class AuthenticationMiddleware:
         return HttpResponseRedirect(url)
 
     def logout(self, request: HttpRequest) -> None:
-        if "tokens" in request.session
+        if "tokens" in request.session:
             tokens = json.loads(request.session["tokens"])
             access_token = tokens["access_token"]
             refresh_token = tokens["refresh_token"]
