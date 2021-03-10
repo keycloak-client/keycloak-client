@@ -24,3 +24,5 @@ jobs:
         run: make install
       - name: run test cases
         run: make test
+      - name: upload coverage report
+        uses: codecov/codecov-action@v1
