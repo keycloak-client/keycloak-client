@@ -2,7 +2,7 @@
 ![CI](https://github.com/chunky-monkeys/keycloak-client/workflows/CI/badge.svg?branch=master)
 [![PyPI version](https://badge.fury.io/py/keycloak.svg)](https://badge.fury.io/py/keycloak)
 [![codecov](https://codecov.io/gh/chunky-monkeys/keycloak-client/branch/master/graph/badge.svg)](https://codecov.io/gh/chunky-monkeys/keycloak-client)
-[![Maintainability](https://api.codeclimate.com/v1/badges/3c0d666b018207a00d27/maintainability)](https://codeclimate.com/github/chunky-monkeys/keycloak-client/maintainability)
+[![Maintainability](https://api.codeclimate.com/v1/badges/3953d7b758235933a1bb/maintainability)](https://codeclimate.com/github/chunky-monkeys/keycloak-client/maintainability)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/keycloak.svg)](https://pypistats.org/packages/keycloak)
 
 This repo contains a python client for [Keycloak](https://www.keycloak.org/).
