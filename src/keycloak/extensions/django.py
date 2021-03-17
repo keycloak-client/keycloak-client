@@ -13,12 +13,19 @@ class AuthenticationMiddleware:
         self.kc = Client(self.callback_url)
 
     @property
-    def redirect_uri(self) -> str:
-        return settings.KEYCLOAK_REDIRECT_URI
+    def login_redirect_uri(self) -> str:
+        return settings.KEYCLOAK_LOGIN_REDIRECT_URI
+
+    @property
+    def logout_redirect_uri(self) -> str:
+        return settings.KEYCLOAK_LOGOUT_REDIRECT_URI
 
     @property
     def logout_uri(self) -> str:
-        return settings.KEYCLOAK_LOGOUT_URI
+        if hasattr(settings, "KEYCLOAK_LOGOUT_URI"):
+            return settings.KEYCLOAK_LOGOUT_URI
+        else:
+            return "/kc/logout"
 
     @property
     def callback_url(self) -> str:
@@ -42,7 +49,7 @@ class AuthenticationMiddleware:
         user = self.kc.fetch_userinfo(access_token)
         request.session["user"] = json.dumps(user)
 
-        return HttpResponseRedirect(self.redirect_uri)
+        return HttpResponseRedirect(self.login_redirect_uri)
 
     def login(self, request: HttpRequest) -> HttpResponse:
         """ Initiate authentication """
@@ -50,15 +57,19 @@ class AuthenticationMiddleware:
         request.session["state"] = state
         return HttpResponseRedirect(url)
 
-    def logout(self, request: HttpRequest) -> None:
+    def logout(self, request: HttpRequest) -> HttpResponse:
+
         if "tokens" in request.session:
             tokens = json.loads(request.session["tokens"])
             access_token = tokens["access_token"]
             refresh_token = tokens["refresh_token"]
             self.kc.logout(access_token, refresh_token)
             del request.session["tokens"]
+
         if "user" in request.session:
             del request.session["user"]
+
+        return HttpResponseRedirect(self.logout_redirect_uri)
 
     def __call__(self, request: HttpRequest) -> HttpResponse:
 
@@ -68,7 +79,10 @@ class AuthenticationMiddleware:
 
         # logout request
         elif request.path == self.logout_uri:
-            self.logout(request)
+            return self.logout(request)
+
+        # logout redirect uri
+        elif request.path == self.logout_redirect_uri:
             return self.get_response(request)
 
         # unauthorized request

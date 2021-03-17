@@ -10,13 +10,14 @@ app = Starlette()
 app.add_middleware(
     AuthenticationMiddleware,
     callback_url="http://localhost:8000/kc/callback",
-    logout_uri="/logout",
+    login_redirect_uri="/home",
+    logout_redirect_uri="/logout",
 )
 app.add_middleware(SessionMiddleware, secret_key="key0123456789")
 
 
-@app.route("/")
-def howdy(request):
+@app.route("/home")
+def home(request):
     user = request.session["user"]
     return PlainTextResponse(f"Howdy {user}!")
 

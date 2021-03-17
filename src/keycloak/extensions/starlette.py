@@ -14,7 +14,7 @@ from .. import Client
 class EndpointHandler(HTTPEndpoint):
     def __init__(self, *args: Any, **kwargs: Any):
         self.kc = kwargs.pop("kc")
-        self.redirect_uri = kwargs.pop("redirect_uri", "/")
+        self.redirect_uri = kwargs.pop("redirect_uri")
         super().__init__(*args, **kwargs)
 
 
@@ -27,15 +27,21 @@ class Login(EndpointHandler):
 
 class Logout(EndpointHandler):
     async def get(self, request: Request) -> Response:
-        # _tokens = request.session["tokens"]
-        # tokens = json.loads(_tokens)
-        # access_token = tokens["access_token"]
-        # refresh_token = tokens["refresh_token"]
-        # self.kc.logout(access_token, refresh_token)
-        # del request.session["tokens"]
+        # retrieve tokens
+        _tokens = request.session["tokens"]
+        tokens = json.loads(_tokens)
+        access_token = tokens["access_token"]
+        refresh_token = tokens["refresh_token"]
+
+        # logout from keycloak
+        self.kc.logout(access_token, refresh_token)
+        del request.session["tokens"]
+
+        # delete user info
         if "user" in request.session:
             del request.session["user"]
-        return Response("User logged out successfully", status_code=200)
+
+        return RedirectResponse(self.redirect_uri)
 
 
 class Callback(EndpointHandler):
@@ -50,7 +56,14 @@ class Callback(EndpointHandler):
         # retrieve tokens
         code = request.query_params["code"]
         tokens = self.kc.callback(code)
-        # request.session["tokens"] = json.dumps(tokens)
+
+        # starlette sessions do not have the capacity to store the entire tokens
+        # so storing only access token and refresh token
+        _tokens = {
+            "access_token": tokens["access_token"],
+            "refresh_token": tokens["refresh_token"],
+        }
+        request.session["tokens"] = json.dumps(_tokens)
 
         # retrieve user info
         access_token = tokens["access_token"]
@@ -65,13 +78,15 @@ class AuthenticationMiddleware:
         self,
         app: ASGIApp,
         callback_url: str = "https://localhost:8000/kc/callback",
-        redirect_uri: str = "/",
+        login_redirect_uri: str = "/",
         logout_uri: str = "/kc/logout",
+        logout_redirect_uri: str = "/",
     ) -> None:
         self.app = app
         self.callback_url = callback_url
-        self.redirect_uri = redirect_uri
+        self.login_redirect_uri = login_redirect_uri
         self.logout_uri = logout_uri
+        self.logout_redirect_uri = logout_redirect_uri
         self.kc = Client(callback_url)
 
     @staticmethod
@@ -91,18 +106,39 @@ class AuthenticationMiddleware:
             # handle callback request
             if self.get_url(request) == self.callback_url:
                 await Callback(
-                    scope, receive, send, kc=self.kc, redirect_uri=self.redirect_uri
+                    scope,
+                    receive,
+                    send,
+                    kc=self.kc,
+                    redirect_uri=self.login_redirect_uri,
                 )
                 return
 
             # handle logout request
             elif request.url.path == self.logout_uri:
-                await Logout(scope, receive, send, kc=self.kc)
+                await Logout(
+                    scope,
+                    receive,
+                    send,
+                    kc=self.kc,
+                    redirect_uri=self.logout_redirect_uri,
+                )
+                return
+
+            # handle logout redirect uri
+            elif request.url.path == self.logout_redirect_uri:
+                await self.app(scope, receive, send)
                 return
 
             # handle unauthorized requests
             elif "user" not in request.session:
-                await Login(scope, receive, send, kc=self.kc)
+                await Login(
+                    scope,
+                    receive,
+                    send,
+                    kc=self.kc,
+                    redirect_uri=self.logout_redirect_uri,
+                )
                 return
 
             # handle authorized requests

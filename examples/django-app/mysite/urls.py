@@ -17,11 +17,11 @@ Including another URLconf
 # from django.contrib import admin
 from django.urls import path
 
-from .views import howdy, logout
+from .views import home, logout
 
 
 urlpatterns = [
     # path("admin/", admin.site.urls),
-    path("", howdy),
+    path("home", home),
     path("logout", logout),
 ]

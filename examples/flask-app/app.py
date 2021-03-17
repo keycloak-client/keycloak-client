@@ -10,13 +10,13 @@ app.wsgi_app = AuthenticationMiddleware(
     app.config,
     app.session_interface,
     callback_url="http://localhost:5000/kc/callback",
-    redirect_uri="/",
-    logout_uri="/logout",
+    login_redirect_uri="/home",
+    logout_redirect_uri="/logout",
 )
 
 
-@app.route("/")
-def howdy():
+@app.route("/home")
+def home():
     user = session["user"]
     return f"Howdy {user}"
 

@@ -120,6 +120,6 @@ STATIC_URL = "/static/"
 
 KEYCLOAK_CALLBACK_URL = "http://localhost:8000/kc/callback"
 
-KEYCLOAK_REDIRECT_URI = "/"
+KEYCLOAK_LOGIN_REDIRECT_URI = "/home"
 
-KEYCLOAK_LOGOUT_URI = "/logout"
+KEYCLOAK_LOGOUT_REDIRECT_URI = "/logout"
