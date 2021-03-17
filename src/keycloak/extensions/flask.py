@@ -36,15 +36,17 @@ class AuthenticationMiddleware:
         config: Config,
         session_interface: SessionInterface,
         callback_url: str = "http://localhost:5000/kc/callback",
-        redirect_uri: str = "/",
+        login_redirect_uri: str = "/",
         logout_uri: str = "/kc/logout",
+        logout_redirect_uri: str = "/",
     ) -> None:
         self.app = app
         self.config = config
         self.session_interface = session_interface
         self.callback_url = callback_url
-        self.redirect_uri = redirect_uri
+        self.login_redirect_uri = login_redirect_uri
         self.logout_uri = logout_uri
+        self.logout_redirect_uri = logout_redirect_uri
         self.kc = Client(callback_url)
         self.proxy_app = ProxyApp(config)
 
@@ -68,7 +70,11 @@ class AuthenticationMiddleware:
 
         # logout request
         elif request.path == self.logout_uri:
-            self.logout(session)
+            response = self.logout(session)
+            return self._response(environ, start_response, session, response)
+
+        # logout redirect uri
+        elif request.path == self.logout_redirect_uri:
             return self.app(environ, start_response)
 
         # unauthorized request
@@ -105,14 +111,18 @@ class AuthenticationMiddleware:
         user = self.kc.fetch_userinfo(access_token)
         session["user"] = json.dumps(user)
 
-        return redirect(self.redirect_uri)
+        return redirect(self.login_redirect_uri)
 
-    def logout(self, session: Dict) -> None:
+    def logout(self, session: Dict) -> Response:
+
         if "tokens" in session:
             tokens = json.loads(session["tokens"])
             access_token = tokens["access_token"]
             refresh_token = tokens["refresh_token"]
             self.kc.logout(access_token, refresh_token)
             del session["tokens"]
+
         if "user" in session:
             del session["user"]
+
+        return redirect(self.logout_redirect_uri)

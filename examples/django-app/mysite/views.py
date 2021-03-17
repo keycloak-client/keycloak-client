@@ -2,7 +2,7 @@
 from django.http import HttpResponse
 
 
-def howdy(request):
+def home(request):
     user = request.session["user"]
     return HttpResponse(user)
 

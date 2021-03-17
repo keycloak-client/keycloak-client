@@ -15,8 +15,8 @@ app = Starlette()
 app.add_middleware(
     AuthenticationMiddleware,
     callback_url="http://testserver/kc/callback",
-    redirect_uri="/howdy",
-    logout_uri="/logout",
+    login_redirect_uri="/howdy",
+    logout_redirect_uri="/logout",
 )
 app.add_middleware(SessionMiddleware, secret_key="key0123456789")
 
@@ -58,7 +58,10 @@ def test_kc_callback(mock_request, mock_post, kc_config):
     mock_request.return_value.url = MagicMock()
     mock_request.return_value.url.path = "/kc/callback"
     mock_post.return_value = MagicMock()
-    mock_post.return_value.json.return_value = {"access_token": "token12345"}
+    mock_post.return_value.json.return_value = {
+        "access_token": "token12345",
+        "refresh_token": "token12345",
+    }
     payload = {
         "code": "code123",
         "grant_type": GrantTypes.authorization_code,

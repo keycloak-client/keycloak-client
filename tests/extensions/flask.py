@@ -16,8 +16,8 @@ def get_app():
         app.config,
         app.session_interface,
         callback_url="http://testserver/kc/callback",
-        redirect_uri="/howdy",
-        logout_uri="/logout",
+        login_redirect_uri="/howdy",
+        logout_redirect_uri="/logout",
     )
 
     @app.route("/howdy")
