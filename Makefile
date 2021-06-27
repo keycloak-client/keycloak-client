@@ -13,7 +13,7 @@ clean:
 
 install:
 	pip install poetry && poetry install
-	mypy --install-types --non-interactive keycloak
+	mypy --install-types --non-interactive keycloak || true
 
 lint:
 	black keycloak tests 
