@@ -28,6 +28,20 @@ mypy = "^0.910"
 pytest = "^6.2.4"
 pytest-cov = "^2.12.1"
 
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+disallow_untypes_defs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "*.py"
+python_functions = "test_*"
+addopts = "--cov=keycloak --cov-report term-missing --cov-report xml"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
