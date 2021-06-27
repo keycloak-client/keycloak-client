@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 import logging
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import Dict, List
 
 import requests
 
 from ..config import config
 from ..constants import Logger
 from ..utils import auth_header, handle_exceptions
-
 
 log = logging.getLogger(Logger.name)
 

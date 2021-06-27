@@ -3,10 +3,10 @@ import json
 from typing import Any
 from urllib.parse import urlparse
 
-from starlette.types import ASGIApp, Receive, Scope, Send
-from starlette.requests import Request
-from starlette.responses import Response, RedirectResponse, PlainTextResponse
 from starlette.endpoints import HTTPEndpoint
+from starlette.requests import Request
+from starlette.responses import PlainTextResponse, RedirectResponse, Response
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 from .. import Client
 

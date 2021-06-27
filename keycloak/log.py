@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-import sys
 import logging
+import sys
 
 from .constants import Logger
-
 
 # define log formatter
 log_format = "%(asctime)s [%(levelname)s] %(message)s"

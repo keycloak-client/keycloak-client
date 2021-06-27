@@ -6,8 +6,8 @@ import requests
 from .log import logger  # register logger
 from .mixins.authentication import AuthenticationMixin
 from .mixins.authorization import AuthorizationMixin
-from .mixins.token import TokenMixin
 from .mixins.resource import ResourceMixin
+from .mixins.token import TokenMixin
 from .utils import Singleton
 
 

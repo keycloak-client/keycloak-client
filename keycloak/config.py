@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 import json
-import os
 import logging
-from typing import Dict
+import os
 from dataclasses import dataclass, fields
-from functools import lru_cache
+from typing import Dict, List
 
 import requests
 from cached_property import cached_property
 
-from .constants import EnvVar, Defaults, FileMode, Logger
+from .constants import Defaults, EnvVar, FileMode, Logger
 from .utils import Singleton
-
 
 log = logging.getLogger(Logger.name)
 

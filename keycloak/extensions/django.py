@@ -4,6 +4,7 @@ from typing import Callable
 
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+
 from keycloak import Client
 
 
@@ -52,7 +53,7 @@ class AuthenticationMiddleware:
         return HttpResponseRedirect(self.login_redirect_uri)
 
     def login(self, request: HttpRequest) -> HttpResponse:
-        """ Initiate authentication """
+        """Initiate authentication"""
         url, state = self.kc.login()
         request.session["state"] = state
         return HttpResponseRedirect(url)

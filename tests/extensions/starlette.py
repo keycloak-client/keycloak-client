@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import MagicMock, call, patch
 
 from starlette.applications import Starlette
 from starlette.middleware.sessions import SessionMiddleware
@@ -9,7 +9,6 @@ from starlette.testclient import TestClient
 from keycloak.constants import GrantTypes
 from keycloak.extensions.starlette import AuthenticationMiddleware
 from keycloak.utils import auth_header
-
 
 app = Starlette()
 app.add_middleware(
@@ -32,14 +31,14 @@ def logout(request):
 
 
 def test_no_login():
-    """ Test case for invalid login """
+    """Test case for invalid login"""
     with TestClient(app) as client:
         response = client.get("/howdy", allow_redirects=False)
         assert response.status_code == 307
 
 
 def test_kc_callback_invalid_state():
-    """ Test case for callbacks with invalid state """
+    """Test case for callbacks with invalid state"""
     with TestClient(app) as client:
         response = client.get(
             "/kc/callback?state=state123&code=code123", allow_redirects=False

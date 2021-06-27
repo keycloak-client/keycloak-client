@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 import json
-from typing import Dict, Callable, Any
+from typing import Any, Callable, Dict
 
-from flask import Flask, Config, Request, redirect
+from flask import Config, Flask, Request, redirect
 from flask.sessions import SessionInterface
-
 from werkzeug.wrappers import Response
 
 from .. import Client
@@ -87,13 +86,13 @@ class AuthenticationMiddleware:
             return self.app(environ, start_response)
 
     def login(self, session: Dict) -> Response:
-        """ Initiate authentication """
+        """Initiate authentication"""
         url, state = self.kc.login()
         session["state"] = state
         return redirect(url)
 
     def callback(self, session: Dict, request: Request) -> Response:
-        """ Authentication callback handler """
+        """Authentication callback handler"""
 
         # validate state
         state = request.args.get("state", "unknown")
