@@ -12,7 +12,7 @@ applications very easily.
 Examples
 ********
 
-https://github.com/keycloak-client/keycloak-client/tree/master/examples
+https://github.com/keycloak-client/keycloak-client/tree/main/examples
 
 
 Implementation
