@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-from typing import Tuple, Dict
+from typing import Dict, Tuple
 from urllib.parse import urlencode
 from uuid import uuid4
 
@@ -9,7 +9,6 @@ import requests
 from ..config import config
 from ..constants import GrantTypes, Logger, ResponseTypes
 from ..utils import auth_header, handle_exceptions
-
 
 log = logging.getLogger(Logger.name)
 

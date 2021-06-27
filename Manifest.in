@@ -1,3 +1,0 @@
-graft docs
-graft tests
-exclude *.md *.yml *.yaml *.txt .gitignore Makefile

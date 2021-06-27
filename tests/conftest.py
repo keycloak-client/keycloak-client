@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
-import os
 import json
-from unittest.mock import patch, MagicMock
+import os
 
 import pytest
-import requests
 
 from keycloak import Client as KeycloakClient
-from keycloak.config import config, Client, OpenId, Uma2
-
+from keycloak.config import Client, OpenId, Uma2, config
 
 here = os.path.dirname(os.path.realpath(__file__))
 
@@ -31,7 +28,7 @@ def configs(monkeypatch):
     monkeypatch.setattr("keycloak.config.Config.client", client)
     monkeypatch.setattr("keycloak.config.Config.openid", openid)
     monkeypatch.setattr("keycloak.config.Config.uma2", uma2)
-    monkeypatch.setattr("keycloak.mixins.token.TokenMixin._jwks", jwks)
+    monkeypatch.setattr("keycloak.mixins.token.TokenMixin.jwks", jwks)
 
 
 @pytest.fixture()

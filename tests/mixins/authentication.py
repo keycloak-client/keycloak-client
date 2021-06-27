@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import MagicMock, Mock, patch
 from urllib.parse import urlencode
 
 import pytest
 from requests.exceptions import HTTPError
+
 from keycloak.utils import auth_header
 
 
 @patch("keycloak.mixins.authentication.uuid4")
 def test_kc_login(mock_uuid4, kc_client, kc_config):
-    """ Test case for authentication_url """
+    """Test case for authentication_url"""
     mock_uuid4.return_value = MagicMock()
     mock_uuid4.return_value.hex = "b8862dbe18214fa89cc7cfde8af26b98"
     arguments = urlencode(
@@ -28,7 +29,7 @@ def test_kc_login(mock_uuid4, kc_client, kc_config):
 
 @patch("keycloak.mixins.authentication.requests.post")
 def test_kc_callback(mock_post, kc_client, kc_config):
-    """ Test case for authentication_callback """
+    """Test case for authentication_callback"""
     mock_post.return_value.json = MagicMock()
     payload = {
         "code": "code123456789",

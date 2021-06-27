@@ -1,4 +1,4 @@
-.PHONY: clean install pytest mypy black test build all keycloak
+.PHONY: clean install lint test keycloak
 
 clean:
 	find . -type f -name "*.pyc" -delete
@@ -12,28 +12,18 @@ clean:
 	find . -type d -name dist -exec rm -rf {} +
 
 install:
-	pip install -e .[complete]
-	pip install pre-commit mypy black gitchangelog
-	pre-commit install
+	pip install poetry && poetry install
+	mypy --install-types --non-interactive keycloak
 
-pytest:
-	python setup.py pytest
+lint:
+	black keycloak tests 
+	isort --profile=black keycloak tests
+	mypy --ignore-missing-imports --disallow-untyped-defs keycloak
 
-mypy:
-	mypy src/keycloak --ignore-missing-imports --disallow-untyped-defs
-
-black:
-	black src/keycloak tests --check
-
-test: pytest mypy black
-
-build: clean
-	python setup.py sdist bdist_wheel
-
-all: clean install test build
+test:
+	black --check keycloak tests 
+	isort --profile=black --check keycloak tests
+	pytest tests
 
 keycloak:
 	docker run --detach --name keycloak --env KEYCLOAK_USER=admin --env KEYCLOAK_PASSWORD=admin --publish 8080:8080 --publish 8081:8081 jboss/keycloak
-
-changelog:
-	gitchangelog > CHANGES.md

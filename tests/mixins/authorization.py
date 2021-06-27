@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from requests.exceptions import HTTPError
+
 from keycloak.constants import GrantTypes, TokenType, TokenTypeHints
 from keycloak.mixins.authorization import AuthorizationMixin
 

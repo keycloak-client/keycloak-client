@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 import logging
 from dataclasses import asdict
-from typing import Tuple, Dict, List
+from typing import Dict, List, Tuple
 
 import requests
 
 from ..config import config
-from ..constants import Logger, TokenType, GrantTypes, TokenTypeHints
+from ..constants import GrantTypes, Logger, TokenType, TokenTypeHints
 from ..utils import auth_header, basic_auth, handle_exceptions
-
 
 log = logging.getLogger(Logger.name)
 
