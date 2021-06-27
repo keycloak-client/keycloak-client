@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import logging
-from cached_property import cached_property
 from typing import Dict, List
 
 import requests
+from cached_property import cached_property
 from jose import jwt
 
 from ..config import OpenId, config
