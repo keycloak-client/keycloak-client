@@ -12,7 +12,7 @@ clean:
 	find . -type d -name dist -exec rm -rf {} +
 
 install:
-	pip install poetry && poetry install
+	pip install poetry && poetry install --extras "docs extensions"
 	mypy --install-types --non-interactive keycloak || true
 
 lint:
