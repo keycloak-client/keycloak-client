@@ -19,13 +19,6 @@ def b64encode(data: Any, serialize: bool = False) -> str:
     return base64.b64encode(data_as_bytes).decode("utf-8")
 
 
-def b64decode(string: str, deserialize: bool = False) -> Union[str, Dict]:
-    """method to decode string using base64"""
-    string = fix_padding(string)
-    decoded_string = base64.b64decode(string).decode("utf-8")
-    return json.loads(decoded_string) if deserialize else decoded_string
-
-
 def auth_header(token_val: str, token_type: str = TokenType.bearer) -> Dict:
     """method to generate authorization header"""
     return {Headers.authorization: f"{token_type} {token_val}"}
