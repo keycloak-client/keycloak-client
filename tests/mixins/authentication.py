@@ -28,6 +28,20 @@ def test_kc_login(mock_uuid4, kc_client, kc_config):
 
 
 @patch("keycloak.mixins.authentication.requests.post")
+def test_kc_logout(mock_post, kc_client, kc_config):
+    kc_client.logout("access-token", "refresh-token")
+    payload = {
+        "client_id": kc_config.client.client_id,
+        "client_secret": kc_config.client.client_secret,
+        "refresh_token": "refresh-token",
+    }
+    headers = auth_header("access-token")
+    mock_post.assert_called_once_with(
+        kc_config.openid.end_session_endpoint, data=payload, headers=headers
+    )
+
+
+@patch("keycloak.mixins.authentication.requests.post")
 def test_kc_callback(mock_post, kc_client, kc_config):
     """Test case for authentication_callback"""
     mock_post.return_value.json = MagicMock()
@@ -62,7 +76,15 @@ def test_kc_callback_failure(mock_post, kc_client, kc_config):
 
 
 @patch("keycloak.mixins.authentication.requests.post")
-def test_kc_userinfo(mock_post, kc_client, kc_config):
+def test_kc_userinfo(mock_post, kc_client):
+    mock_post.return_value.json = MagicMock()
+    kc_client.userinfo
+    mock_post.assert_called()
+    mock_post.return_value.json.assert_called()
+
+
+@patch("keycloak.mixins.authentication.requests.post")
+def test_kc_fetch_userinfo(mock_post, kc_client, kc_config):
     mock_post.return_value.json = MagicMock()
     token = "token123456789"
     headers = auth_header(token)

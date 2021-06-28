@@ -7,7 +7,15 @@ from requests.exceptions import HTTPError
 
 @patch("keycloak.mixins.resource.requests.get")
 @patch("keycloak.mixins.resource.auth_header")
-def test_resources(mock_auth_header, mock_get, kc_client, kc_config):
+def test_resources(mock_auth_header, mock_get, kc_client):
+    kc_client.resources
+    mock_auth_header.assert_called()
+    mock_get.assert_called()
+
+
+@patch("keycloak.mixins.resource.requests.get")
+@patch("keycloak.mixins.resource.auth_header")
+def test_find_resources(mock_auth_header, mock_get, kc_client, kc_config):
     token = "token123456789"
     header = {"Authorization": token}
     mock_auth_header.return_value = header
