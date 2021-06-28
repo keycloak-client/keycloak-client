@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "keycloak-client"
+name = "keycloak"
 version = "3.0.3"
 description = "Python client for Keycloak IAM"
 authors = ["Akhil Lawrence <akhilputhiry@gmail.com>"]
