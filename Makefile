@@ -12,20 +12,20 @@ clean:
 	find . -type d -name dist -exec rm -rf {} +
 
 install:
-	pip install poetry
+	pip install poetry --upgrade
 	poetry install --extras "docs extensions"
 
 lint:
-	black keycloak tests 
-	isort --profile=black keycloak tests
+	poetry run black keycloak tests
+	poetry run isort --profile=black keycloak tests
 
 mypy:
-	mypy --install-types --non-interactive keycloak
+	poetry run mypy --install-types --non-interactive keycloak
 
 test:
-	black --check keycloak tests 
-	isort --profile=black --check keycloak tests
-	pytest tests
+	poetry run black --check keycloak tests 
+	poetry run isort --profile=black --check keycloak tests
+	poetry run pytest tests
 
 keycloak:
 	docker run --detach --name keycloak --env KEYCLOAK_USER=admin --env KEYCLOAK_PASSWORD=admin --publish 8080:8080 --publish 8081:8081 jboss/keycloak
