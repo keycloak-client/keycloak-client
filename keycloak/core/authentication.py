@@ -4,11 +4,11 @@ from typing import Dict, Tuple
 from urllib.parse import urlencode
 from uuid import uuid4
 
-import requests
+import httpx
 
-from ..config import config
-from ..constants import GrantTypes, Logger, ResponseTypes
-from ..utils import auth_header, handle_exceptions
+from keycloak.config import config
+from keycloak.constants import GrantTypes, Logger, ResponseTypes
+from keycloak.utils import auth_header, handle_exceptions
 
 log = logging.getLogger(Logger.name)
 
@@ -32,11 +32,11 @@ class AuthenticationMixin:
         >>>
         >>> app = Flask(__name__)
         >>>
-        >>> @app.route("/howdy)
+        >>> @app.route("/howdy")
         >>> def howdy():
         >>>     return "Howdy!"
         >>>
-        >>> @app.route("/login)
+        >>> @app.route("/login")
         >>> def login():
         >>>     url, state = kc.login()
         >>>     session["state"] = state
@@ -73,17 +73,17 @@ class AuthenticationMixin:
         >>>
         >>> app = Flask(__name__)
         >>>
-        >>> @app.route("/howdy)
+        >>> @app.route("/howdy")
         >>> def howdy():
         >>>     return "Howdy!"
         >>>
-        >>> @app.route("/login)
+        >>> @app.route("/login")
         >>> def login():
         >>>     url, state = kc.login()
         >>>     session["state"] = state
         >>>     return redirect(url)
         >>>
-        >>> @app.route("/callback)
+        >>> @app.route("/callback")
         >>> def callback():
         >>>     state = request.params["state"]
         >>>     if session["state"] != state:
@@ -107,7 +107,7 @@ class AuthenticationMixin:
             "client_secret": config.client.client_secret,
         }
         log.debug("Retrieving user tokens from server")
-        response = requests.post(config.openid.token_endpoint, data=payload)
+        response = httpx.post(config.openid.token_endpoint, data=payload)
         response.raise_for_status()
         log.debug("User tokens retrieved successfully")
         return response.json()
@@ -130,7 +130,7 @@ class AuthenticationMixin:
         access_token = access_token or self.access_token  # type: ignore
         headers = auth_header(access_token)
         log.debug("Retrieving user info from server")
-        response = requests.post(config.openid.userinfo_endpoint, headers=headers)
+        response = httpx.post(config.openid.userinfo_endpoint, headers=headers)
         response.raise_for_status()
         log.debug("User info retrieved successfully")
         return response.json()
@@ -163,7 +163,7 @@ class AuthenticationMixin:
         }
         headers = auth_header(access_token)
         log.debug("Logging out user from server")
-        response = requests.post(
+        response = httpx.post(
             config.openid.end_session_endpoint, data=payload, headers=headers
         )
         response.raise_for_status()

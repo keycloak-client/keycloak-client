@@ -7,7 +7,7 @@ from requests.exceptions import HTTPError
 from keycloak.utils import basic_auth
 
 
-@patch("keycloak.mixins.token.jwt.decode")
+@patch("keycloak.core.token.jwt.decode")
 def test_decode(mock_decode, kc_client, kc_config):
     """Test case for decode"""
     token = "header.payload.signature"
@@ -30,7 +30,7 @@ def test_access_token(kc_client):
     assert kc_client.access_token == "0123456789"
 
 
-@patch("keycloak.mixins.authorization.AuthorizationMixin.pat")
+@patch("keycloak.core.authorization.AuthorizationMixin.pat")
 def test_tokens_valid(mock_pat, kc_client):
     kc_client._tokens = {}
     tokens = {"token": "token0123456789", "expires_in": "30"}
@@ -39,9 +39,9 @@ def test_tokens_valid(mock_pat, kc_client):
     mock_pat.assert_called_once_with(None, None)
 
 
-@patch("keycloak.mixins.token.log.debug")
-@patch("keycloak.mixins.token.requests.post")
-@patch("keycloak.mixins.token.basic_auth")
+@patch("keycloak.core.token.log.debug")
+@patch("keycloak.core.token.httpx.post")
+@patch("keycloak.core.token.basic_auth")
 def test_refresh_tokens_success(mock_auth, mock_post, mock_debug, kc_client, kc_config):
     headers = basic_auth(kc_config.client.client_id, kc_config.client.client_secret)
     mock_auth.return_value = headers
@@ -61,9 +61,9 @@ def test_refresh_tokens_success(mock_auth, mock_post, mock_debug, kc_client, kc_
     assert mock_debug.call_count == 2
 
 
-@patch("keycloak.mixins.token.log.exception")
-@patch("keycloak.mixins.token.requests.post")
-@patch("keycloak.mixins.token.basic_auth")
+@patch("keycloak.core.token.log.exception")
+@patch("keycloak.core.token.httpx.post")
+@patch("keycloak.core.token.basic_auth")
 def test_refresh_tokens_failure(
     mock_auth, mock_post, mock_exception, kc_client, kc_config
 ):

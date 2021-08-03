@@ -39,8 +39,8 @@ def test_login():
     assert "https://keycloak-server.com/" in response.headers["Location"]
 
 
-@patch("keycloak.mixins.authentication.requests.post")
-@patch("keycloak.mixins.authentication.uuid4")
+@patch("keycloak.core.authentication.httpx.post")
+@patch("keycloak.core.authentication.uuid4")
 @patch.object(AuthenticationMiddleware, "session_interface", new_callable=PropertyMock)
 def test_callback(mock_session_interface, mock_uuid4, mock_post, kc_config):
     mock_session_interface.return_value = MagicMock()
@@ -54,8 +54,8 @@ def test_callback(mock_session_interface, mock_uuid4, mock_post, kc_config):
     token_endpoint_payload = {
         "code": "code123",
         "grant_type": GrantTypes.authorization_code,
+        "redirect_uri": "http://localhost/kc/callback",
         "client_id": kc_config.client.client_id,
-        "redirect_uri": "http://testserver/kc/callback",
         "client_secret": kc_config.client.client_secret,
     }
     userinfo_endpoint_header = auth_header("token123")

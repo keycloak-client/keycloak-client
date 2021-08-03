@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 import json
 from typing import Any
-from urllib.parse import urlparse
 
 from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
 from starlette.responses import PlainTextResponse, RedirectResponse, Response
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-from .. import Client
+from keycloak import AsyncClient
 
 
 class EndpointHandler(HTTPEndpoint):
@@ -20,7 +19,7 @@ class EndpointHandler(HTTPEndpoint):
 
 class Login(EndpointHandler):
     async def get(self, request: Request) -> Response:
-        url, state = self.kc.login()
+        url, state = await self.kc.login()
         request.session["state"] = state
         return RedirectResponse(url)
 
@@ -34,7 +33,7 @@ class Logout(EndpointHandler):
         refresh_token = tokens["refresh_token"]
 
         # logout from keycloak
-        self.kc.logout(access_token, refresh_token)
+        await self.kc.logout(access_token, refresh_token)
         del request.session["tokens"]
 
         # delete user info
@@ -55,7 +54,7 @@ class Callback(EndpointHandler):
 
         # retrieve tokens
         code = request.query_params["code"]
-        tokens = self.kc.callback(code)
+        tokens = await self.kc.callback(code)
 
         # starlette sessions do not have the capacity to store the entire tokens
         # so storing only access token and refresh token
@@ -67,7 +66,7 @@ class Callback(EndpointHandler):
 
         # retrieve user info
         access_token = tokens["access_token"]
-        user = self.kc.fetch_userinfo(access_token)
+        user = await self.kc.fetch_userinfo(access_token)
         request.session["user"] = json.dumps(user)
 
         return RedirectResponse(self.redirect_uri)
@@ -87,7 +86,7 @@ class AuthenticationMiddleware:
         self.login_redirect_uri = login_redirect_uri
         self.logout_uri = logout_uri
         self.logout_redirect_uri = logout_redirect_uri
-        self.kc = Client(callback_url)
+        self.kc = AsyncClient(callback_url)
 
     @staticmethod
     def get_url(request: Request) -> str:

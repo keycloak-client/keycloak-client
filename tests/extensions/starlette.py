@@ -21,12 +21,12 @@ app.add_middleware(SessionMiddleware, secret_key="key0123456789")
 
 
 @app.route("/howdy")
-def howdy(request):
+async def howdy(request):
     return PlainTextResponse("Howdy!")
 
 
 @app.route("/logout")
-def logout(request):
+async def logout(request):
     return PlainTextResponse("Logged out!")
 
 
@@ -47,7 +47,7 @@ def test_kc_callback_invalid_state():
         assert response.content == b"Invalid state"
 
 
-@patch("keycloak.mixins.authentication.requests.post")
+@patch("keycloak.core.authentication.httpx.AsyncClient.post")
 @patch("starlette.endpoints.Request")
 def test_kc_callback(mock_request, mock_post, kc_config):
     mock_request.return_value = MagicMock()
@@ -71,10 +71,8 @@ def test_kc_callback(mock_request, mock_post, kc_config):
     headers = auth_header("token12345")
     expected_calls = [
         call(kc_config.openid.token_endpoint, data=payload),
-        call().raise_for_status(),
         call().json(),
         call(kc_config.openid.userinfo_endpoint, headers=headers),
-        call().raise_for_status(),
         call().json(),
     ]
     with TestClient(app) as client:

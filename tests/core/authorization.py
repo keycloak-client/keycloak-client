@@ -5,7 +5,6 @@ import pytest
 from requests.exceptions import HTTPError
 
 from keycloak.constants import GrantTypes, TokenType, TokenTypeHints
-from keycloak.mixins.authorization import AuthorizationMixin
 
 
 def test_payload_for_client(kc_client):
@@ -27,10 +26,10 @@ def test_payload_for_user_empty(kc_client):
     assert payload == {}
 
 
-@patch("keycloak.mixins.authorization.requests.post")
-@patch("keycloak.mixins.authorization.AuthorizationMixin.payload_for_client")
-@patch("keycloak.mixins.authorization.AuthorizationMixin.payload_for_user")
-@patch("keycloak.mixins.authorization.basic_auth")
+@patch("keycloak.core.authorization.httpx.post")
+@patch("keycloak.core.authorization.AuthorizationMixin.payload_for_client")
+@patch("keycloak.core.authorization.AuthorizationMixin.payload_for_user")
+@patch("keycloak.core.authorization.basic_auth")
 def test_pat(
     mock_auth_header,
     mock_payload_user,
@@ -56,10 +55,10 @@ def test_pat(
     )
 
 
-@patch("keycloak.mixins.authorization.requests.post")
-@patch("keycloak.mixins.authorization.AuthorizationMixin.payload_for_client")
-@patch("keycloak.mixins.authorization.AuthorizationMixin.payload_for_user")
-@patch("keycloak.mixins.authorization.basic_auth")
+@patch("keycloak.core.authorization.httpx.post")
+@patch("keycloak.core.authorization.AuthorizationMixin.payload_for_client")
+@patch("keycloak.core.authorization.AuthorizationMixin.payload_for_user")
+@patch("keycloak.core.authorization.basic_auth")
 def test_pat_failure(
     mock_auth_header,
     mock_payload_user,
@@ -90,8 +89,8 @@ def test_pat_failure(
     )
 
 
-@patch("keycloak.mixins.authorization.requests.post")
-@patch("keycloak.mixins.authorization.auth_header")
+@patch("keycloak.core.authorization.httpx.post")
+@patch("keycloak.core.authorization.auth_header")
 def test_ticket(mock_auth_header, mock_post, kc_client, kc_config):
     token = "token123456789"
     header = {"Authorization": token}
@@ -105,8 +104,8 @@ def test_ticket(mock_auth_header, mock_post, kc_client, kc_config):
     )
 
 
-@patch("keycloak.mixins.authorization.requests.post")
-@patch("keycloak.mixins.authorization.auth_header")
+@patch("keycloak.core.authorization.httpx.post")
+@patch("keycloak.core.authorization.auth_header")
 def test_ticket_failure(mock_auth_header, mock_post, kc_client, kc_config):
     mock_post.return_value = MagicMock()
     mock_post.return_value.content = "server error"
@@ -125,8 +124,8 @@ def test_ticket_failure(mock_auth_header, mock_post, kc_client, kc_config):
     )
 
 
-@patch("keycloak.mixins.authorization.requests.post")
-@patch("keycloak.mixins.authorization.auth_header")
+@patch("keycloak.core.authorization.httpx.post")
+@patch("keycloak.core.authorization.auth_header")
 def test_rpt(mock_auth_header, mock_post, kc_client, kc_config):
     token = "token123456789"
     header = {"Authorization": token}
@@ -142,8 +141,8 @@ def test_rpt(mock_auth_header, mock_post, kc_client, kc_config):
     )
 
 
-@patch("keycloak.mixins.authorization.requests.post")
-@patch("keycloak.mixins.authorization.auth_header")
+@patch("keycloak.core.authorization.httpx.post")
+@patch("keycloak.core.authorization.auth_header")
 def test_rpt_failure(mock_auth_header, mock_post, kc_client, kc_config):
     mock_post.return_value = MagicMock()
     mock_post.return_value.content = "server error"
@@ -164,8 +163,8 @@ def test_rpt_failure(mock_auth_header, mock_post, kc_client, kc_config):
     )
 
 
-@patch("keycloak.mixins.authorization.requests.post")
-@patch("keycloak.mixins.authorization.basic_auth")
+@patch("keycloak.core.authorization.httpx.post")
+@patch("keycloak.core.authorization.basic_auth")
 def test_introspect(mock_basic_auth, mock_post, kc_client, kc_config):
     rpt = "rpt123456789"
     payload = {"token_type_hint": TokenTypeHints.rpt, "token": rpt}
@@ -181,8 +180,8 @@ def test_introspect(mock_basic_auth, mock_post, kc_client, kc_config):
     )
 
 
-@patch("keycloak.mixins.authorization.requests.post")
-@patch("keycloak.mixins.authorization.basic_auth")
+@patch("keycloak.core.authorization.httpx.post")
+@patch("keycloak.core.authorization.basic_auth")
 def test_introspect_failure(mock_basic_auth, mock_post, kc_client, kc_config):
     mock_post.return_value = MagicMock()
     mock_post.return_value.content = "server error"

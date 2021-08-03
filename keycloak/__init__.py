@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-import logging
 
-import requests
-
-from .log import logger  # register logger
-from .mixins.authentication import AuthenticationMixin
-from .mixins.authorization import AuthorizationMixin
-from .mixins.resource import ResourceMixin
-from .mixins.token import TokenMixin
-from .utils import Singleton
+from keycloak.core.asynchronous.authentication import AsyncAuthenticationMixin
+from keycloak.core.asynchronous.authorization import AsyncAuthorizationMixin
+from keycloak.core.asynchronous.resource import AsyncResourceMixin
+from keycloak.core.asynchronous.token import AsyncTokenMixin
+from keycloak.core.authentication import AuthenticationMixin
+from keycloak.core.authorization import AuthorizationMixin
+from keycloak.core.resource import ResourceMixin
+from keycloak.core.token import TokenMixin
+from keycloak.utils import Singleton
 
 
 class Client(
@@ -33,4 +33,22 @@ class Client(
         self.password = password
 
 
-__all__ = ["Client"]
+class AsyncClient(
+    AsyncAuthenticationMixin,
+    AsyncAuthorizationMixin,
+    AsyncTokenMixin,
+    AsyncResourceMixin,
+    metaclass=Singleton,
+):
+    def __init__(
+        self,
+        callback_uri: str = "http://localhost/kc/callback",
+        username: str = None,
+        password: str = None,
+    ) -> None:
+        self.callback_uri = callback_uri
+        self.username = username
+        self.password = password
+
+
+__all__ = ["Client", "AsyncClient"]
