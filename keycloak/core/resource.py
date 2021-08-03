@@ -3,11 +3,11 @@ import logging
 from dataclasses import dataclass
 from typing import Dict, List
 
-import requests
+import httpx
 
-from ..config import config
-from ..constants import Logger
-from ..utils import auth_header, handle_exceptions
+from keycloak.config import config
+from keycloak.constants import Logger
+from keycloak.utils import auth_header, handle_exceptions
 
 log = logging.getLogger(Logger.name)
 
@@ -53,10 +53,10 @@ class ResourceMixin:
         access_token = access_token or self.access_token  # type: ignore
         headers = auth_header(access_token)
         log.debug("Retrieving resources from keycloak")
-        response = requests.get(config.uma2.resource_endpoint, headers=headers)
+        response = httpx.get(config.uma2.resource_endpoint, headers=headers)
         response.raise_for_status()
         log.debug("Resources retrieved successfully")
-        return [self.find_resource(x) for x in response.json()]  # type: ignore
+        return [self.find_resource(x, access_token) for x in response.json()]  # type: ignore
 
     @handle_exceptions
     def find_resource(self, resource_id: str, access_token: str = None) -> Dict:
@@ -76,7 +76,7 @@ class ResourceMixin:
         headers = auth_header(access_token)
         endpoint = f"{config.uma2.resource_endpoint}/{resource_id}"
         log.debug("Retrieving resource from keycloak")
-        response = requests.get(endpoint, headers=headers)
+        response = httpx.get(endpoint, headers=headers)
         response.raise_for_status()
         log.debug("Resource retrieved successfully")
         return response.json()

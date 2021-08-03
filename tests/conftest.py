@@ -28,7 +28,7 @@ def configs(monkeypatch):
     monkeypatch.setattr("keycloak.config.Config.client", client)
     monkeypatch.setattr("keycloak.config.Config.openid", openid)
     monkeypatch.setattr("keycloak.config.Config.uma2", uma2)
-    monkeypatch.setattr("keycloak.mixins.token.TokenMixin.jwks", jwks)
+    monkeypatch.setattr("keycloak.core.token.TokenMixin.jwks", jwks)
 
 
 @pytest.fixture()
