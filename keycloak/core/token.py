@@ -136,7 +136,7 @@ class TokenMixin:
         :returns: list
         """
         log.debug("Fectching JWK keys")
-        response = httpx.get(config.openid.jwks_uri)
+        response = httpx.get(self.openid.jwks_uri)
         response.raise_for_status()
         data = response.json()
         return data["keys"]

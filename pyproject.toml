@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "keycloak"
-version = "3.1.2"
+version = "3.1.0"
 description = "Python client for Keycloak IAM"
-authors = ["Cute As Duck <pronoun_pears_0m@icloud.com>"]
+authors = ["Akhil Lawrence <akhilputhiry@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.7,<4.0"

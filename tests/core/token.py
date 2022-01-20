@@ -21,8 +21,8 @@ def test_decode(mock_decode, kc_client, kc_config):
 
 
 def test_tokens_setter(kc_client):
-    kc_client.tokens = {"name": "cute-as-duck"}
-    assert kc_client._tokens == {"name": "cute-as-duck"}
+    kc_client.tokens = {"name": "akhil"}
+    assert kc_client._tokens == {"name": "akhil"}
 
 
 def test_access_token(kc_client):
