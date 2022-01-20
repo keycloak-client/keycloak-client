@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Keycloak Client'
-copyright = '2019, Akhil Lawrence'
-author = 'Akhil Lawrence'
+copyright = '2019, Cute As Duck'
+author = 'Cute As Duck'
 
 # The short X.Y version
 version = ''
@@ -130,7 +130,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'KeycloakClient.tex', 'Keycloak Client Documentation',
-     'Akhil Lawrence', 'manual'),
+     'Cute As Duck', 'manual'),
 ]
 
 

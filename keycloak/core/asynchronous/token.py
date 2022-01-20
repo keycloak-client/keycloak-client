@@ -150,7 +150,7 @@ class AsyncTokenMixin:
         """
         log.debug("Fectching JWK keys")
         async with httpx.AsyncClient() as client:
-            response = await client.get(self.openid.jwks_uri)
+            response = await client.get(config.openid.jwks_uri)
             data = response.json()
             return data["keys"]
 

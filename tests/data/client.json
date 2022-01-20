@@ -1,5 +1,5 @@
 {
-    "realm": "akhil-poc",
+    "realm": "cute-as-duck-poc",
     "auth-server-url": "https://keycloak-server.com/auth",
     "ssl-required": "external",
     "resource": "flask-app",

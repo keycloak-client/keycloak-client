@@ -13,10 +13,10 @@ def test_payload_for_client(kc_client):
 
 
 def test_payload_for_user(kc_client):
-    payload = kc_client.payload_for_user("akhilputhiry", "p@$$w0rd")
+    payload = kc_client.payload_for_user("cute-as-duck", "p@$$w0rd")
     assert payload == {
         "grant_type": GrantTypes.password,
-        "username": "akhilputhiry",
+        "username": "cute-as-duck",
         "password": "p@$$w0rd",
     }
 
