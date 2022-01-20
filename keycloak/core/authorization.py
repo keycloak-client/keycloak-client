@@ -125,7 +125,7 @@ class AuthorizationMixin:
         2020-08-03 11:47:54,581 [DEBUG] RPT retrieved successfully
         2020-08-03 11:47:54,581 [DEBUG] Retrieving JWKs from keycloak server
         2020-08-03 11:47:54,587 [DEBUG] JWKs retrieved successfully
-        {'exp': 1596435534, 'iat': 1596435474, 'jti': '822c7f6f-cd0a-4b9d-b55c-72803755ca7c', 'iss': 'http://localhost:8080/auth/realms/master', 'aud': ['kc', 'account'], 'sub': 'fce7f440-2e40-4161-90b4-61a1913c4b28', 'typ': 'Bearer', 'azp': 'kc', 'session_state': 'b3498962-3973-4f2d-9150-b1338e974d08', 'acr': '1', 'realm_access': {'roles': ['offline_access', 'uma_authorization']}, 'resource_access': {'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}}, 'authorization': {'permissions': [{'rsid': '992dfa45-6098-45ac-b62e-da4d2787377f', 'rsname': 'Default Resource'}]}, 'scope': 'profile email', 'email_verified': True, 'preferred_username': 'akhilputhiry'}
+        {'exp': 1596435534, 'iat': 1596435474, 'jti': '822c7f6f-cd0a-4b9d-b55c-72803755ca7c', 'iss': 'http://localhost:8080/auth/realms/master', 'aud': ['kc', 'account'], 'sub': 'fce7f440-2e40-4161-90b4-61a1913c4b28', 'typ': 'Bearer', 'azp': 'kc', 'session_state': 'b3498962-3973-4f2d-9150-b1338e974d08', 'acr': '1', 'realm_access': {'roles': ['offline_access', 'uma_authorization']}, 'resource_access': {'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}}, 'authorization': {'permissions': [{'rsid': '992dfa45-6098-45ac-b62e-da4d2787377f', 'rsname': 'Default Resource'}]}, 'scope': 'profile email', 'email_verified': True, 'preferred_username': 'cute-as-duck'}
         >>>
 
         :param access_token: access token to be used
