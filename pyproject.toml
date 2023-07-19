@@ -7,7 +7,7 @@ authors = ["Akhil Lawrence <akhilputhiry@gmail.com>"]
 [tool.poetry.dependencies]
 python = ">=3.7,<4.0"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
-PyYAML = "^5.4.1"
+PyYAML = "^6.0.1"
 cached-property = "^1.5.2"
 Sphinx = {version = "^4.0.2", optional = true}
 sphinx-rtd-theme = {version = "^0.5.2", optional = true}
