@@ -25,8 +25,8 @@ extensions = ["Flask", "starlette", "Django", "uvicorn"]
 isort = "^5.9.1"
 black = "^22.3.0"
 mypy = "^0.910"
-pytest = "^6.2.4"
-pytest-cov = "^2.12.1"
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
 
 [tool.mypy]
 warn_return_any = true
