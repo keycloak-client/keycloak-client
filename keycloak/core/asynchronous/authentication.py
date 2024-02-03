@@ -154,7 +154,7 @@ class AsyncAuthenticationMixin:
         headers = auth_header(access_token)
         log.debug("Retrieving user info from server")
         async with httpx.AsyncClient() as client:
-            response = await client.post(
+            response = await client.get(
                 config.openid.userinfo_endpoint, headers=headers
             )
             log.debug("User info retrieved successfully")

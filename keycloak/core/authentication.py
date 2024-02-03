@@ -130,7 +130,7 @@ class AuthenticationMixin:
         access_token = access_token or self.access_token  # type: ignore
         headers = auth_header(access_token)
         log.debug("Retrieving user info from server")
-        response = httpx.post(config.openid.userinfo_endpoint, headers=headers)
+        response = httpx.get(config.openid.userinfo_endpoint, headers=headers)
         response.raise_for_status()
         log.debug("User info retrieved successfully")
         return response.json()
