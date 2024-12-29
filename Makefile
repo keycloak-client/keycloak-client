@@ -25,7 +25,7 @@ mypy:
 test:
 	poetry run black --check keycloak tests 
 	poetry run isort --profile=black --check keycloak tests
-	poetry run pytest tests
+	poetry run pytest tests --exitfirst
 
 keycloak:
 	docker run --detach --name keycloak --env KEYCLOAK_USER=admin --env KEYCLOAK_PASSWORD=admin --publish 8080:8080 --publish 8081:8081 jboss/keycloak

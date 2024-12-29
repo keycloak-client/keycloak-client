@@ -76,14 +76,15 @@ def test_kc_callback_failure(mock_post, kc_client, kc_config):
 
 
 @patch("keycloak.core.authentication.httpx.post")
-def test_kc_userinfo(mock_post, kc_client):
-    mock_post.return_value.json = MagicMock()
+@patch("keycloak.core.authentication.httpx.get")
+def test_kc_userinfo(mock_httpx_get, mock_httpx_post, kc_client):
+    mock_httpx_get.return_value.json = MagicMock()
     kc_client.userinfo
-    mock_post.assert_called()
-    mock_post.return_value.json.assert_called()
+    mock_httpx_get.assert_called()
+    mock_httpx_get.return_value.json.assert_called()
 
 
-@patch("keycloak.core.authentication.httpx.post")
+@patch("keycloak.core.authentication.httpx.get")
 def test_kc_fetch_userinfo(mock_post, kc_client, kc_config):
     mock_post.return_value.json = MagicMock()
     token = "token123456789"
@@ -95,7 +96,7 @@ def test_kc_fetch_userinfo(mock_post, kc_client, kc_config):
     mock_post.return_value.json.assert_called_once()
 
 
-@patch("keycloak.core.authentication.httpx.post")
+@patch("keycloak.core.authentication.httpx.get")
 def test_kc_userinfo_failure(mock_post, kc_client, kc_config):
     mock_post.return_value = MagicMock()
     mock_post.return_value.content = "server error"

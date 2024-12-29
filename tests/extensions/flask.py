@@ -39,10 +39,11 @@ def test_login():
     assert "https://keycloak-server.com/" in response.headers["Location"]
 
 
+@patch("keycloak.core.authentication.httpx.get")
 @patch("keycloak.core.authentication.httpx.post")
 @patch("keycloak.core.authentication.uuid4")
 @patch.object(AuthenticationMiddleware, "session_interface", new_callable=PropertyMock)
-def test_callback(mock_session_interface, mock_uuid4, mock_post, kc_config):
+def test_callback(mock_session_interface, mock_uuid4, mock_post, mock_get, kc_config):
     mock_session_interface.return_value = MagicMock()
     mock_session_interface.return_value.open_session.return_value = {
         "state": "state123"
@@ -51,6 +52,8 @@ def test_callback(mock_session_interface, mock_uuid4, mock_post, kc_config):
     mock_uuid4.return_value.hex.return_value = "0123456789"
     mock_post.return_value = MagicMock()
     mock_post.return_value.json.return_value = {"access_token": "token123"}
+    mock_get.return_value = MagicMock()
+    mock_get.return_value.json.return_value = {"name": "123"}
     token_endpoint_payload = {
         "code": "code123",
         "grant_type": GrantTypes.authorization_code,
@@ -59,10 +62,12 @@ def test_callback(mock_session_interface, mock_uuid4, mock_post, kc_config):
         "client_secret": kc_config.client.client_secret,
     }
     userinfo_endpoint_header = auth_header("token123")
-    expected_calls = [
+    token_api_expected_calls = [
         call(kc_config.openid.token_endpoint, data=token_endpoint_payload),
         call().raise_for_status(),
         call().json(),
+    ]
+    userinfo_api_expected_calls = [
         call(kc_config.openid.userinfo_endpoint, headers=userinfo_endpoint_header),
         call().raise_for_status(),
         call().json(),
@@ -71,7 +76,8 @@ def test_callback(mock_session_interface, mock_uuid4, mock_post, kc_config):
     client = app.test_client()
     response = client.get("http://testserver/kc/callback?state=state123&code=code123")
     assert response.status_code == 302
-    mock_post.assert_has_calls(expected_calls)
+    mock_post.assert_has_calls(token_api_expected_calls)
+    mock_get.assert_has_calls(userinfo_api_expected_calls)
 
 
 @patch.object(AuthenticationMiddleware, "session_interface", new_callable=PropertyMock)
